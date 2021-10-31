@@ -10,12 +10,14 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::get;
+using std::max;
 
 using std::vector;
 using std::tuple;
 
 using prices = vector<long>;
 using orders = vector<long>;
+using sum = vector<long long>;
 
 using max_odd_left = long;
 using max_even_left = long;
@@ -163,7 +165,7 @@ void print_tuples(minmax_vector tuples, long products, prices sorted_prices) {
     }
 }
 
-void print_sums(prices summed_up, long products) {
+void print_sums(sum summed_up, long products) {
     for (int i = 0; i < products; ++i) {
         cout << summed_up[i] << " ";
     }
@@ -174,9 +176,9 @@ void print_sums(prices summed_up, long products) {
  * RIGHT mode - from roght to left
  * LEFT mode - from left to right
  */
-prices prepare_suffix_sum_and_minmax_data(prices &sorted_prices, long products, minmax_vector &list_of_minmax) {
+sum prepare_suffix_sum_and_minmax_data(prices &sorted_prices, long products, minmax_vector &list_of_minmax) {
     minmax_tuple minmax_at_position = std::make_tuple(-1, -1, -1, -1);
-    prices sum_from_right(products);
+    sum sum_from_right(products);
     minmax_tuple initial_tuple = std::make_tuple(-1, -1, -1, -1);
 
     assign_tuple_at_position(minmax_at_position, sorted_prices[products - 1],
@@ -195,23 +197,50 @@ prices prepare_suffix_sum_and_minmax_data(prices &sorted_prices, long products, 
     }
 
     initial_tuple = std::make_tuple(-1, -1, -1, -1);
-    assign_tuple_at_position(list_of_minmax[products - 1], sorted_prices[0], initial_tuple, LEFT);
+    //assign_tuple_at_position(list_of_minmax[products - 1], sorted_prices[0], initial_tuple, LEFT);
+    assign_tuple_at_position(list_of_minmax[products - 2], sorted_prices[0], initial_tuple, LEFT);
 
-    for (long i = 1; i < products; ++i) {
-        assign_tuple_at_position(list_of_minmax[products - 1 - i], sorted_prices[i], list_of_minmax[products - i], LEFT);
+    for (long i = 2; i < products; ++i) {
+        assign_tuple_at_position(list_of_minmax[products - 1 - i], sorted_prices[i - 1], list_of_minmax[products - i], LEFT);
     }
 
     return sum_from_right;
 }
 
-long find_price(long ordered_products, minmax_vector &minmax_found, prices &summed_up) {
-    long initial_prize = summed_up[ordered_products - 1];
+long long find_sum(long long calculated_sum, minmax_tuple current_position) {
+    long long cand1 = -1;
+    long long cand2 = -1;
+    if (get<MAX_EVEN>(current_position) != -1) {
+        if (get<MIN_ODD>(current_position) != -1) {
+            cand1 = calculated_sum - get<MIN_ODD>(current_position) + get<MAX_EVEN>(current_position);
+        }
+    }
+    if (get<MAX_ODD>(current_position) != - 1) {
+        if (get<MIN_EVEN>(current_position) != -1) {
+            cand2 = calculated_sum - get<MIN_EVEN>(current_position) +
+                    get<MAX_ODD>(current_position);
+        }
+    }
+    return max(cand1, cand2);
+}
+
+long long find_price(long ordered_products, minmax_vector &minmax_found, sum &summed_up) {
+    long long initial_prize = summed_up[ordered_products - 1];
 
     if (initial_prize%2 != 0) {
         return initial_prize;
     }
     else {
-        
+        initial_prize = find_sum(initial_prize, minmax_found[ordered_products - 1]);
+        return initial_prize;
+    }
+}
+
+void return_sum(minmax_vector &minmax_found, orders &oredered_products, long number_of_days, sum &summed_up) {
+    long long result;
+    for (int i = 0; i < number_of_days; i++) {
+        result = find_price(oredered_products[i], minmax_found, summed_up);
+        cout << result << '\n';
     }
 }
 
@@ -243,12 +272,14 @@ int main() {
     }
 
     minmax_vector list_of_minmax;
-    prices sum_from_right = prepare_suffix_sum_and_minmax_data(sorted_prices,
+    sum sum_from_right = prepare_suffix_sum_and_minmax_data(sorted_prices,
                                                                number_of_products,
                                                                list_of_minmax);
 
     print_tuples(list_of_minmax, number_of_products, sorted_prices);
     print_sums(sum_from_right, number_of_products);
+
+    return_sum(list_of_minmax, products_per_day, number_of_days, sum_from_right);
 
     return 0;
 }
