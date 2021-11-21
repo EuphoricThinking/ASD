@@ -24,6 +24,7 @@ using adjacent_and_powerbanks = tuple<adjacent_junctions, powerbank_value, dista
 using tracks = std::unordered_map<junction_number, adjacent_and_powerbanks>;
 using available_power = vector<int>;
 using path = vector<int>;
+using chargers = vector<int>;
 
 void insert_into_map(tracks &junctions, int road_in, int road_out, int num_roads) {
     tracks::iterator  iter = junctions.find(road_in);
@@ -167,12 +168,71 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
 
 }
 
+void charge_if_possible(int &available_power, int &current_power,
+                          alarm_values &forbidden_powers, int capacity,
+                          chargers &used_chargers, int junc_num) {
+    if (available_power == -1) return;
+
+    int new_value = current_power + available_power;
+    if (new_value <= capacity &&
+        forbidden_powers.find(new_value) == forbidden_powers.end()) {
+        current_power = new_value;
+        used_chargers.push_back(junc_num);
+        available_power = -1;
+    }
+}
+
+bool check_whether_shortest_path_is_possible(path shortest_path,
+                                             int &current_power,
+                                             tracks &junctions, int capacity,
+                                             int cost, alarm_values &forbidden,
+                                             int last_junc,
+                                             chargers &used_chargers) {
+    for (int junc_num: shortest_path) {
+        if (current_power < 0) return false;
+        tracks::iterator found_junc = junctions.find(junc_num);
+        adjacent_and_powerbanks &roads_powers = found_junc->second;
+        int &junction_power = get<1>(roads_powers);
+        cout << junction_power << " after: ";
+        charge_if_possible(junction_power, current_power,
+                                                   forbidden, capacity,
+                                                   used_chargers, junc_num);
+        cout << junction_power << endl;
+        if (junc_num != last_junc) {
+            current_power -= cost;
+        }
+    }
+
+    return true;
+}
+
 void print_path(path &shortest) {
     for (path::iterator piter = shortest.begin(); piter != shortest.end(); piter++) {
         cout << *piter << " ";
     }
 
     cout << endl;
+}
+
+void print_chargers(chargers &used_chargers) {
+    for (int charger: used_chargers) {
+        cout << charger << " ";
+    }
+    cout << endl;
+}
+
+void print_result(bool shortest_is_possible, path &shortest_path,
+                  chargers &used_chargers, int current_power) {
+    if (shortest_is_possible) {
+        cout << shortest_path.size() << " " << current_power << " "
+             << used_chargers.size() << endl;
+
+        print_path(shortest_path);
+
+        print_chargers(used_chargers);
+    } else {
+        cout << -1 << endl;
+    }
 }
 
 int main(void) {
@@ -205,4 +265,13 @@ int main(void) {
                                                    powerbanks);
 
     print_path(shortest_path);
+
+    int current_power = capacity;
+    chargers used_chargers;
+
+    bool shortest_is_possible = check_whether_shortest_path_is_possible(
+            shortest_path, current_power, junctions, capacity, cost, forbidden,
+            num_junctions, used_chargers);
+
+    print_result(shortest_is_possible, shortest_path, used_chargers, current_power);
 }
