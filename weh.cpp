@@ -26,7 +26,8 @@ using available_power = vector<int>;
 using path = vector<int>;
 using chargers = vector<int>;
 
-void insert_into_map(tracks &junctions, int road_in, int road_out, int num_roads) {
+void insert_into_map(tracks &junctions, int road_in, int road_out, int num_roads,
+                     int last_junc) {
     tracks::iterator  iter = junctions.find(road_in);
 
     if (iter == junctions.end()) {
@@ -36,9 +37,11 @@ void insert_into_map(tracks &junctions, int road_in, int road_out, int num_roads
         junctions.insert(make_pair(road_in, vector_power_pair));
     }
     else {
-        adjacent_and_powerbanks &previous = iter->second;
-        adjacent_junctions &vec_junc = get<0>(previous);
-        vec_junc.push_back(road_out);
+        if (road_in != last_junc) {
+            adjacent_and_powerbanks &previous = iter->second;
+            adjacent_junctions &vec_junc = get<0>(previous);
+            vec_junc.push_back(road_out);
+        }
     }
 }
 
@@ -62,7 +65,11 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
 
     for (int i = 0; i < num_of_roads; i++) {
         cin >> road_in >> road_out;
-        insert_into_map(junctions, road_in, road_out, num_of_roads);
+        insert_into_map(junctions, road_in, road_out, num_of_roads, num_of_junctions);
+        //insert_into_map(junctions, road_out, road_in, num_of_roads);
+        if (road_out == num_of_junctions) {
+            insert_into_map(junctions, road_out, -1, num_of_roads, num_of_junctions);
+        }
     }
 
     int power_value;
@@ -116,6 +123,23 @@ void assign_new_short(int &shortest_length, int current_length,
         shortest_path = current_path;  //does it work?
     }
 }
+
+void assign_powerbank_value(path &current_path, int road_key, tracks::iterator &found_roads,
+                            int current_length, available_power powerbanks) {
+    current_path.push_back(road_key);
+
+    adjacent_and_powerbanks& roads_powers = found_roads->second;
+
+    adjacent_junctions &adj_junc = get<0>(roads_powers);
+    powerbank_value &current_power = get<1>(roads_powers);
+    distance &current_distance = get<2>(roads_powers);
+
+    if (current_length < current_distance) {
+        current_distance = current_length;
+        current_power = powerbanks[current_length];
+    }
+}
+
 void find_shortest_path_update_powerbank_assignment(tracks &junctions,
                                                     path &shortest_path,
                                                     int road_key,
@@ -124,8 +148,13 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
                                                     int last_junc,
                                                     path &current_path,
                                                     available_power powerbanks) {
+
+    tracks::iterator found_roads = junctions.find(road_key);
+
     if (road_key == last_junc) {
-        current_path.push_back(road_key);
+        /*current_path.push_back(road_key); */
+        assign_powerbank_value(current_path, road_key, found_roads, current_length,
+                               powerbanks);
         assign_new_short(shortest_length, current_length, shortest_path,
                          current_path);
         current_path.pop_back();
@@ -133,13 +162,15 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
         return;
     }
 
-    tracks::iterator found_roads = junctions.find(road_key);
+    //tracks::iterator found_roads = junctions.find(road_key);
 
     if (found_roads == junctions.end()) {
         return;
     }
     else {
-        current_path.push_back(road_key);
+        assign_powerbank_value(current_path, road_key, found_roads, current_length,
+                               powerbanks);
+        /*current_path.push_back(road_key);
 
         adjacent_and_powerbanks& roads_powers = found_roads->second;
 
@@ -150,12 +181,15 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
         if (current_length < current_distance) {
             current_distance = current_length;
             current_power = powerbanks[current_length];
-        }
+        } */
+
+        adjacent_and_powerbanks& roads_powers = found_roads->second;
+        adjacent_junctions &adj_junc = get<0>(roads_powers);
 
         for (adjacent_junctions::iterator adjiter = adj_junc.begin(); adjiter != adj_junc.end();
             adjiter++) {
         find_shortest_path_update_powerbank_assignment(junctions, shortest_path,
-                                                       *adjiter, current_length,
+                                                       *adjiter, current_length + 1,
                                                        shortest_length,
                                                        last_junc, current_path,
                                                        powerbanks);
@@ -189,6 +223,7 @@ bool check_whether_shortest_path_is_possible(path shortest_path,
                                              int last_junc,
                                              chargers &used_chargers) {
     for (int junc_num: shortest_path) {
+        cout << "num: " << junc_num << " pow: " << current_power << endl;
         if (current_power < 0) return false;
         tracks::iterator found_junc = junctions.find(junc_num);
         adjacent_and_powerbanks &roads_powers = found_junc->second;
@@ -197,7 +232,7 @@ bool check_whether_shortest_path_is_possible(path shortest_path,
         charge_if_possible(junction_power, current_power,
                                                    forbidden, capacity,
                                                    used_chargers, junc_num);
-        cout << junction_power << endl;
+        cout << junction_power << "\n\n";
         if (junc_num != last_junc) {
             current_power -= cost;
         }
@@ -265,6 +300,7 @@ int main(void) {
                                                    powerbanks);
 
     print_path(shortest_path);
+    cout << "this" << endl;
 
     int current_power = capacity;
     chargers used_chargers;
