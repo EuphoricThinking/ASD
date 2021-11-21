@@ -270,9 +270,11 @@ int find_max_in_row(int max_val, int row[], int length) {
     int index;
 
     for (int i = 0; i < length; i++) {
+        cout << " mi : " << i << " ri " << row[i];
         if (row[i] != -1 && i > max_val) {
             index = i;
         }
+        cout << endl;
     }
 
     return index;
@@ -290,7 +292,7 @@ void find_best_route(chargers &used_chargers, path &shortest_path,
         if (charged[i][j] == 1) {
             used_chargers.push_back(shortest_path[i - 1]); //previous was charged
         }
-
+        cout << "ri " << i << " rj " << j << endl;
         j = coord[i][tempj];
         tempj = j;
         i -= 1;
@@ -312,7 +314,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
     int last_charging[MAX_COL]; */
 
     for (int i = 0; i < path_length; i++) {
-        for (int j = 0; j < capacity; j++) {
+        for (int j = 0; j < capacity + 1; j++) {
             if_previous_charged[i][j] = 0;
             previous_coordinates[i][j] = -1;
             last_charging[j] = -1;
@@ -364,20 +366,17 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
         }
     }
 
-    int index1;
+
     int index2;
-
+    int final_index;
+    index2 = find_max_in_row(index2, previous_coordinates[path_length - 1], capacity + 1);
     if (possible_last_charge) {
-        index1 = find_max_in_row(index1, last_charging, capacity + 1);
-    }
-    else {
-        index2 = find_max_in_row(index1, previous_coordinates[path_length - 1], capacity + 1);
-    }
-
-    int final_index = max(index1, index2);
-
-    if (final_index == index1) {
-        used_chargers.push_back(shortest_path[path_length - 1]);
+        cout << "last" << endl;
+        int index1 = find_max_in_row(index1, last_charging, capacity + 1);
+        final_index = max(index1, index2);
+        if (final_index == index1) {
+            used_chargers.push_back(shortest_path[path_length - 1]);
+        }
     }
 
     max_score = final_index;
