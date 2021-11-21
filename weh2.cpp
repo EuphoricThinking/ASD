@@ -27,6 +27,11 @@ using available_power = vector<int>;
 using path = vector<int>;
 using chargers = vector<int>;
 
+const bool PREVIOUS = 1;
+const bool NOT_PREVIOUS = 0;
+
+using dynamic_data = tuple<int, int, bool>;
+
 void insert_into_map(tracks &junctions, int road_in, int road_out, int num_roads,
                      int last_junc) {
     tracks::iterator  iter = junctions.find(road_in);
@@ -88,7 +93,7 @@ void print_input(tracks &junctions, alarm_values &not_allowed, int capacity,
     cout << capacity << " " << cost << " " << disallowed << endl;
 
     for (alarm_values::iterator iter = not_allowed.begin();
-        iter != not_allowed.end(); iter++) {
+         iter != not_allowed.end(); iter++) {
         cout << *iter << " ";
     }
 
@@ -110,7 +115,7 @@ void print_input(tracks &junctions, alarm_values &not_allowed, int capacity,
     }
 
     for (available_power::iterator aviter = powerbanks.begin(); aviter != powerbanks.end();
-        aviter++) {
+         aviter++) {
         cout << *aviter << " ";
     }
 
@@ -188,12 +193,12 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
         adjacent_junctions &adj_junc = get<0>(roads_powers);
 
         for (adjacent_junctions::iterator adjiter = adj_junc.begin(); adjiter != adj_junc.end();
-            adjiter++) {
-        find_shortest_path_update_powerbank_assignment(junctions, shortest_path,
-                                                       *adjiter, current_length + 1,
-                                                       shortest_length,
-                                                       last_junc, current_path,
-                                                       powerbanks);
+             adjiter++) {
+            find_shortest_path_update_powerbank_assignment(junctions, shortest_path,
+                                                           *adjiter, current_length + 1,
+                                                           shortest_length,
+                                                           last_junc, current_path,
+                                                           powerbanks);
         }
 
         current_path.pop_back();
@@ -204,8 +209,8 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
 }
 
 void charge_if_possible(int &available_power, int &current_power,
-                          alarm_values &forbidden_powers, int capacity,
-                          chargers &used_chargers, int junc_num) {
+                        alarm_values &forbidden_powers, int capacity,
+                        chargers &used_chargers, int junc_num) {
     if (available_power == -1) return;
 
     int new_value = current_power + available_power;
@@ -232,8 +237,8 @@ bool check_whether_shortest_path_is_possible(path shortest_path,
         int &junction_power = get<1>(roads_powers);
         cout << junction_power << " after: ";
         charge_if_possible(junction_power, current_power,
-                                                   forbidden, capacity,
-                                                   used_chargers, junc_num);
+                           forbidden, capacity,
+                           used_chargers, junc_num);
         cout << junction_power << "\n\n";
         if (junc_num != last_junc) {
             current_power -= cost;
@@ -272,154 +277,6 @@ void print_result(bool shortest_is_possible, path &shortest_path,
     }
 }
 
-bool is_left(int i) {
-    return i%2==0;
-}
-
-int parent(int i) {
-    return i/2;
-}
-
-int num_of_leaves(int shortest_path) {
-    //int power = ceil(log2(shortest_path));
-    return (int)pow(2, shortest_path);
-}
-
-int left(int i) {
-    return i*2;
-}
-
-int right(int i) {
-    return i*2 + 1;
-}
-
-bool charge_if_possible_tree(int &available_power, int &current_power,
-                        alarm_values &forbidden_powers, int capacity) {
-    if (available_power == -1) return false;
-
-    int new_value = current_power + available_power;
-    cout << " cur " << current_power << " avail " << available_power << " new " << new_value << endl;
-    if (new_value <= capacity &&
-        forbidden_powers.find(new_value) == forbidden_powers.end()) {
-        current_power = new_value;
-        //used_chargers.push_back(junc_num);
- //       available_power = -1;
-        return true;
-    }
-    return false;
-}
-
-bool charge_in_node(int current_power, path shortest_path,
-                    tracks &junctions, int capacity, int cost,
-                    alarm_values &forbidden,
-                    int &next_leaf, int &level, int node, int max_num, int tree[],
-                    int num_leaves, int charged[]) {
-    if (current_power < 0) return false;
-
-    if (next_leaf == node) {
-        next_leaf = left(node);
-        level++;
-    }
-
-    tracks::iterator found_junc = junctions.find(shortest_path[level]);
-    adjacent_and_powerbanks &roads_powers = found_junc->second;
-    int &junction_power = get<1>(roads_powers);
-
-    bool is_possible = charge_if_possible_tree(junction_power, current_power,
-                                               forbidden, capacity);
-    //tree[node] = current_power;
-
-    if (node >= num_leaves && is_possible) { //Oznaczenie ładowania w liściu
-        charged[node - num_leaves] = 1;
-    }
-
-    bool possible_combined;
-    if (is_possible) { //right
-        bool right_node = charge_in_node(current_power - cost, shortest_path, junctions, capacity, cost,
-                       forbidden, next_leaf, level, right(node), max_num, tree, num_leaves,
-                       charged);
-
-        bool left_node = charge_in_node(current_power - cost, shortest_path, junctions, capacity, cost,
-                                   forbidden, next_leaf, level, left(node), max_num, tree, num_leaves,
-                                   charged);
-        possible_combined = (right_node || left_node);
-    }
-    else {
-        possible_combined = charge_in_node(current_power - cost, shortest_path, junctions, capacity, cost,
-                       forbidden, next_leaf, level, left(node), max_num, tree, num_leaves,
-                       charged);
-    }
-}
-
-void find_max_in_tree(int num_leaves, int max_num, int tree[], int &index, int &max_val) {
-    for (int i = num_leaves; i < max_num; i++) {
-        if (tree[i] > max_val) {
-            max_val = tree[i];
-            index = i;
-        }
-    }
-}
-
-void find_chargers(chargers &from_path, int node, path shortest_path, int level) {
-    while (node != 1) {
-        if (!is_left(node)) {
-            from_path.push_back(shortest_path[level - 1]);
-        }
-        node = node/2;
-    }
-}
-
-chargers find_best_cost(path shortest_path, int &current_power,
-                    tracks &junctions, int capacity, int cost,
-                    alarm_values &forbidden, int last_junc) {
-    int num_leaves = num_of_leaves(shortest_path.size());
-    int max_val = num_leaves*2 + 1;
-    int tree[max_val];
-    int next_leaf = 2,
-    int level = 0;
-
-    int leaves_charged[num_leaves];
-    for (int i = 0; i < num_leaves; i++) {
-        leaves_charged[i] = 0;
-    }
-
-    charge_in_node(current_power, shortest_path, junctions, capacity, cost,
-                   forbidden, next_leaf, level, 1, max_val, tree, num_leaves, leaves_charged);
-
-    int max_score = -1;
-    int index = num_leaves;
-    find_max_in_tree(num_leaves, max_val, tree, index, max_score);
-
-    chargers used_chargers;
-    if (leaves_charged[index - num_leaves]) used_chargers.push_back(shortest_path.back());
-
-    find_chargers(used_chargers, index, shortest_path, shortest_path.size() - 1);
-
-    current_power = max_score;
-
-    return used_chargers;
-}
-
-void print_chargers_reverse(chargers used_chargers) {
-    for (chargers::reverse_iterator riter = used_chargers.rbegin(); riter != used_chargers.rend(); riter++) {
-        cout << *riter << " ";
-    }
-
-    cout << endl;
-}
-void print_result_tree(bool shortest_is_possible, path &shortest_path,
-                  chargers &used_chargers, int current_power) {
-    if (shortest_is_possible) {
-        cout << shortest_path.size() << " " << current_power << " "
-             << used_chargers.size() << endl;
-
-        print_path(shortest_path);
-
-        print_chargers_reverse(used_chargers);
-    } else {
-        cout << -1 << endl;
-    }
-}
 
 int main(void) {
     int capacity;
@@ -461,8 +318,4 @@ int main(void) {
             num_junctions, used_chargers);
 
     print_result(shortest_is_possible, shortest_path, used_chargers, current_power); */
-    bool if_possible_shortest = find_best_cost(shortest_path, current_power, junctions,
-                                            capacity, cost, forbidden, num_junctions);
-
-    print_result_tree()
 }
