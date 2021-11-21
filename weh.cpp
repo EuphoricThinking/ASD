@@ -312,7 +312,7 @@ bool charge_if_possible_tree(int &available_power, int &current_power,
 bool charge_in_node(int current_power, path shortest_path,
                     tracks &junctions, int capacity, int cost,
                     alarm_values &forbidden,
-                    int &next_leaf, int &level, int node, int max_num, int tree[],
+                    int &next_leaf, int &level, int node, int tree_leaves[],
                     int num_leaves, int charged[]) {
     if (current_power < 0) return false;
 
@@ -329,30 +329,38 @@ bool charge_in_node(int current_power, path shortest_path,
                                                forbidden, capacity);
     //tree[node] = current_power;
 
-    if (node >= num_leaves && is_possible) { //Oznaczenie ładowania w liściu
-        charged[node - num_leaves] = 1;
+    if (node >= num_leaves) { //Oznaczenie ładowania w liściu
+        if (is_possible) {
+            charged[node - num_leaves] = 1;
+        }
+
+        tree_leaves[node - num_leaves] = current_power;
+
+        return true;
     }
 
     bool possible_combined;
     if (is_possible) { //right
         bool right_node = charge_in_node(current_power - cost, shortest_path, junctions, capacity, cost,
-                       forbidden, next_leaf, level, right(node), max_num, tree, num_leaves,
+                       forbidden, next_leaf, level, right(node), tree_leaves, num_leaves,
                        charged);
 
         bool left_node = charge_in_node(current_power - cost, shortest_path, junctions, capacity, cost,
-                                   forbidden, next_leaf, level, left(node), max_num, tree, num_leaves,
+                                   forbidden, next_leaf, level, left(node), tree_leaves, num_leaves,
                                    charged);
         possible_combined = (right_node || left_node);
     }
     else {
         possible_combined = charge_in_node(current_power - cost, shortest_path, junctions, capacity, cost,
-                       forbidden, next_leaf, level, left(node), max_num, tree, num_leaves,
+                       forbidden, next_leaf, level, left(node), tree_leaves, num_leaves,
                        charged);
     }
+
+    return possible_combined;
 }
 
-void find_max_in_tree(int num_leaves, int max_num, int tree[], int &index, int &max_val) {
-    for (int i = num_leaves; i < max_num; i++) {
+void find_max_in_leaves(int max_num, int tree[], int &index, int &max_val) {
+    for (int i = 0; i < max_num; i++) {
         if (tree[i] > max_val) {
             max_val = tree[i];
             index = i;
@@ -369,13 +377,13 @@ void find_chargers(chargers &from_path, int node, path shortest_path, int level)
     }
 }
 
-chargers find_best_cost(path shortest_path, int &current_power,
+bool find_best_cost(path shortest_path, int &current_power,
                     tracks &junctions, int capacity, int cost,
-                    alarm_values &forbidden, int last_junc) {
+                    alarm_values &forbidden, chargers& used_chargers) {
     int num_leaves = num_of_leaves(shortest_path.size());
-    int max_val = num_leaves*2 + 1;
-    int tree[max_val];
-    int next_leaf = 2,
+   // int max_val = num_leaves*2 + 1;
+    int tree[num_leaves];
+    int next_leaf = 2;
     int level = 0;
 
     int leaves_charged[num_leaves];
@@ -383,21 +391,24 @@ chargers find_best_cost(path shortest_path, int &current_power,
         leaves_charged[i] = 0;
     }
 
-    charge_in_node(current_power, shortest_path, junctions, capacity, cost,
-                   forbidden, next_leaf, level, 1, max_val, tree, num_leaves, leaves_charged);
+    int init_power = capacity;
+    bool is_possible = charge_in_node(init_power, shortest_path, junctions, capacity, cost,
+                   forbidden, next_leaf, level, 1, tree, num_leaves, leaves_charged);
+
+    if (!is_possible) return false;
 
     int max_score = -1;
     int index = num_leaves;
-    find_max_in_tree(num_leaves, max_val, tree, index, max_score);
+    find_max_in_leaves(num_leaves, tree, index, max_score);
 
-    chargers used_chargers;
-    if (leaves_charged[index - num_leaves]) used_chargers.push_back(shortest_path.back());
+    if (leaves_charged[index]) used_chargers.push_back(shortest_path.back());
 
-    find_chargers(used_chargers, index, shortest_path, shortest_path.size() - 1);
+    int index_in_tree = index + num_leaves;
+    find_chargers(used_chargers, index_in_tree, shortest_path, shortest_path.size() - 1);
 
     current_power = max_score;
 
-    return used_chargers;
+    return true;
 }
 
 void print_chargers_reverse(chargers used_chargers) {
@@ -454,15 +465,16 @@ int main(void) {
     //cout << "this" << endl;
 
     int current_power = capacity;
-    /*chargers used_chargers;
+    chargers used_chargers;
 
-    bool shortest_is_possible = check_whether_shortest_path_is_possible(
+    /*bool shortest_is_possible = check_whether_shortest_path_is_possible(
             shortest_path, current_power, junctions, capacity, cost, forbidden,
             num_junctions, used_chargers);
 
     print_result(shortest_is_possible, shortest_path, used_chargers, current_power); */
     bool if_possible_shortest = find_best_cost(shortest_path, current_power, junctions,
-                                            capacity, cost, forbidden, num_junctions);
+                                            capacity, cost, forbidden,
+                                            used_chargers);
 
-    print_result_tree()
+    print_result_tree(if_possible_shortest, shortest_path, used_chargers, current_power);
 }
