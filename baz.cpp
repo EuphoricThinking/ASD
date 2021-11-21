@@ -196,12 +196,19 @@ sum prepare_suffix_sum_and_minmax_data(prices &sorted_prices, long products, min
         sum_index++;
     }
 
-    initial_tuple = std::make_tuple(-1, -1, -1, -1);
-    //assign_tuple_at_position(list_of_minmax[products - 1], sorted_prices[0], initial_tuple, LEFT);
-    assign_tuple_at_position(list_of_minmax[products - 2], sorted_prices[0], initial_tuple, LEFT);
+    if (products > 1) {
+        initial_tuple = std::make_tuple(-1, -1, -1, -1);
+        //assign_tuple_at_position(list_of_minmax[products - 1], sorted_prices[0], initial_tuple, LEFT);
+        assign_tuple_at_position(list_of_minmax[products - 2], sorted_prices[0],
+                                 initial_tuple, LEFT);
 
-    for (long i = 2; i < products; ++i) {
-        assign_tuple_at_position(list_of_minmax[products - 1 - i], sorted_prices[i - 1], list_of_minmax[products - i], LEFT);
+        if (products > 2) {
+            for (long i = 2; i < products; ++i) {
+                assign_tuple_at_position(list_of_minmax[products - 1 - i],
+                                         sorted_prices[i - 1],
+                                         list_of_minmax[products - i], LEFT);
+            }
+        }
     }
 
     return sum_from_right;
@@ -258,8 +265,8 @@ int main() {
 
     bool initially_possible = read_input(number_of_products, sorted_prices, products_per_day,
                number_of_days);
-    print_readout(number_of_products, sorted_prices, products_per_day,
-                  number_of_days);
+    //print_readout(number_of_products, sorted_prices, products_per_day,
+                 // number_of_days);
 
     if (!initially_possible) {
         cout << -1;
@@ -276,8 +283,8 @@ int main() {
                                                                number_of_products,
                                                                list_of_minmax);
 
-    print_tuples(list_of_minmax, number_of_products, sorted_prices);
-    print_sums(sum_from_right, number_of_products);
+    //print_tuples(list_of_minmax, number_of_products, sorted_prices);
+    //print_sums(sum_from_right, number_of_products);
 
     return_sum(list_of_minmax, products_per_day, number_of_days, sum_from_right);
 
