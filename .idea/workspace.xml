@@ -14,6 +14,7 @@
     <list default="true" id="52a5ba76-9b7c-4d56-be61-f758f5b09d3e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/weh.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/weh.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wehgo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/wehgo.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +90,7 @@
       <workItem from="1636575905981" duration="4000" />
       <workItem from="1636837641912" duration="5763000" />
       <workItem from="1637186990182" duration="25964000" />
-      <workItem from="1637400862047" duration="23176000" />
+      <workItem from="1637400862047" duration="31737000" />
     </task>
     <servers />
   </component>

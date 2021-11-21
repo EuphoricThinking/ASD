@@ -171,6 +171,7 @@ void find_shortest_path_update_powerbank_assignment(tracks &junctions,
     else {
         assign_powerbank_value(current_path, road_key, found_roads, current_length,
                                powerbanks);
+
         /*current_path.push_back(road_key);
 
         adjacent_and_powerbanks& roads_powers = found_roads->second;
@@ -304,7 +305,7 @@ bool charge_if_possible_tree(int available_power, int &current_power, //&avva
         current_power = new_value;
         //used_chargers.push_back(junc_num);
  //       available_power = -1;
-        cout << " now: " << current_power << endl;
+        cout << " POS now: " << current_power << endl;
         return true;
     }
     cout << " now: " << current_power << endl;
