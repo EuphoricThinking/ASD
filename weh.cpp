@@ -336,6 +336,7 @@ bool charge_in_node(int current_power, path shortest_path,
     //tree[node] = current_power;
     cout << "aftert" << endl;
     if (node >= num_leaves) { //Oznaczenie ładowania w liściu
+        cout << "index " << node - num_leaves << endl;
         if (is_possible) {
             charged[node - num_leaves] = 1;
         }
@@ -368,7 +369,9 @@ bool charge_in_node(int current_power, path shortest_path,
 }
 
 void find_max_in_leaves(int max_num, int tree[], int &index, int &max_val) {
+    cout << "\n\nmax\n" << endl;
     for (int i = 0; i < max_num; i++) {
+        cout << i << " val: " << tree[i] << endl;
         if (tree[i] > max_val) {
             max_val = tree[i];
             index = i;
@@ -397,6 +400,7 @@ bool find_best_cost(path shortest_path, int &current_power,
     int leaves_charged[num_leaves];
     for (int i = 0; i < num_leaves; i++) {
         leaves_charged[i] = 0;
+        tree[i] = -1;
     }
 
     int init_power = capacity;
