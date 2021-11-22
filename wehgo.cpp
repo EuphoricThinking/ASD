@@ -262,7 +262,7 @@ void fill_next_row(int cur_pos, int cur_cap, tracks &junction, alarm_values &for
     if (is_chargeable) {
         //cout << " |prev " << cur_cap << " changed " << changed_capacity <<"| ";
         //cout << "POS " << cur_pos << " " << cur_cap << endl;
-        cout << " |nextI " << cur_pos + 1 << " " << changed_capacity - cost << "| ";
+ //       cout << " |nextI " << cur_pos + 1 << " " << changed_capacity - cost << "| ";
         if (changed_capacity - cost >= 0) {
             previous_coordinates[cur_pos + 1][changed_capacity - cost] = cur_cap;
             if_previous_charged[cur_pos + 1][changed_capacity - cost] = 1;
@@ -271,18 +271,16 @@ void fill_next_row(int cur_pos, int cur_cap, tracks &junction, alarm_values &for
 }
 
 int find_max_in_row(int max_val, int row[], int length) {
-    cout << row[0] << endl;
-    cout << "bef"<< endl;
     for (int i = 0; i < length; i++) {
-        cout << "sth" << endl;
-        cout << " mi : " << i << " ri " << row[i] << endl;
+
+ //       cout << " mi : " << i << " ri " << row[i] << endl;
         if (row[i] != -1 && i > max_val) {
             max_val = i;
 
         }
-    //    cout << endl;
+
     }
-    cout << "max: <<" << max_val << endl;
+ //   cout << "max: <<" << max_val << endl;
     return max_val;
 }
 
@@ -298,7 +296,7 @@ void find_best_route(chargers &used_chargers, path &shortest_path,
         if (charged[i][j] == 1) {
             used_chargers.push_back(shortest_path[i - 1]); //previous was charged
         }
-        cout << "ri " << i << " rj " << j << endl;
+//        cout << "ri " << i << " rj " << j << endl;
         j = coord[i][tempj];
         tempj = j;
         i -= 1;
@@ -308,7 +306,7 @@ void find_best_route(chargers &used_chargers, path &shortest_path,
 bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &forbidden,
                             tracks &junction, int cost, chargers &used_chargers,
                             int &max_score) {
-    cout << "in" << endl;
+
     int path_length = shortest_path.size();
     //opusc uzupelnianie ostatniego wiersza
     //while i != 0 && j != capacity
@@ -337,7 +335,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
  //       cout << "i : " << i << endl;
         for (int j = 0; j < capacity + 1; j++) {
            //cout << "i: " << i << " j: " << j << endl;
-           cout << previous_coordinates[i][j] << " ";
+ //          cout << previous_coordinates[i][j] << " ";
  //           cout << j << endl;
            if (previous_coordinates[i][j] != -1) {
                 //cout << "i: " << i << " j: " << j << endl;
@@ -346,7 +344,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
                               shortest_path, cost);
             }
         }
-        cout << endl;
+ //       cout << endl;
     }
 
     bool short_is_possible = false;
@@ -373,24 +371,18 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
             int junction_power = give_power(junction, shortest_path, path_length - 1);
             int changed_capacity = j;
             temp_bool = if_possible_charging(junction_power, changed_capacity, forbidden, capacity);
-            //cout << "sth" << endl;
             if (temp_bool) {
                 last_charging[changed_capacity] = j;
             }
         }
     }
-    cout << "here2" << endl;
 
     int index2 = -1;
     int final_index;
     int starting_index;
-//    cout << "b" << endl;
 
- //   cout << "c" << endl;
     index2 = find_max_in_row(index2, previous_coordinates[path_length - 1], capacity + 1);
-  //  cout << "here3" << endl;
     if (possible_last_charge) {
-  //      cout << "last" << endl;
         int index1 = -1;
         index1 = find_max_in_row(index1, last_charging, capacity + 1);
         final_index = max(index1, index2);
@@ -471,12 +463,11 @@ int main(void) {
                                                    powerbanks);
 
     print_path(shortest_path);
-    //cout << "this" << endl;
 
     int max_score = -1;
     chargers used_chargers;
 
-    cout << "here" << endl;
+ //   cout << "here" << endl;
     bool is_possible_shortest = if_possible_short_path(shortest_path,
                                                        capacity,
                                                        forbidden,
