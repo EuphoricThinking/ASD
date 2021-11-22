@@ -233,6 +233,7 @@ bool if_possible_charging(int available_power, int &current_power, alarm_values 
     int new_value = current_power + available_power;
     if (new_value <= capacity
     && forbidden.find(new_value) == forbidden.end()) {
+        current_power = new_value;
         return true;
     }
     return false;
@@ -259,19 +260,24 @@ void fill_next_row(int cur_pos, int cur_cap, tracks &junction, alarm_values &for
     int changed_capacity = cur_cap;
     bool is_chargeable = if_possible_charging(junction_power, changed_capacity, forbidden, capacity);
     if (is_chargeable) {
-        if (changed_capacity - 2 >= 0) {
+        //cout << " |prev " << cur_cap << " changed " << changed_capacity <<"| ";
+        //cout << "POS " << cur_pos << " " << cur_cap << endl;
+        cout << " |nextI " << cur_pos + 1 << " " << changed_capacity - cost << "| ";
+        if (changed_capacity - cost >= 0) {
             previous_coordinates[cur_pos + 1][changed_capacity - cost] = cur_cap;
             if_previous_charged[cur_pos + 1][changed_capacity - cost] = 1;
         }
     }
 }
 
-int find_max_in_row(int max_val, int row[], int length) {
+int find_max_in_row(int max_val, int row[], int length, int row_ind) {
     int index;
-
+    cout << length << endl;
+    cout << "bef"<< endl;
     for (int i = 0; i < length; i++) {
-        cout << " mi : " << i << " ri " << row[i];
-        if (row[i] != -1 && i > max_val) {
+        cout << "sth" << endl;
+        cout << " mi : " << i << " ri " << row[row_ind][i];
+        if (row[row_ind][i] != -1 && i > max_val) {
             index = i;
         }
         cout << endl;
@@ -315,6 +321,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
 
     for (int i = 0; i < path_length; i++) {
         for (int j = 0; j < capacity + 1; j++) {
+  //          cout << i << " " << j << endl;
             if_previous_charged[i][j] = 0;
             previous_coordinates[i][j] = -1;
             last_charging[j] = -1;
@@ -327,18 +334,24 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
 
     //ostatni osobno obslugujemy
     for (int i = 1; i < path_length - 1; i++) {
+ //       cout << "i : " << i << endl;
         for (int j = 0; j < capacity + 1; j++) {
-            if (previous_coordinates[i][j] != -1) {
-                cout << "i: " << i << " j: " << j << endl;
+           //cout << "i: " << i << " j: " << j << endl;
+        //    cout << previous_coordinates[i][j] << " ";
+ //           cout << j << endl;
+           if (previous_coordinates[i][j] != -1) {
+                //cout << "i: " << i << " j: " << j << endl;
                 fill_next_row(i, j, junction, forbidden,
                               capacity,
                               shortest_path, cost);
             }
         }
+        cout << endl;
     }
 
     bool short_is_possible = false;
     for (int j = 0; j < capacity + 1; j++) {
+        cout << previous_coordinates[path_length - 1][j] << endl;
         if (previous_coordinates[path_length - 1][j] != -1) {
         short_is_possible = true;
         }
@@ -351,6 +364,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
     bool possible_last_charge = false;
     bool temp_bool;
     for (int j = 0; j < capacity + 1; j++) {
+        cout << previous_coordinates[path_length - 1][j] << endl;
         if (previous_coordinates[path_length - 1][j] != -1) {
             if (!possible_last_charge) {
                 possible_last_charge = true;
@@ -359,17 +373,23 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
             int junction_power = give_power(junction, shortest_path, path_length - 1);
             int changed_capacity = j;
             temp_bool = if_possible_charging(junction_power, changed_capacity, forbidden, capacity);
-
+            //cout << "sth" << endl;
             if (temp_bool) {
                 last_charging[j] = j;
             }
         }
     }
-
+    cout << "here2" << endl;
 
     int index2;
     int final_index;
-    index2 = find_max_in_row(index2, previous_coordinates[path_length - 1], capacity + 1);
+    cout << "b" << endl;
+    for (int j = 0; j < capacity + 1; j++) {
+        cout <<
+    }
+    cout << "c" << endl;
+    index2 = find_max_in_row(index2, previous_coordinates[path_length - 1], capacity + 1, path_length - 1);
+    cout << "here3" << endl;
     if (possible_last_charge) {
         cout << "last" << endl;
         int index1 = find_max_in_row(index1, last_charging, capacity + 1);
