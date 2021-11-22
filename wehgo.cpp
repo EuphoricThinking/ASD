@@ -271,19 +271,19 @@ void fill_next_row(int cur_pos, int cur_cap, tracks &junction, alarm_values &for
 }
 
 int find_max_in_row(int max_val, int row[], int length) {
-    int index;
     cout << row[0] << endl;
     cout << "bef"<< endl;
     for (int i = 0; i < length; i++) {
         cout << "sth" << endl;
         cout << " mi : " << i << " ri " << row[i] << endl;
         if (row[i] != -1 && i > max_val) {
-            index = i;
+            max_val = i;
+
         }
     //    cout << endl;
     }
-
-    return index;
+    cout << "max: <<" << max_val << endl;
+    return max_val;
 }
 
 void find_best_route(chargers &used_chargers, path &shortest_path,
@@ -337,7 +337,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
  //       cout << "i : " << i << endl;
         for (int j = 0; j < capacity + 1; j++) {
            //cout << "i: " << i << " j: " << j << endl;
-        //    cout << previous_coordinates[i][j] << " ";
+           cout << previous_coordinates[i][j] << " ";
  //           cout << j << endl;
            if (previous_coordinates[i][j] != -1) {
                 //cout << "i: " << i << " j: " << j << endl;
@@ -351,7 +351,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
 
     bool short_is_possible = false;
     for (int j = 0; j < capacity + 1; j++) {
-        cout << previous_coordinates[path_length - 1][j] << endl;
+  //      cout << previous_coordinates[path_length - 1][j] << endl;
         if (previous_coordinates[path_length - 1][j] != -1) {
         short_is_possible = true;
         }
@@ -364,7 +364,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
     bool possible_last_charge = false;
     bool temp_bool;
     for (int j = 0; j < capacity + 1; j++) {
-        cout << previous_coordinates[path_length - 1][j] << endl;
+ //       cout << previous_coordinates[path_length - 1][j] << endl;
         if (previous_coordinates[path_length - 1][j] != -1) {
             if (!possible_last_charge) {
                 possible_last_charge = true;
@@ -375,7 +375,7 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
             temp_bool = if_possible_charging(junction_power, changed_capacity, forbidden, capacity);
             //cout << "sth" << endl;
             if (temp_bool) {
-                last_charging[j] = j;
+                last_charging[changed_capacity] = j;
             }
         }
     }
@@ -383,25 +383,29 @@ bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &for
 
     int index2 = -1;
     int final_index;
-    cout << "b" << endl;
+    int starting_index;
+//    cout << "b" << endl;
 
-    cout << "c" << endl;
+ //   cout << "c" << endl;
     index2 = find_max_in_row(index2, previous_coordinates[path_length - 1], capacity + 1);
-    cout << "here3" << endl;
+  //  cout << "here3" << endl;
     if (possible_last_charge) {
-        cout << "last" << endl;
+  //      cout << "last" << endl;
         int index1 = -1;
         index1 = find_max_in_row(index1, last_charging, capacity + 1);
         final_index = max(index1, index2);
         if (final_index == index1) {
+            starting_index = last_charging[final_index];
             used_chargers.push_back(shortest_path[path_length - 1]);
+        } else {
+            starting_index = index2;
         }
     }
 
     max_score = final_index;
 
     find_best_route(used_chargers, shortest_path, if_previous_charged, previous_coordinates,
-                    capacity, final_index, path_length - 1);
+                    capacity, starting_index, path_length - 1);
 
     return true;
 }
