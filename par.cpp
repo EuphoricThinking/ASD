@@ -31,6 +31,12 @@ void inicjujWierzcholki(int ileElementow, wierzchołki &w) {
     }
 } */
 
+void inicjujGlebokosc(int ileElementow, odleglosc &w) {
+    for (int i = 0; i < ileElementow; i++) {
+        w.push_back(-1);
+    }
+}
+
 void wczytajWejsceStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
                                 wierzchołki &rodzic, wierzchołki &prawy,
                                 wierzchołki &lewy, polecenia &pol) {
@@ -133,7 +139,7 @@ void odlegloscGora(int nrWierzcholka, wierzchołki &prawy, wierzchołki &lewy,
     if (nrWierzcholka == -1) {
         return;
     }
-    
+
     if (nrWierzcholka == 1) {
         int glPrawy = glebokosc[prawy[nrWierzcholka]];
         int glLewy = glebokosc[lewy[nrWierzcholka]];
@@ -188,5 +194,24 @@ int main(){
     printRes(liczbaPolanek, liczbaPolecen, rodzic, prawy,
              lewy, pol);
 
+    odleglosc glebokosc;
+    odleglosc odlegloscDol;
+    odleglosc najdalsze;
+    inicjujGlebokosc(liczbaPolanek, glebokosc);
+    inicjujGlebokosc(liczbaPolanek, odlegloscDol);
+    inicjujGlebokosc(liczbaPolanek, najdalsze);
+
+    wierzchołki najdalszeWPoddrzewie;
+    wierzchołki najdalszeWierzchołki;
+    inicjujWierzcholki(liczbaPolanek, najdalszeWierzchołki);
+    inicjujWierzcholki(liczbaPolanek, najdalszeWPoddrzewie);
+    int bezuzyteczne = znajdzGlebokosc(lewy, prawy, glebokosc,
+                                           najdalszeWPoddrzewie, 1,
+                                           0, odlegloscDol);
+
+    odlegloscGora(1, prawy, lewy, 0, rodzic, glebokosc, odlegloscDol,
+            najdalsze, najdalszeWierzchołki,
+            false, najdalszeWPoddrzewie);
+    
     return 0;
 }
