@@ -14,13 +14,14 @@ using std::vector;
 
 using std::make_pair;
 using std::max;
-using glebokiLisc = pair<int, int>;
+using zadanie = pair<int, int>;
 using std::abs;
 
-using polecenia = vector<pair<int, int>>;
+using polecenia = vector<zadanie>;
 using wierzchołki = vector<int>;
 using odleglosc = vector<int>;
 using macierz = vector<vector<int>>;
+
 
 
 void inicjujWierzcholki(int ileElementow, wierzchołki &w) {
@@ -94,7 +95,7 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
 
     cout << liczbaPolecen << endl;
     for (int i = 0; i < liczbaPolecen; i++) {
-        pair<int, int> p = pol[i];
+        zadanie p = pol[i];
 
          cout << p.first << " " << p.second << endl;
     }
@@ -231,34 +232,46 @@ int znajdzLCA(int w1, int w2, macierz jumps, int przodkowie) {
     return jumps[w1][0];
 }
 
-int odpowiedzBajtynie(pair<int, int> zadanie, odleglosc najdalszyOgolnie,
-                      odleglosc najdalszyDol, wierzchołki najdalszyDolW,
+int odpowiedzBajtynie(zadanie zadanieJedno, odleglosc najdalszyOgolnie,
                         wierzchołki najdalszyOgolnieW, macierz jumps,
                         odleglosc glebokosc, int przodkowie) {
-    int poczatkowy = zadanie.first;
-    int odl = zadanie.second;
+    int poczatkowy = zadanieJedno.first;
+    int odl = zadanieJedno.second;
     if (odl > najdalszyOgolnie[poczatkowy]) {
         return -1;
     }
 
-    if (najdalszyDol[poczatkowy] <= odl) {
-        return skoczO_K(odl, najdalszyDolW[poczatkowy], jumps, przodkowie);
+    int w1 = poczatkowy;
+    int w2 = najdalszyOgolnieW[poczatkowy];
+
+    //if (w1 == w2) return w1;
+
+    int roznicaGlebokosci = glebokosc[w1] - glebokosc[w2];
+
+    if (roznicaGlebokosci < 0) { //w2 jest głębszy
+        w2 = skoczO_K(abs(roznicaGlebokosci), w2, jumps, przodkowie);
+    } else if (roznicaGlebokosci > 0) { //w1 jest głębszy
+        w1 = skoczO_K(roznicaGlebokosci, w1, jumps, przodkowie);
+    }
+
+    int LCA = znajdzLCA(w1, w2, jumps, przodkowie);
+    int ujetyOdcinek = glebokosc[poczatkowy] - glebokosc[LCA];
+    if ( ujetyOdcinek >= odl) {
+        return skoczO_K(odl, poczatkowy, jumps, przodkowie);
     } else {
-        int w1 = poczatkowy;
-        int w2 = najdalszyOgolnieW[poczatkowy];
+        int najdalszyW = najdalszyOgolnieW[poczatkowy];
+        int pozostalyOdcinek = glebokosc[najdalszyW] - (odl - ujetyOdcinek);
+        return skoczO_K(pozostalyOdcinek, najdalszyW, jumps, przodkowie);
+    }
+}
 
-        if (w1 == w2) return w1;
-
-        int roznicaGlebokosci = glebokosc[w1] - glebokosc[w2];
-
-        if (roznicaGlebokosci < 0) { //w2 jest głębszy
-            w2 = skoczO_K(abs(roznicaGlebokosci), w2, jumps, przodkowie);
-        } else if (roznicaGlebokosci > 0) { //w1 jest głębszy
-            w1 = skoczO_K(roznicaGlebokosci, w1, jumps, przodkowie);
-        }
-
-        int LCA = znajdzLCA(w1, w2, jumps, przodkowie);
-        int odl2 =
+void odpowiedzNaListe(polecenia pol, odleglosc najdalszyOgolnie,
+                      wierzchołki najdalszyOgolnieW, macierz jumps,
+                      odleglosc glebokosc, int przodkowie) { //int liczbaPolecen) {
+    for (zadanie z: pol) {
+        int rozw = odpowiedzBajtynie(z, najdalszyOgolnie,
+                najdalszyOgolnieW, jumps, glebokosc, przodkowie);
+        cout << rozw << endl;
     }
 }
 
@@ -298,6 +311,9 @@ int main(){
     int liczbaPrzodkow = (int)ceil(log2(liczbaPolanek)); //potegi wlasciwie
     macierz jumps;
     inicjalizujMacierz(liczbaPolanek, jumps, liczbaPrzodkow);
+
+    odpowiedzNaListe(pol, najdalsze, najdalszeWierzchołki,
+                     jumps, glebokosc, liczbaPrzodkow);
 
     return 0;
 }
