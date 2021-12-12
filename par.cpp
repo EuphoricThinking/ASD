@@ -90,7 +90,7 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
     }
 }
 
-int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, wierzchołki &glebokosc,
+int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokosc,
             wierzchołki &najdalszeWPoddrzewie, int nrWierzcholka, int gl, odleglosc &odlegloscDol) {
             glebokosc[nrWierzcholka] = gl;
 
@@ -123,6 +123,56 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, wierzchołki &glebo
             }
 
             return max(gLewy, gPrawy) + 1;
+}
+
+void odlegloscGora(int nrWierzcholka, wierzchołki &prawy, wierzchołki &lewy,
+                   int odlegloscNajdalszeRodzic, wierzchołki &rodzic,
+                   odleglosc &glebokosc, odleglosc &odlegloscDol,
+                   odleglosc &najdalsze, wierzchołki &najdalszeWierzchołki,
+                   bool czyPrawy, wierzchołki &najdalszyDol) {
+    if (nrWierzcholka == -1) {
+        return;
+    }
+    
+    if (nrWierzcholka == 1) {
+        int glPrawy = glebokosc[prawy[nrWierzcholka]];
+        int glLewy = glebokosc[lewy[nrWierzcholka]];
+        if (glLewy > glPrawy) {
+            najdalsze[nrWierzcholka] = glLewy;
+            najdalszeWierzchołki[nrWierzcholka] = lewy[nrWierzcholka];
+        } else {
+            najdalsze[nrWierzcholka] = glPrawy;
+            najdalszeWierzchołki[nrWierzcholka] = prawy[nrWierzcholka];
+        }
+
+        odlegloscGora(prawy[nrWierzcholka], prawy, lewy, glLewy + 1,
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, true, najdalszyDol);
+
+        odlegloscGora(lewy[nrWierzcholka], prawy, lewy, glPrawy + 1,
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, false, najdalszyDol);
+    }    else {
+        int rodzenstwo = (czyPrawy) ? lewy[rodzic[nrWierzcholka]] : prawy[rodzic[nrWierzcholka]];
+        int odlRodzenstwo = odlegloscDol[rodzenstwo] + 2;
+        int odlDol = odlegloscDol[nrWierzcholka];
+        int rodzicWierzcholka = rodzic[nrWierzcholka];
+
+        if (odlDol > odlegloscNajdalszeRodzic && odlDol > odlRodzenstwo) {
+            najdalsze[nrWierzcholka] = odlDol;
+            najdalszeWierzchołki[nrWierzcholka] = najdalszyDol[nrWierzcholka];
+        } else if (odlRodzenstwo > odlDol && odlRodzenstwo > odlegloscNajdalszeRodzic) {
+            najdalsze[nrWierzcholka] = odlRodzenstwo;
+            najdalszeWierzchołki[nrWierzcholka] = najdalszyDol[rodzenstwo];
+        } else {
+            najdalsze[nrWierzcholka] = najdalsze[rodzicWierzcholka];
+            najdalszeWierzchołki[nrWierzcholka] = najdalszeWierzchołki[rodzicWierzcholka];
+        }
+
+        odlegloscGora(prawy[nrWierzcholka], prawy, lewy, najdalsze[nrWierzcholka] + 1,
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, true, najdalszyDol);
+
+        odlegloscGora(lewy[nrWierzcholka], prawy, lewy, najdalsze[nrWierzcholka] + 1,
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, false, najdalszyDol);
+    }
 }
 
 int main(){
