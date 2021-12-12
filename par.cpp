@@ -106,11 +106,11 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokos
 
     glebokosc[nrWierzcholka] = gl;
 
-            //if (nrWierzcholka == -1) return 0;
+            if (nrWierzcholka == -1) return -1;
             if (lewy[nrWierzcholka] == -1 && prawy[nrWierzcholka] == -1) {
                 najdalszeWPoddrzewie[nrWierzcholka] = nrWierzcholka;
                 odlegloscDol[nrWierzcholka] = 0;
-                return 0;
+                return 1;
             }
 
             /*int gLewy = -2;
@@ -130,8 +130,9 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokos
                                         lewy[nrWierzcholka], gl + 1, odlegloscDol);
             int gPrawy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
                                          prawy[nrWierzcholka], gl + 1, odlegloscDol);
-
+            cout << nrWierzcholka << " lg " << gLewy << " pg " << gPrawy << endl;
             if (gLewy > gPrawy) {
+                cout << nrWierzcholka << " w " << najdalszeWPoddrzewie[lewy[nrWierzcholka]] << " l " << lewy[nrWierzcholka] << endl;
                 najdalszeWPoddrzewie[nrWierzcholka] =
                         najdalszeWPoddrzewie[lewy[nrWierzcholka]];
                 odlegloscDol[nrWierzcholka] = gLewy;
