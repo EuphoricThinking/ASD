@@ -222,6 +222,8 @@ int skoczO_K(int k, int glebszy, macierz jumps, int przodkowie) {
 }
 
 int znajdzLCA(int w1, int w2, macierz jumps, int przodkowie) {
+    if (w1 == w2) return w1;
+
     for (int i = przodkowie - 1; i >= 0; i--) {
         if (jumps[w1][i] != jumps[w2][i]) {
             w1 = jumps[w1][i];
@@ -312,6 +314,9 @@ int main(){
     macierz jumps;
     inicjalizujMacierz(liczbaPolanek, jumps, liczbaPrzodkow);
 
+    for (int i = 0; i < liczbaPolanek + 1; i++) {
+        cout << "g " << i << " " << odlegloscDol[i] << endl;
+    }
     odpowiedzNaListe(pol, najdalsze, najdalszeWierzchołki,
                      jumps, glebokosc, liczbaPrzodkow);
 
