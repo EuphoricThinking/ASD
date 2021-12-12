@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 using std::cout;
 using std::endl;
@@ -18,9 +19,11 @@ using glebokiLisc = pair<int, int>;
 using polecenia = vector<pair<int, int>>;
 using wierzchołki = vector<int>;
 using odleglosc = vector<int>;
+using macierz = vector<vector<int>>;
+
 
 void inicjujWierzcholki(int ileElementow, wierzchołki &w) {
-    for (int i = 0; i < ileElementow; i++) {
+    for (int i = 0; i < ileElementow + 1; i++) {
         w.push_back(-1);
     }
 }
@@ -32,7 +35,7 @@ void inicjujWierzcholki(int ileElementow, wierzchołki &w) {
 } */
 
 void inicjujGlebokosc(int ileElementow, odleglosc &w) {
-    for (int i = 0; i < ileElementow; i++) {
+    for (int i = 0; i < ileElementow + 1; i++) {
         w.push_back(-1);
     }
 }
@@ -181,6 +184,53 @@ void odlegloscGora(int nrWierzcholka, wierzchołki &prawy, wierzchołki &lewy,
     }
 }
 
+void inicjalizujMacierz(int liczbaPolanek, macierz &m, int przodkowie) {
+
+    for (int i = 0; i < liczbaPolanek + 1; i++) {
+        vector<int> v;
+        m.push_back(v);
+
+        for (int j = 0; j < przodkowie + 1; j++) {
+            m[i].push_back(-1);
+        }
+    }
+}
+
+void stworzJumpingPointers(int liczbaPolanek, int przodkowie, wierzchołki &rodzice,
+                           macierz &jumps) {
+    for (int i = 0; i < liczbaPolanek + 1; i++) {
+        jumps[i][0] = rodzice[i];
+    }
+
+    for (int i = 0; i < liczbaPolanek + 1; i++) {
+        for (int j = 1; j < przodkowie; j++) {
+            jumps[i][j] = jumps[jumps[i][j - 1]][j - 1];
+        }
+    }
+}
+
+int skoczO_K(int k, int glebszy, macierz jumps, int przodkowie) {
+    for (int i = 0; i < przodkowie; i++) {
+        if (k & (1 << i)) {
+            glebszy = jumps[glebszy][i];
+        }
+    }
+
+    return glebszy;
+}
+
+int znajdzLCA(int w1, int w2, macierz jumps, int przodkowie) {
+    for (int i = przodkowie - 1; i >= 0; i--) {
+        if (jumps[w1][i] != jumps[w2][i]) {
+            w1 = jumps[w1][i];
+            w2 = jumps[w2][i];
+        }
+    }
+
+    return jumps[w1][0];
+}
+
+
 int main(){
     polecenia pol;
     wierzchołki rodzic;
@@ -212,6 +262,8 @@ int main(){
     odlegloscGora(1, prawy, lewy, 0, rodzic, glebokosc, odlegloscDol,
             najdalsze, najdalszeWierzchołki,
             false, najdalszeWPoddrzewie);
-    
+
+    int liczbaPrzodkow = (int)ceil(log2(liczbaPolanek));
+
     return 0;
 }
