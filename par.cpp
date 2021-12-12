@@ -12,9 +12,12 @@ using std::pair;
 using std::vector;
 
 using std::make_pair;
+using std::max;
+using glebokiLisc = pair<int, int>;
 
 using polecenia = vector<pair<int, int>>;
 using wierzchołki = vector<int>;
+using odleglosc = vector<int>;
 
 void inicjujWierzcholki(int ileElementow, wierzchołki &w) {
     for (int i = 0; i < ileElementow; i++) {
@@ -87,6 +90,40 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
     }
 }
 
+int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, wierzchołki &glebokosc,
+            wierzchołki &najdalszeWPoddrzewie, int nrWierzcholka, int gl, odleglosc &odlegloscDol) {
+            glebokosc[nrWierzcholka] = gl;
+
+            if (lewy[nrWierzcholka] == -1 && prawy[nrWierzcholka] == -1) {
+                najdalszeWPoddrzewie[nrWierzcholka] = nrWierzcholka;
+                return -1;
+            }
+
+            int gLewy = -2;
+            int gPrawy = -2;
+
+            if (lewy[nrWierzcholka] != -1) {
+                gLewy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
+                          lewy[nrWierzcholka], gl + 1, odlegloscDol);
+            }
+
+            if (prawy[nrWierzcholka] != -1) {
+                gPrawy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
+                                         prawy[nrWierzcholka], gl + 1, odlegloscDol);
+            }
+
+            if (gLewy > gPrawy) {
+                najdalszeWPoddrzewie[nrWierzcholka] =
+                        najdalszeWPoddrzewie[lewy[nrWierzcholka]];
+                odlegloscDol[nrWierzcholka] = gLewy;
+            } else {
+                najdalszeWPoddrzewie[nrWierzcholka] =
+                        najdalszeWPoddrzewie[prawy[nrWierzcholka]];
+                odlegloscDol[nrWierzcholka] = gPrawy;
+            }
+
+            return max(gLewy, gPrawy) + 1;
+}
 
 int main(){
     polecenia pol;
