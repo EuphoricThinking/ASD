@@ -12,6 +12,7 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::make_tuple;
+using std::make_pair;
 using std::get;
 using std::max;
 
@@ -26,12 +27,13 @@ using adjacent_junctions = vector<int>;
 using visited = int;
 using adjacent_and_powerbanks = tuple<adjacent_junctions, powerbank_value, visited>;
 using tracks = std::unordered_map<junction_number, adjacent_and_powerbanks>;
-using key_data = pair<junction_number, adjacent_and_powerbanks>;
+using distance = int;
+//using key_data = pair<junction_number, pair<distance, visited>>;
 using available_power = vector<int>;
 using path = vector<int>;
 using chargers = vector<int>;
 
-using queue = std::deque<key_data>;
+using queue = std::deque<junction_number>;
 
 const int NOT_VISITED = 0;
 const int VISITED = 1;
@@ -159,8 +161,30 @@ void assign_new_short(int &shortest_length, int current_length,
     }
 } */
 
-void bfs_find_shortest_path_update_powerbank_assignment() {
+void add_neighbours(tracks &junctions, int road_key, int level, queue &neigh) {
+    tracks::iterator firstiter = junctions.find(road_key);
 
+    adjacent_and_powerbanks &roads_powers = firstiter->second;
+    adjacent_junctions &adjvec = get<0>(roads_powers);
+    powerbank_value &power = get<1>(roads_powers);
+    visited &is_visited = get<2>(roads_powers);
+    for (adjacent_junctions::iterator adjiter = adjvec.begin(); adjiter != adjvec.end(); adjiter++) {
+        if (!is_visited) {
+            neigh.push_back(*adjiter);
+        }
+    }
+}
+
+void bfs_find_shortest_path_update_powerbank_assignment(tracks &junctions) {
+    queue adjacent;
+
+    tracks::iterator firstiter = junctions.find(1);
+
+    adjacent_and_powerbanks &roads_powers = firstiter->second;
+    adjacent_junctions &adjvec = get<0>(roads_powers);
+    for (adjacent_junctions::iterator adjiter = adjvec.begin(); adjiter != adjvec.end(); adjiter++) {
+        adjacent.push_back()
+    }
 }
 
 
