@@ -103,17 +103,18 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
 
 int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokosc,
             wierzchołki &najdalszeWPoddrzewie, int nrWierzcholka, int gl, odleglosc &odlegloscDol) {
-          /*  int &maksGl, int &maksW) {
+          //  int &maksGl, int &maksW) {
 
     glebokosc[nrWierzcholka] = gl;
 
-    if (gl > maksGl) {
+    /*if (gl > maksGl) {
         maksGl = gl;
         maksW = nrWierzcholka;
     }*/
 
             if (nrWierzcholka == -1) return -1;
             if (lewy[nrWierzcholka] == -1 && prawy[nrWierzcholka] == -1) {
+                cout << nrWierzcholka << " nr " << najdalszeWPoddrzewie[nrWierzcholka] << endl;
                 najdalszeWPoddrzewie[nrWierzcholka] = nrWierzcholka;
                 odlegloscDol[nrWierzcholka] = 0;
                 return 1;
@@ -139,10 +140,12 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokos
            // cout << nrWierzcholka << " lg " << gLewy << " pg " << gPrawy << endl;
             if (gLewy > gPrawy) {
              //   cout << nrWierzcholka << " w " << najdalszeWPoddrzewie[lewy[nrWierzcholka]] << " l " << lewy[nrWierzcholka] << endl;
+                cout << nrWierzcholka << " L " << najdalszeWPoddrzewie[nrWierzcholka] << endl;
                 najdalszeWPoddrzewie[nrWierzcholka] =
                         najdalszeWPoddrzewie[lewy[nrWierzcholka]];
                 odlegloscDol[nrWierzcholka] = gLewy;
             } else {
+                cout << nrWierzcholka << " P " << najdalszeWPoddrzewie[nrWierzcholka] << endl;
                 najdalszeWPoddrzewie[nrWierzcholka] =
                         najdalszeWPoddrzewie[prawy[nrWierzcholka]];
                 odlegloscDol[nrWierzcholka] = gPrawy;
@@ -257,9 +260,9 @@ int znajdzLCA(int w1, int w2, macierz jumps, int przodkowie) {
     return jumps[w1][0];
 }
 
-int odpowiedzBajtynie(zadanie zadanieJedno, odleglosc najdalszyOgolnie,
-                        wierzchołki najdalszyOgolnieW, macierz jumps,
-                        odleglosc glebokosc, int przodkowie) {
+int odpowiedzBajtynie(zadanie &zadanieJedno, odleglosc &najdalszyOgolnie,
+                        wierzchołki &najdalszyOgolnieW, macierz &jumps,
+                        odleglosc &glebokosc, int przodkowie) {
     int poczatkowy = zadanieJedno.first;
     int odl = zadanieJedno.second;
     if (odl > najdalszyOgolnie[poczatkowy]) {
@@ -272,7 +275,7 @@ int odpowiedzBajtynie(zadanie zadanieJedno, odleglosc najdalszyOgolnie,
     //if (w1 == w2) return w1;
 
     int roznicaGlebokosci = glebokosc[w1] - glebokosc[w2];
-
+   // cout << glebokosc[w1] << " r " << glebokosc[w2] << " og" << endl;
     if (roznicaGlebokosci < 0) { //w2 jest głębszy
         w2 = skoczO_K(abs(roznicaGlebokosci), w2, jumps, przodkowie);
     } else if (roznicaGlebokosci > 0) { //w1 jest głębszy
@@ -286,13 +289,14 @@ int odpowiedzBajtynie(zadanie zadanieJedno, odleglosc najdalszyOgolnie,
     } else {
         int najdalszyW = najdalszyOgolnieW[poczatkowy];
         int pozostalyOdcinek = glebokosc[najdalszyW] - (odl - ujetyOdcinek);
+    //    int pozostalyOdcinek = glebokosc[najdalszyW] - glebokosc[LCA] - odl;
         return skoczO_K(pozostalyOdcinek, najdalszyW, jumps, przodkowie);
     }
 }
 
-void odpowiedzNaListe(polecenia pol, odleglosc najdalszyOgolnie,
-                      wierzchołki najdalszyOgolnieW, macierz jumps,
-                      odleglosc glebokosc, int przodkowie) { //int liczbaPolecen) {
+void odpowiedzNaListe(polecenia &pol, odleglosc &najdalszyOgolnie,
+                      wierzchołki &najdalszyOgolnieW, macierz &jumps,
+                      odleglosc &glebokosc, int przodkowie) { //int liczbaPolecen) {
     for (zadanie z: pol) {
         int rozw = odpowiedzBajtynie(z, najdalszyOgolnie,
                 najdalszyOgolnieW, jumps, glebokosc, przodkowie);
@@ -357,7 +361,7 @@ int main(){
     stworzJumpingPointers(liczbaPolanek, liczbaPrzodkow, rodzic, jumps);
 
     for (int i = 0; i < liczbaPolanek + 1; i++) {
-        cout << "g " << i << " " << najdalszeWierzchołki[i] << endl;
+        cout << "g " << i << " " << glebokosc[i] << endl;
     }
     odpowiedzNaListe(pol, najdalsze, najdalszeWierzchołki,
                      jumps, glebokosc, liczbaPrzodkow);
