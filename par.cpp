@@ -103,14 +103,17 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
 
 int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokosc,
             wierzchołki &najdalszeWPoddrzewie, int nrWierzcholka, int gl, odleglosc &odlegloscDol) {
-            glebokosc[nrWierzcholka] = gl;
 
+    glebokosc[nrWierzcholka] = gl;
+
+            //if (nrWierzcholka == -1) return 0;
             if (lewy[nrWierzcholka] == -1 && prawy[nrWierzcholka] == -1) {
                 najdalszeWPoddrzewie[nrWierzcholka] = nrWierzcholka;
-                return -1;
+                odlegloscDol[nrWierzcholka] = 0;
+                return 0;
             }
 
-            int gLewy = -2;
+            /*int gLewy = -2;
             int gPrawy = -2;
 
             if (lewy[nrWierzcholka] != -1) {
@@ -121,7 +124,12 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokos
             if (prawy[nrWierzcholka] != -1) {
                 gPrawy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
                                          prawy[nrWierzcholka], gl + 1, odlegloscDol);
-            }
+            } */
+
+            int gLewy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
+                                        lewy[nrWierzcholka], gl + 1, odlegloscDol);
+            int gPrawy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
+                                         prawy[nrWierzcholka], gl + 1, odlegloscDol);
 
             if (gLewy > gPrawy) {
                 najdalszeWPoddrzewie[nrWierzcholka] =
@@ -315,7 +323,7 @@ int main(){
     inicjalizujMacierz(liczbaPolanek, jumps, liczbaPrzodkow);
 
     for (int i = 0; i < liczbaPolanek + 1; i++) {
-        cout << "g " << i << " " << odlegloscDol[i] << endl;
+        cout << "g " << i << " " << najdalszeWPoddrzewie[i] << endl;
     }
     odpowiedzNaListe(pol, najdalsze, najdalszeWierzchołki,
                      jumps, glebokosc, liczbaPrzodkow);
