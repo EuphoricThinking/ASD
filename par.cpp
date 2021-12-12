@@ -103,8 +103,14 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
 
 int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokosc,
             wierzchołki &najdalszeWPoddrzewie, int nrWierzcholka, int gl, odleglosc &odlegloscDol) {
+          /*  int &maksGl, int &maksW) {
 
     glebokosc[nrWierzcholka] = gl;
+
+    if (gl > maksGl) {
+        maksGl = gl;
+        maksW = nrWierzcholka;
+    }*/
 
             if (nrWierzcholka == -1) return -1;
             if (lewy[nrWierzcholka] == -1 && prawy[nrWierzcholka] == -1) {
@@ -127,12 +133,12 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokos
             } */
 
             int gLewy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
-                                        lewy[nrWierzcholka], gl + 1, odlegloscDol);
+                                        lewy[nrWierzcholka], gl + 1, odlegloscDol);   //, maksGl, maksW);
             int gPrawy = znajdzGlebokosc(lewy, prawy, glebokosc, najdalszeWPoddrzewie,
-                                         prawy[nrWierzcholka], gl + 1, odlegloscDol);
-            cout << nrWierzcholka << " lg " << gLewy << " pg " << gPrawy << endl;
+                                         prawy[nrWierzcholka], gl + 1, odlegloscDol); //, maksGl, maksW);
+           // cout << nrWierzcholka << " lg " << gLewy << " pg " << gPrawy << endl;
             if (gLewy > gPrawy) {
-                cout << nrWierzcholka << " w " << najdalszeWPoddrzewie[lewy[nrWierzcholka]] << " l " << lewy[nrWierzcholka] << endl;
+             //   cout << nrWierzcholka << " w " << najdalszeWPoddrzewie[lewy[nrWierzcholka]] << " l " << lewy[nrWierzcholka] << endl;
                 najdalszeWPoddrzewie[nrWierzcholka] =
                         najdalszeWPoddrzewie[lewy[nrWierzcholka]];
                 odlegloscDol[nrWierzcholka] = gLewy;
@@ -145,36 +151,42 @@ int znajdzGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokos
             return max(gLewy, gPrawy) + 1;
 }
 
+
 void odlegloscGora(int nrWierzcholka, wierzchołki &prawy, wierzchołki &lewy,
                    int odlegloscNajdalszeRodzic, wierzchołki &rodzic,
                    odleglosc &glebokosc, odleglosc &odlegloscDol,
                    odleglosc &najdalsze, wierzchołki &najdalszeWierzchołki,
-                   bool czyPrawy, wierzchołki &najdalszyDol) {
+                   bool czyPrawy, wierzchołki &najdalszyDol, int najdalszyWOdRodzica) {
     if (nrWierzcholka == -1) {
         return;
     }
 
     if (nrWierzcholka == 1) {
-        int glPrawy = glebokosc[prawy[nrWierzcholka]];
-        int glLewy = glebokosc[lewy[nrWierzcholka]];
-        if (glLewy > glPrawy) {
-            najdalsze[nrWierzcholka] = glLewy;
-            najdalszeWierzchołki[nrWierzcholka] = lewy[nrWierzcholka];
+        int odlPrawy = odlegloscDol[prawy[nrWierzcholka]];
+        int odlLewy = odlegloscDol[lewy[nrWierzcholka]];
+
+        if (lewy[1] == -1) odlLewy = -1;
+        if (prawy[1] == -1) odlPrawy = -1;
+        if (odlLewy > odlPrawy) {
+            najdalsze[nrWierzcholka] = odlLewy + 1;
+            najdalszeWierzchołki[nrWierzcholka] = najdalszyDol[lewy[nrWierzcholka]];
         } else {
-            najdalsze[nrWierzcholka] = glPrawy;
-            najdalszeWierzchołki[nrWierzcholka] = prawy[nrWierzcholka];
+            najdalsze[nrWierzcholka] = odlPrawy + 1;
+            najdalszeWierzchołki[nrWierzcholka] = najdalszyDol[prawy[nrWierzcholka]];
         }
+        cout << najdalszeWierzchołki[nrWierzcholka] << " TUTAJ " << najdalsze[nrWierzcholka] << endl;
+        odlegloscGora(prawy[nrWierzcholka], prawy, lewy, odlLewy + 2,
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, true, najdalszyDol,
+                      najdalszyDol[lewy[nrWierzcholka]]);
 
-        odlegloscGora(prawy[nrWierzcholka], prawy, lewy, glLewy + 1,
-                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, true, najdalszyDol);
-
-        odlegloscGora(lewy[nrWierzcholka], prawy, lewy, glPrawy + 1,
-                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, false, najdalszyDol);
+        odlegloscGora(lewy[nrWierzcholka], prawy, lewy, odlPrawy + 2,
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, false, najdalszyDol,
+                      najdalszyDol[prawy[nrWierzcholka]]);
     }    else {
         int rodzenstwo = (czyPrawy) ? lewy[rodzic[nrWierzcholka]] : prawy[rodzic[nrWierzcholka]];
         int odlRodzenstwo = odlegloscDol[rodzenstwo] + 2;
         int odlDol = odlegloscDol[nrWierzcholka];
-        int rodzicWierzcholka = rodzic[nrWierzcholka];
+       // int rodzicWierzcholka = rodzic[nrWierzcholka];
 
         if (odlDol > odlegloscNajdalszeRodzic && odlDol > odlRodzenstwo) {
             najdalsze[nrWierzcholka] = odlDol;
@@ -183,15 +195,17 @@ void odlegloscGora(int nrWierzcholka, wierzchołki &prawy, wierzchołki &lewy,
             najdalsze[nrWierzcholka] = odlRodzenstwo;
             najdalszeWierzchołki[nrWierzcholka] = najdalszyDol[rodzenstwo];
         } else {
-            najdalsze[nrWierzcholka] = najdalsze[rodzicWierzcholka];
-            najdalszeWierzchołki[nrWierzcholka] = najdalszeWierzchołki[rodzicWierzcholka];
+            najdalsze[nrWierzcholka] = odlegloscNajdalszeRodzic; //najdalsze[rodzicWierzcholka];
+            najdalszeWierzchołki[nrWierzcholka] = najdalszyWOdRodzica; //najdalszeWierzchołki[rodzicWierzcholka];
         }
 
         odlegloscGora(prawy[nrWierzcholka], prawy, lewy, najdalsze[nrWierzcholka] + 1,
-                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, true, najdalszyDol);
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, true, najdalszyDol,
+                      najdalszeWierzchołki[nrWierzcholka]);
 
         odlegloscGora(lewy[nrWierzcholka], prawy, lewy, najdalsze[nrWierzcholka] + 1,
-                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, false, najdalszyDol);
+                      rodzic, glebokosc, odlegloscDol, najdalsze, najdalszeWierzchołki, false, najdalszyDol,
+                      najdalszeWierzchołki[nrWierzcholka]);
     }
 }
 
@@ -209,11 +223,11 @@ void inicjalizujMacierz(int liczbaPolanek, macierz &m, int przodkowie) {
 
 void stworzJumpingPointers(int liczbaPolanek, int przodkowie, wierzchołki &rodzice,
                            macierz &jumps) {
-    for (int i = 0; i < liczbaPolanek + 1; i++) {
+    for (int i = 1; i < liczbaPolanek + 1; i++) {
         jumps[i][0] = rodzice[i];
     }
 
-    for (int i = 0; i < liczbaPolanek + 1; i++) {
+    for (int i = 1; i < liczbaPolanek + 1; i++) {
         for (int j = 1; j < przodkowie; j++) {
             jumps[i][j] = jumps[jumps[i][j - 1]][j - 1];
         }
@@ -286,6 +300,23 @@ void odpowiedzNaListe(polecenia pol, odleglosc najdalszyOgolnie,
     }
 }
 
+/*void wyznaczGlebokosc(wierzchołki &lewy, wierzchołki &prawy, odleglosc &glebokosc,
+                      wierzchołki &najdalszeWPoddrzewie, int nrWierzcholka, int gl, odleglosc &odlegloscDol,
+                      int leweD, int praweD) {
+    int maksGl = -1;
+    int maksW = 1;
+
+    int maksGlP = -1;
+    int maksWP = 1;
+
+    int bezuzyteczne = znajdzGlebokosc(lewy, prawy, glebokosc,
+                                       najdalszeWPoddrzewie, leweD,
+                                       praweD, odlegloscDol, maksGlP, maksWP);
+    bezuzyteczne = znajdzGlebokosc(lewy, prawy, glebokosc,
+                                   najdalszeWPoddrzewie, leweD,
+                                   leweD, odlegloscDol, maksGl, maksW);
+
+}*/
 
 int main(){
     polecenia pol;
@@ -307,24 +338,26 @@ int main(){
     inicjujGlebokosc(liczbaPolanek, odlegloscDol);
     inicjujGlebokosc(liczbaPolanek, najdalsze);
 
+
     wierzchołki najdalszeWPoddrzewie;
     wierzchołki najdalszeWierzchołki;
     inicjujWierzcholki(liczbaPolanek, najdalszeWierzchołki);
     inicjujWierzcholki(liczbaPolanek, najdalszeWPoddrzewie);
-    int bezuzyteczne = znajdzGlebokosc(lewy, prawy, glebokosc,
+   int bezuzyteczne = znajdzGlebokosc(lewy, prawy, glebokosc,
                                            najdalszeWPoddrzewie, 1,
-                                           0, odlegloscDol);
+                                           0, odlegloscDol); //maksGl, maksW);
 
     odlegloscGora(1, prawy, lewy, 0, rodzic, glebokosc, odlegloscDol,
             najdalsze, najdalszeWierzchołki,
-            false, najdalszeWPoddrzewie);
+            false, najdalszeWPoddrzewie, 0);
 
     int liczbaPrzodkow = (int)ceil(log2(liczbaPolanek)); //potegi wlasciwie
     macierz jumps;
     inicjalizujMacierz(liczbaPolanek, jumps, liczbaPrzodkow);
+    stworzJumpingPointers(liczbaPolanek, liczbaPrzodkow, rodzic, jumps);
 
     for (int i = 0; i < liczbaPolanek + 1; i++) {
-        cout << "g " << i << " " << najdalszeWPoddrzewie[i] << endl;
+        cout << "g " << i << " " << najdalszeWierzchołki[i] << endl;
     }
     odpowiedzNaListe(pol, najdalsze, najdalszeWierzchołki,
                      jumps, glebokosc, liczbaPrzodkow);
