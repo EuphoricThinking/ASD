@@ -69,15 +69,19 @@ public:
         }
     }
 
+    void print_sequence() {
+        _print_sequence(root);
+        cout << endl;
+    }
+
     void print_tree() {
         _print_tree(root);
-        cout << endl;
     }
 
 private:
     struct Node {
         char residue;
-        int lef_count;
+        int count;
         int height;
 
         char adjacent_residue;
@@ -88,17 +92,24 @@ private:
         struct Node *left;
         struct Node *right;
         struct Node *parent;
-        Node (char _residue): residue(_residue), lef_count(0), left(NULL),
-            right(NULL), parent(NULL) {}
+        Node (char _residue): residue(_residue), count(1), left(NULL),
+                              right(NULL), parent(NULL) {}
     };
     struct Node *root = NULL;
 
-    int _count_left_nodes(Node* cur) {
-        return (cur != NULL ? cur->lef_count : 0);
+    int _count_nodes(Node* cur) {
+        return (cur != NULL ? cur->count : 0);
     }
 
     char _return_residue(Node* current) {
         return current->residue;
+    }
+
+    void _update(Node* current) {
+        if (current != NULL) {
+            current->count = 1 + _count_nodes(current->left) +
+                    _count_nodes(current->right);
+        }
     }
 
     Node* _insert(Node* current, char res, int index) {
@@ -106,21 +117,33 @@ private:
             return new Node(res);
         }
 
-        if (current->lef_count <= _count_left_nodes(current)) {
+        int left_nodes = _count_nodes(current->left);
+        //cout << "index: " << index << " count: " << current->count << endl;
+        if (index <= left_nodes) {
+           // cout << "here" << endl;
             current->left = _insert(current->left, res, index);
         } else {
             current->right = _insert(current->right, res,
-                                     index - _count_left_nodes(current->left) - 1);
+                                     index - left_nodes - 1);
         }
 
 //bez update wsadza odwrotnie
+        _update(current);
         return current;
+    }
+
+    void _print_sequence(Node* current) {
+        if (current != NULL) {
+            _print_sequence(current->left);
+            cout << _return_residue(current);
+            _print_sequence(current->right);
+        }
     }
 
     void _print_tree(Node* current) {
         if (current != NULL) {
             _print_tree(current->left);
-            cout << _return_residue(current);
+            cout << current->residue << " " << current->count << endl;
             _print_tree(current->right);
         }
     }
@@ -135,5 +158,8 @@ int main(void) {
 
     DNAzer result;
     result.insert_sequence(dna, word_length);
+    result.print_sequence();
+    //result.print_tree();
+    result.insert('j', 3);
     result.print_tree();
 }
