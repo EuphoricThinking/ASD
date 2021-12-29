@@ -102,12 +102,21 @@ private:
         return (cur != NULL ? cur->count : 0);
     }
 
-    char _return_residue(Node* current) {
+    char _get_residue(Node* current) {
         return current->residue;
     }
 
-    int _return_height(Node* current) {
+    int _get_height(Node* current) {
         return (current != NULL ? current->height : 0);
+    }
+
+    void _update_height(Node* current) {
+        current->height = 1 + max(_get_height(current->left),
+                                  _get_height(current->right));
+    }
+
+    int _get_balance(Node* cur) {
+        return _get_height(cur->left) - _get_height(cur->right);
     }
 
     void _update(Node* current) {
@@ -117,9 +126,50 @@ private:
 
             current->count = 1 + _count_nodes(left_child) +
                     _count_nodes(right_child);
-            current->height = 1 + max(_return_height(left_child),
-                                  _return_height(right_child));
+            //current->height = 1 + max(_get_height(left_child),
+            //                    _get_height(right_child));
+            _update_height(current);
         }
+    }
+
+    //left child of a left child //left_left
+    Node* _right_rotate(Node* cur_root) {
+        Node* first_level_right_son = cur_root->left->right;
+        Node* first_level = cur_root->left;
+
+        cur_root->left = first_level_right_son;
+        first_level->right = cur_root;
+
+        //_update_height(cur_root);
+        //_update_height(first_level);
+        _update(cur_root);
+        _update(first_level);
+        return first_level;
+    }
+
+    //right child of a right child//right right
+    Node* _left_rotate(Node *cur_root) {
+        Node* first_level = cur_root->right;
+        Node* first_level_left_son = first_level->left;
+
+        cur_root->right = first_level_left_son;
+        first_level->left = cur_root;
+
+        //_update_height(cur_root);
+        //_update_height(first_level);
+        _update(cur_root);
+        _update(first_level);
+        return first_level;
+    }
+
+    Node* _left_right(Node* cur_root) {
+        cur_root->left = _left_rotate(cur_root->left);
+        return _right_rotate(cur_root);
+    }
+
+    Node* _right_left(Node* cur_root) {
+        cur_root->right = _right_rotate(cur_root->right);
+        return _left_rotate(cur_root);
     }
 
     Node* _insert(Node* current, char res, int index) {
@@ -139,13 +189,37 @@ private:
 
 //bez update wsadza odwrotnie
         _update(current);
+
+        int balance = _get_balance(current);
+
+        if (balance > 1) {
+            Node* left_child = current->left;
+            /*Node* right_child = current->right;
+            int left_height = _get_height(left_child);
+            int right_height = _get_height(right_child);*/
+
+            if (_get_balance(left_child) <= 0) {
+                return _right_rotate(current);
+            } else {
+                return _left_right(current);
+            }
+        } else if (balance < -1) {
+            Node* right_child = current->right;
+
+            if (_get_balance(right_child) >= 0) {
+                return _left_rotate(current);
+            } else {
+                return _right_left(current);
+            }
+        }
+
         return current;
     }
 
     void _print_sequence(Node* current) {
         if (current != NULL) {
             _print_sequence(current->left);
-            cout << _return_residue(current);
+            cout << _get_residue(current);
             _print_sequence(current->right);
         }
     }
