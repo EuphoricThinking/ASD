@@ -63,6 +63,17 @@ public:
         root = _insert(root, res, index);
     }
 
+    void insert_sequence(string seq, int seq_length) {
+        for (int i = 0; i < seq_length; i++) {
+            insert(seq[i], i);
+        }
+    }
+
+    void print_tree() {
+        _print_tree(root);
+        cout << endl;
+    }
+
 private:
     struct Node {
         char residue;
@@ -86,6 +97,10 @@ private:
         return (cur != NULL ? cur->lef_count : 0);
     }
 
+    char _return_residue(Node* current) {
+        return current->residue;
+    }
+
     Node* _insert(Node* current, char res, int index) {
         if (current == NULL) {
             return new Node(res);
@@ -98,7 +113,16 @@ private:
                                      index - _count_left_nodes(current->left) - 1);
         }
 
+//bez update wsadza odwrotnie
         return current;
+    }
+
+    void _print_tree(Node* current) {
+        if (current != NULL) {
+            _print_tree(current->left);
+            cout << _return_residue(current);
+            _print_tree(current->right);
+        }
     }
 };
 
@@ -108,4 +132,8 @@ int main(void) {
     commands com;
     string dna = read_input(word_length, num_commands, com);
     print_commands(com);
+
+    DNAzer result;
+    result.insert_sequence(dna, word_length);
+    result.print_tree();
 }
