@@ -1,6 +1,10 @@
 //
 // Created by heheszek on 29.12.2021.
 //
+
+//
+// Created by heheszek on 29.12.2021.
+//
 #include <iostream>
 #include <string>
 #include <vector>
@@ -54,7 +58,7 @@ string read_input(int &word_length, int &num_commands, commands &com) {
 void print_commands(commands com) {
     for (commands::iterator iter = com.begin(); iter != com.end(); iter++) {
         cout << get<0>(*iter) << " " << get<1>(*iter) << " "
-            << get<2>(*iter) << " " << get<3>(*iter) << endl;
+             << get<2>(*iter) << " " << get<3>(*iter) << endl;
     }
 }
 
@@ -125,7 +129,7 @@ private:
             Node* right_child = current->right;
 
             current->count = 1 + _count_nodes(left_child) +
-                    _count_nodes(right_child);
+                             _count_nodes(right_child);
             //current->height = 1 + max(_get_height(left_child),
             //                    _get_height(right_child));
             _update_height(current);
@@ -214,7 +218,7 @@ private:
         int left_nodes = _count_nodes(current->left);
         cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
-           // cout << "here" << endl;
+            // cout << "here" << endl;
             current->left = _insert(current->left, res, index);
         } else {
             current->right = _insert(current->right, res,
@@ -277,7 +281,7 @@ private:
         if (current != NULL) {
             _print_tree(current->left, h + 1);
             cout << current->residue << " count " << current->count <<
-                " height " << current->height << " h " << h << endl;
+                 " height " << current->height << " h " << h << endl;
             _print_tree(current->right, h + 1);
         }
     }
