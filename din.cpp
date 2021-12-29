@@ -140,6 +140,7 @@ private:
         cur_root->left = first_level_right_son;
         first_level->right = cur_root;
 
+        cout << " right " << cur_root->residue << endl;
         //_update_height(cur_root);
         //_update_height(first_level);
         _update(cur_root);
@@ -155,6 +156,7 @@ private:
         cur_root->right = first_level_left_son;
         first_level->left = cur_root;
 
+        cout << " left " << cur_root->residue << endl;
         //_update_height(cur_root);
         //_update_height(first_level);
         _update(cur_root);
@@ -163,11 +165,13 @@ private:
     }
 
     Node* _left_right(Node* cur_root) {
+        cout << " left right " << cur_root->residue << endl;
         cur_root->left = _left_rotate(cur_root->left);
         return _right_rotate(cur_root);
     }
 
     Node* _right_left(Node* cur_root) {
+        cout << " right left " << cur_root->residue << endl;
         cur_root->right = _right_rotate(cur_root->right);
         return _left_rotate(cur_root);
     }
@@ -178,7 +182,7 @@ private:
         }
 
         int left_nodes = _count_nodes(current->left);
-        //cout << "index: " << index << " count: " << current->count << endl;
+        cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
            // cout << "here" << endl;
             current->left = _insert(current->left, res, index);
@@ -191,6 +195,7 @@ private:
         _update(current);
 
         int balance = _get_balance(current);
+        cout << " balance " << balance << endl;
 
         if (balance > 1) {
             Node* left_child = current->left;
@@ -198,21 +203,26 @@ private:
             int left_height = _get_height(left_child);
             int right_height = _get_height(right_child);*/
 
-            if (_get_balance(left_child) <= 0) {
+            if (_get_balance(left_child) >= 0) {
+                cout << " lb " << _get_balance(left_child) << " higher right " << endl;
                 return _right_rotate(current);
             } else {
+                cout << " lb " << _get_balance(left_child) << " higher left " << endl;
                 return _left_right(current);
             }
         } else if (balance < -1) {
             Node* right_child = current->right;
 
-            if (_get_balance(right_child) >= 0) {
+            if (_get_balance(right_child) <= 0) {
+                cout << " rb " << _get_balance(right_child) << " higher left " << endl;
                 return _left_rotate(current);
             } else {
+                cout << " rb " << _get_balance(right_child) << " higher right " << endl;
                 return _right_left(current);
             }
         }
 
+        cout << "exit " << current->residue << endl;
         return current;
     }
 
@@ -245,9 +255,9 @@ int main(void) {
     result.insert_sequence(dna, word_length);
     result.print_sequence();
     //result.print_tree();
-    result.insert('j', 3);
+   /* result.insert('j', 3);
     result.insert('k', 3);
     result.insert('f', 5);
-    result.insert('p', 5);
+    result.insert('p', 5);*/
     result.print_tree();
 }
