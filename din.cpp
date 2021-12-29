@@ -161,5 +161,8 @@ int main(void) {
     result.print_sequence();
     //result.print_tree();
     result.insert('j', 3);
+    result.insert('k', 3);
+    result.insert('f', 5);
+    result.insert('p', 5);
     result.print_tree();
 }
