@@ -76,7 +76,7 @@ public:
     }
 
     void print_tree() {
-        _print_tree(root);
+        _print_tree(root, 0);
     }
 
 private:
@@ -107,7 +107,7 @@ private:
     }
 
     int _get_height(Node* current) {
-        return (current != NULL ? current->height : 0);
+        return (current != NULL ? current->height : -1);  //:0
     }
 
     void _update_height(Node* current) {
@@ -195,7 +195,7 @@ private:
         _update(current);
 
         int balance = _get_balance(current);
-        cout << " balance " << balance << endl;
+        cout << " balance " << balance << " " << current->residue << endl;
 
         if (balance > 1) {
             Node* left_child = current->left;
@@ -234,12 +234,12 @@ private:
         }
     }
 
-    void _print_tree(Node* current) {
+    void _print_tree(Node* current, int h) {
         if (current != NULL) {
-            _print_tree(current->left);
+            _print_tree(current->left, h + 1);
             cout << current->residue << " count " << current->count <<
-                " height " << current->height << endl;
-            _print_tree(current->right);
+                " height " << current->height << " h " << h << endl;
+            _print_tree(current->right, h + 1);
         }
     }
 };
