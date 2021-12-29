@@ -12,6 +12,7 @@ using std::endl;
 using std::make_tuple;
 using std::make_pair;
 using std::get;
+using std::max;
 
 
 using std::tuple;
@@ -93,7 +94,7 @@ private:
         struct Node *right;
         struct Node *parent;
         Node (char _residue): residue(_residue), count(1), left(NULL),
-                              right(NULL), parent(NULL) {}
+                              right(NULL), parent(NULL), height(0) {}
     };
     struct Node *root = NULL;
 
@@ -105,10 +106,19 @@ private:
         return current->residue;
     }
 
+    int _return_height(Node* current) {
+        return (current != NULL ? current->height : 0);
+    }
+
     void _update(Node* current) {
         if (current != NULL) {
-            current->count = 1 + _count_nodes(current->left) +
-                    _count_nodes(current->right);
+            Node* left_child = current->left;
+            Node* right_child = current->right;
+
+            current->count = 1 + _count_nodes(left_child) +
+                    _count_nodes(right_child);
+            current->height = 1 + max(_return_height(left_child),
+                                  _return_height(right_child));
         }
     }
 
@@ -143,7 +153,8 @@ private:
     void _print_tree(Node* current) {
         if (current != NULL) {
             _print_tree(current->left);
-            cout << current->residue << " " << current->count << endl;
+            cout << current->residue << " count " << current->count <<
+                " height " << current->height << endl;
             _print_tree(current->right);
         }
     }
