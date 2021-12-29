@@ -10,14 +10,18 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::make_tuple;
+using std::make_pair;
 using std::get;
+
 
 using std::tuple;
 using std::vector;
 using std::string;
+using std::pair;
 
 using command = tuple<char, int, int, int>;
 using commands = vector<command>;
+using interval = pair<int, int>;
 
 string read_input(int &word_length, int &num_commands, commands &com) {
     string dna_code;
@@ -52,6 +56,51 @@ void print_commands(commands com) {
             << get<2>(*iter) << " " << get<3>(*iter) << endl;
     }
 }
+
+class DNAzer {
+public:
+    void insert(char res, int index) {
+        root = _insert(root, res, index);
+    }
+
+private:
+    struct Node {
+        char residue;
+        int lef_count;
+        int height;
+
+        char adjacent_residue;
+        int max_sequence;
+        interval begend;
+        int end;
+
+        struct Node *left;
+        struct Node *right;
+        struct Node *parent;
+        Node (char _residue): residue(_residue), lef_count(0), left(NULL),
+            right(NULL), parent(NULL) {}
+    };
+    struct Node *root = NULL;
+
+    int _count_left_nodes(Node* cur) {
+        return (cur != NULL ? cur->lef_count : 0);
+    }
+
+    Node* _insert(Node* current, char res, int index) {
+        if (current == NULL) {
+            return new Node(res);
+        }
+
+        if (current->lef_count <= _count_left_nodes(current)) {
+            current->left = _insert(current->left, res, index);
+        } else {
+            current->right = _insert(current->right, res,
+                                     index - _count_left_nodes(current->left) - 1);
+        }
+
+        return current;
+    }
+};
 
 int main(void) {
     int word_length;
