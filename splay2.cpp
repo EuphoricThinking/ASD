@@ -107,10 +107,10 @@ private:
      //   char max_adjacent_residue;
         int max_sequence_length;
      //   char last_residue;
-        int last_segment_left_length;
-        int last_segment_right_length;
-        char last_residue_left;
-        char last_residue_right;
+        int prefix_length;
+        int suffix_length;
+        char prefix_residue;
+        char suffix_residue;
 
         struct Node *left;
         struct Node *right;
@@ -120,10 +120,10 @@ private:
                                               // max_adjacent_residue(residue),
                                               // last_residue(residue),
                                                max_sequence_length(1),
-                                               last_segment_left_length(1),
-                                               last_segment_right_length(1),
-                                               last_residue_left(residue),
-                                               last_residue_right(residue);
+                                               prefix_length(1),
+                                               suffix_length(1),
+                                               prefix_residue(residue),
+                                               suffix_residue(residue)
 
                                                {}
     };
@@ -158,36 +158,79 @@ private:
     }
 
     int _get_last_segment_length(Node* cur) {
-        return (cur != NULL ? cur->last_segment_left_length : -1);
+        return (cur != NULL ? cur->prefix_length : -1);
     }
 
     void _update_segment_length(Node* cur_root) {
-        Node* left_child = cur_root->left;
-        Node* right_child = cur_root->right;
+        if (cur_root != NULL) {
+            Node *left_child = cur_root->left;
+            Node *right_child = cur_root->right;
 
-        if ((!left_child) && (!right_child)) {
-            cur_root->last_segment_left_length = 1;
-            cur_root->max_sequence_length = 1;
-          //  cur_root->max_adjacent_residue = cur_root->residue;
-           // cur_root->last_residue = cur_root->residue;
-        } else if (!left_child) {
-            if (cur_root->residue == right_child->residue) {
-                cur_root->last_segment_left_length += 1;
-                cur_root->max_sequence_length = max(cur_root->last_segment_left_length,
-                                                    cur_root->max_sequence_length);
-            } else {
-                cur_root->last_segment_left_length = 1;
+            if ((!left_child) && (!right_child)) {
+                cur_root->prefix_length = 1;
+                cur_root->max_sequence_length = 1;
+                cur_root->suffix_residue = cur_root->residue;
+                cur_root->prefix_residue = cur_root->residue;
             }
-        } else if (!right_child) {
-            if (cur_root->residue == left_child->residue) {
-                cur_root->last_segment_left_length += 1;
-                cur_root->max_sequence_length = max(cur_root->last_segment_left_length,
-                                                    cur_root->max_sequence_length);
-            } else {
-                cur_root->last_segment_left_length = 1;
+            else if (!right_child) {
+                if (cur_root->residue == left_child->suffix_residue) {
+                    cur_root->suffix_length =
+                            left_child->suffix_length + 1;
+                } else {
+                    cur_root->suffix_length = 1;
+                }
+
+                cur_root->max_sequence_length = max(left_child->max_sequence_length,
+                                                    cur_root->suffix_length);
+
+                cur_root->prefix_length = left_child->prefix_length;
+                cur_root->prefix_residue = left_child->prefix_residue;
+                cur_root->suffix_residue = cur_root->residue;
+            } else if (!left_child) {
+                if (cur_root->residue == right_child->prefix_residue) {
+                    cur_root->prefix_length =
+                            right_child->prefix_length + 1;
+                } else {
+                    cur_root->prefix_length = 1;
+                }
+
+                cur_root->max_sequence_length = max(right_child->max_sequence_length,
+                                                    cur_root->prefix_length);
+
+                cur_root->suffix_length = right_child->suffix_length;
+                cur_root->suffix_residue = right_child->suffix_residue;
+                cur_root->prefix_residue = cur_root->residue;
+            } else { //right_child && left_child
+                int left_left = left_child->suffix_length;
+                int right_right = right_child->prefix_length;
+                //int left_middle = (left_child->last_residue_right == cur_root->residue ? left_left + 1
+
+                if (left_child->suffix_residue == right_child->prefix_residue
+                        && left_child->suffix_residue == cur_root->residue) { //merged
+                    int new_length = left_left + right_right + 1;
+
+                    int max_both = max(left_child->max_sequence_length,
+                                       right_child->max_sequence_length);
+                    cur_root->max_sequence_length = max(max_both, new_length);
+
+                    cur_root->prefix_length = left_child->prefix_length;
+                    cur_root->suffix_length = right_child->suffix_length;
+                    cur_root->prefix_residue = left_child->prefix_residue;
+                    cur_root->suffix_residue = right_child->suffix_residue;
+                }
+                else if (left_child->suffix_residue == cur_root->residue) {
+                    int new_length = left_left + 1;  //we wont use it anymore
+
+                    int max_both = max(left_child->max_sequence_length,
+                                       right_child->max_sequence_length);
+                    cur_root->max_sequence_length = max(max_both, new_length);
+
+                    cur_root->prefix_length = left_child->prefix_length;
+                    cur_root->suffix_length = right_child->suffix_length;
+                    cur_root->prefix_residue = left_child->prefix_residue;
+                    cur_root->suffix_residue = right_child->suffix_residue;
+                }
             }
-        } else { //right_child && left_child
-            int left_middle = -1;
         }
     }
 
