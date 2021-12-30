@@ -91,6 +91,10 @@ public:
         _splay(index, root);
     }
 
+    void N(int l, int r, int k) {
+        _translocate(l, r, k);
+    }
+
 private:
     struct Node {
         char residue;
@@ -357,35 +361,79 @@ private:
         return make_tuple(left_root, middle_root, right_root);
     }
 
-    void _translocate(int l, int r) {
-        triplet three_roots = _split_into_three(l, r);
+    /*  shape  /   /   \    */
+    void _translocate(int l, int r, int ins) {
+        triplet three_roots = _split_into_three(l, r, root);
 
         Node* left_root = get<0>(three_roots);
         Node* middle_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
 
-        if (left_root == NULL && right_root) {
-            Node* rightmost = _splay(right_root->count, right_root);
-            rightmost->right = middle_root;
-            middle_root->parent = rightmost;
-            _update(rightmost);
-            root = rightmost;
-        } else if (left_root && !right_root) {
-            Node* leftmost_middle = _splay(1, middle_root);
-            leftmost_middle->left = left_root;
-            left_root->parent = leftmost_middle;
-            _update(leftmost_middle);
-            root = leftmost_middle;
-        } else if (!left_root && !right_root) {
-            root = middle_root;
-        } else {  //left_root && right_root
+        Node* new_block;
+        if (right_root) {
             right_root->left = left_root;
-            left_root->parent = right_root;
+            if (left_root) {
+                left_root->parent = right_root;
+            }
             _update(right_root);
-
-            Node* rightmost = _splay(right_root->count, right_root);
-
+            new_block = right_root;
+        } else if (left_root) {
+            new_block = left_root;
+        } else {
+            root = middle_root;
+            return;
         }
+
+        Node* to_insert = _splay(ins, new_block);
+
+        if (!to_insert->left) {
+            middle_root->right = to_insert;
+
+            to_insert->parent = middle_root;
+            _update(middle_root);
+
+            root = middle_root;
+        } else {
+            Node* left_attach = to_insert->left;
+            to_insert->left = NULL;
+            left_attach->parent = NULL;
+            _update(to_insert);
+
+            middle_root->right = to_insert;
+            to_insert->parent = middle_root;
+            _update(middle_root);
+
+            Node *to_attach = _splay(1, middle_root);
+            to_attach->left = left_attach;
+            left_attach->parent = to_attach;
+            _update(to_attach);
+
+            root = to_attach;
+        }
+
+
+//        if (left_root == NULL && right_root) {
+//            Node* rightmost = _splay(right_root->count, right_root);
+//            rightmost->right = middle_root;
+//            middle_root->parent = rightmost;
+//            _update(rightmost);
+//            root = rightmost;
+//        } else if (left_root && !right_root) {
+//            Node* leftmost_middle = _splay(1, middle_root);
+//            leftmost_middle->left = left_root;
+//            left_root->parent = leftmost_middle;
+//            _update(leftmost_middle);
+//            root = leftmost_middle;
+//        } else if (!left_root && !right_root) {
+//            root = middle_root;
+//        } else {  //left_root && right_root
+//            right_root->left = left_root;
+//            left_root->parent = right_root;
+//            _update(right_root);
+//
+//            Node* rightmost = _splay(right_root->count, right_root);
+//
+//        }
     }
 };
 
