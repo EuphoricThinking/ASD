@@ -386,30 +386,42 @@ private:
             return;
         }
 
-        Node* to_insert = _splay(ins, new_block);
+        cout << "second block" << endl;
+        int merged_segment_length = _count_nodes(new_block);
+        Node *to_insert = _splay(ins, new_block);
 
-        if (!to_insert->left) {
-            middle_root->right = to_insert;
+        if (ins != merged_segment_length + 1) {
 
-            to_insert->parent = middle_root;
-            _update(middle_root);
 
-            root = middle_root;
+            if (!to_insert->left) {
+                middle_root->right = to_insert;
+
+                to_insert->parent = middle_root;
+                _update(middle_root);
+
+                root = middle_root;
+            } else {
+                Node *left_attach = to_insert->left;
+                to_insert->left = NULL;
+                left_attach->parent = NULL;
+                _update(to_insert);
+
+                middle_root->right = to_insert;
+                to_insert->parent = middle_root;
+                _update(middle_root);
+
+                Node *to_attach = _splay(1, middle_root);
+                to_attach->left = left_attach;
+                left_attach->parent = to_attach;
+                _update(to_attach);
+
+                root = to_attach;
+            }
         } else {
-            Node* left_attach = to_insert->left;
-            to_insert->left = NULL;
-            left_attach->parent = NULL;
-            _update(to_insert);
-
-            middle_root->right = to_insert;
-            to_insert->parent = middle_root;
-            _update(middle_root);
-
             Node *to_attach = _splay(1, middle_root);
-            to_attach->left = left_attach;
-            left_attach->parent = to_attach;
+            to_attach->left = to_insert;
+            to_insert->parent = to_attach;
             _update(to_attach);
-
             root = to_attach;
         }
 
@@ -459,6 +471,6 @@ int main(void) {
     result.splay(1);
     result.print_tree();
     cout << "\n\n";
-    result.N(3, 5, 2);
+    result.N(3, 5, 7);
     result.print_tree();
 }
