@@ -376,6 +376,7 @@ private:
         }
     }
 
+    //void _update_segments_up
     void _right_rotate(Node* cur_root) {
         Node* first_level = cur_root->left;
 
@@ -403,7 +404,9 @@ private:
         cur_root->parent = first_level;
 
         _update(cur_root);
+        _update_segment_length(cur_root); //added
         _update(first_level);
+        _update_segment_length(first_level); //added;
     }
 
     //right child of a right child//right right
@@ -659,6 +662,21 @@ private:
 
         Node* final_root = _join(left_root, middle_root, right_root);
         root = final_root;
+    }
+
+    /* shape /   /\ */
+    int _find_maximum_length(int l, int r) {
+        triplet three_roots = _split_into_three(l, r, root);
+
+        Node* left_root = get<0>(three_roots);
+        Node* interval_root = get<1>(three_roots);
+        Node* right_root = get<2>(three_roots);
+
+        int result = interval_root->max_sequence_length;
+        Node* final_root = _join(left_root, interval_root, right_root);
+        root = final_root;
+
+        return result;
     }
 
 };
