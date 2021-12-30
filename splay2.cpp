@@ -104,20 +104,28 @@ private:
         int count;
         //int height;
 
-        char max_adjacent_residue;
+     //   char max_adjacent_residue;
         int max_sequence_length;
-        char last_residue;
-        int last_segment_length;
+     //   char last_residue;
+        int last_segment_left_length;
+        int last_segment_right_length;
+        char last_residue_left;
+        char last_residue_right;
 
         struct Node *left;
         struct Node *right;
         struct Node *parent;
         Node (char _residue): residue(_residue), count(1), left(NULL),
                                                right(NULL), parent(NULL),
-                                               max_adjacent_residue(residue),
-                                               last_residue(residue),
+                                              // max_adjacent_residue(residue),
+                                              // last_residue(residue),
                                                max_sequence_length(1),
-                                               last_segment_length(1) {}
+                                               last_segment_left_length(1),
+                                               last_segment_right_length(1),
+                                               last_residue_left(residue),
+                                               last_residue_right(residue);
+
+                                               {}
     };
 
     struct Node *root = NULL;
@@ -150,26 +158,36 @@ private:
     }
 
     int _get_last_segment_length(Node* cur) {
-        return (cur != NULL ? cur->last_segment_length : -1);
+        return (cur != NULL ? cur->last_segment_left_length : -1);
     }
 
-    void _update_segment(Node* cur_root) {
+    void _update_segment_length(Node* cur_root) {
         Node* left_child = cur_root->left;
         Node* right_child = cur_root->right;
 
         if ((!left_child) && (!right_child)) {
-            cur_root->last_segment_length = 1;
+            cur_root->last_segment_left_length = 1;
             cur_root->max_sequence_length = 1;
-            cur_root->max_adjacent_residue = cur_root->residue;
-            cur_root->last_residue = cur_root->residue;
+          //  cur_root->max_adjacent_residue = cur_root->residue;
+           // cur_root->last_residue = cur_root->residue;
         } else if (!left_child) {
             if (cur_root->residue == right_child->residue) {
-                cur_root->last_segment_length += 1;
-                cur_root->max_sequence_length = max(cur_root->last_segment_length,
+                cur_root->last_segment_left_length += 1;
+                cur_root->max_sequence_length = max(cur_root->last_segment_left_length,
                                                     cur_root->max_sequence_length);
             } else {
-                cur_root->last_segment_length = 1;
+                cur_root->last_segment_left_length = 1;
             }
+        } else if (!right_child) {
+            if (cur_root->residue == left_child->residue) {
+                cur_root->last_segment_left_length += 1;
+                cur_root->max_sequence_length = max(cur_root->last_segment_left_length,
+                                                    cur_root->max_sequence_length);
+            } else {
+                cur_root->last_segment_left_length = 1;
+            }
+        } else { //right_child && left_child
+            int left_middle = -1;
         }
     }
 
@@ -519,6 +537,7 @@ private:
         Node* final_root = _join(left_root, middle_root, right_root);
         root = final_root;
     }
+
 };
 
 int main(void) {
