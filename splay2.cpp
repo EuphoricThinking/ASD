@@ -387,7 +387,7 @@ private:
         if (current != NULL) {
             _print_tree(current->left, h + 1);
             cout << current->residue << " count " << current->count <<
-                 " h " << h << " if_left " <<endl;
+                 " h " << h << " max " << current->max_sequence_length << endl;
             _print_tree(current->right, h + 1);
         }
     }
@@ -707,6 +707,7 @@ private:
             _swap_top_down(cur->left);
            // _swap(cur);
             _swap_top_down(cur->right);
+            _update_segment_length(cur);
         }
     }
 
@@ -776,13 +777,14 @@ private:
             } else if (type_command == 'P') {
                 _translocate(j, k, l);
             } else {
-        //        cout << "bef" << endl;
-          //      _print_tree(root, 0);
+                cout << "bef" << endl;
+               _print_tree(root, 0);
                 int result = _find_maximum_length(j, k);
-//                cout << "aft" << endl;
-//                _print_tree(root, 0);
+                cout << "aft" << endl;
+                _print_tree(root, 0);
 //                cout << "\n\n";
-                cout << result << endl;
+              //  cout << "!!!" << result << "???";
+              cout << result << endl;
             }
         }
     }
@@ -793,11 +795,13 @@ int main(void) {
     int num_commands;
     commands com;
     string dna = read_input(word_length, num_commands, com);
-    cout << word_length << "|" << num_commands;
-    print_commands(com);
+//    cout << word_length << "|" << num_commands;
+  //  print_commands(com);
 
     DNAzer result;
     result.insert_sequence(dna, word_length);
+    result.print_tree();
+    cout << "\n";
     result.execute_commands(com, num_commands);
 /*   result.insert_sequence(dna, word_length);
     result.print_sequence();
