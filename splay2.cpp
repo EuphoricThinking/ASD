@@ -69,7 +69,7 @@ void print_commands(commands com) {
 class DNAzer {
 public:
     void insert(char res, int index) {
-        root = _insert(root, res, index - 1, NULL, NULL); //without -1
+        root = _insert(root, res, index - 1, NULL); //without -1
     }
 
     void insert_sequence(string seq, int seq_length) {
@@ -103,19 +103,23 @@ private:
         char residue;
         int count;
         //int height;
-        bool if_left;
 
-        char adjacent_residue;
-        int max_sequence;
-        interval begend;
-        int end;
+        char max_adjacent_residue;
+        int max_sequence_length;
+        char last_residue;
+        int last_segment_length;
 
         struct Node *left;
         struct Node *right;
         struct Node *parent;
-        Node (char _residue, bool child_side): residue(_residue), count(1), left(NULL),
-                                               right(NULL), parent(NULL), if_left(child_side) {}
+        Node (char _residue): residue(_residue), count(1), left(NULL),
+                                               right(NULL), parent(NULL),
+                                               max_adjacent_residue(residue),
+                                               last_residue(residue),
+                                               max_sequence_length(1),
+                                               last_segment_length(1) {}
     };
+    
     struct Node *root = NULL;
 
     using triplet = tuple<Node*, Node*, Node*>;
@@ -154,9 +158,9 @@ private:
         }
     }
 
-    Node* _insert(Node* current, char res, int index, Node* parent, bool child_side) {
+    Node* _insert(Node* current, char res, int index, Node* parent) {
         if (current == NULL) {
-            Node* newborn = new Node(res, child_side);
+            Node* newborn = new Node(res);
             newborn->parent = parent;
             //return new Node(res);
             return newborn;
@@ -166,10 +170,10 @@ private:
         //cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
             // cout << "here" << endl;
-            current->left = _insert(current->left, res, index, current, true);
+            current->left = _insert(current->left, res, index, current);
         } else {
             current->right = _insert(current->right, res,
-                                     index - left_nodes - 1, current, false);
+                                     index - left_nodes - 1, current);
         }
 
         _update(current);
@@ -190,7 +194,7 @@ private:
         if (current != NULL) {
             _print_tree(current->left, h + 1);
             cout << current->residue << " count " << current->count <<
-                 " h " << h << " if_left " << current->if_left << endl;
+                 " h " << h << " if_left " <<endl;
             _print_tree(current->right, h + 1);
         }
     }
@@ -276,36 +280,6 @@ private:
         _update(first_level);
     }
 
-    void _local_splay(Node* cur) {
-        if (cur != NULL) {
-            if (root->left == cur) {
-                _right_rotate(cur->parent);
-            } else if (root->right == cur) {
-                _left_rotate(cur->parent);
-            }
-
-            Node* grandpa = cur->parent->parent;
-            if (cur->if_left && cur->parent->if_left) {
-                _right_rotate(grandpa);
-                //cur = _right_rotate(cur->parent);
-                _right_rotate(cur->parent);
-                //return cur;
-            } else if ((!cur->if_left) && (!cur->parent->if_left)) {
-                _left_rotate(cur->parent->parent);
-                //cur = _left_rotate(cur->parent);
-                //return cur;
-                _left_rotate(cur->parent);
-            } else if ((!cur->if_left) && cur->parent->if_left) {
-                //_left_right(grandpa);
-                _right_rotate(cur->parent);
-                _left_rotate(cur->parent);
-            } else if (cur->if_left && (!cur->parent->if_left)) {
-                //_right_left(grandpa);
-                _left_rotate(cur->parent);
-                _right_rotate(cur->parent);
-            }
-        }
-    }
 
 
     Node* _splay(int index, Node* initial_root) {
@@ -522,7 +496,7 @@ private:
                  << middle_root->residue
                  << right_root->residue << endl;
         }
-        
+
         cout << "swbeg" << endl;
         _swap_top_down(middle_root);
         cout << "swaft" << endl;
