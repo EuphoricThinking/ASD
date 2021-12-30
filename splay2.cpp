@@ -184,7 +184,7 @@ private:
             Node *left_child = cur_root->left;
             Node *right_child = cur_root->right;
 
-            cout << "update segment cur " << cur_root->residue << endl;
+        /*    cout << "update segment cur " << cur_root->residue << endl;
             _print_tree(cur_root, 0);
             if (left_child) {
                 cout << "left " << endl;
@@ -195,7 +195,7 @@ private:
                 cout << "right" << endl;
                 _print_tree(right_child, 0);
                 _print_seq_data(right_child);
-            }
+            }*/
             if ((!left_child) && (!right_child)) {
                 cur_root->prefix_length = 1;
                 cur_root->max_sequence_length = 1;
@@ -479,21 +479,32 @@ private:
         while (to_root->parent) {
             Node* grandpa = to_root->parent->parent;
             Node* daddy = to_root->parent;
+       /*     cout << "\n" << endl;
+            _print_tree(to_root, 0);
+            cout << "\nr to_root " << to_root->residue << endl;
+            if (grandpa&&grandpa->parent) cout << "grandpa " << grandpa->parent->residue << endl;
+            _print_tree(root, 0);
+            cout << to_root->parent->residue << " dad " << daddy->residue << endl;
+            cout << "\n"; */
             if (!grandpa) {
+               // cout << "no grandpa" << endl;
                 if (daddy->left == to_root) _right_rotate(daddy);
                 else _left_rotate(daddy);
             } else if (daddy->left == to_root && grandpa->left == daddy) {
+                //cout << "left left" << endl;
                 _right_rotate(grandpa);
                 _right_rotate(to_root->parent);
             } else if (daddy->right == to_root && grandpa->right == daddy) {
+                //cout << "right right" << endl;
                 _left_rotate(grandpa);
                 _left_rotate(to_root->parent);
             } else if (daddy->left == to_root && grandpa->right == daddy) {
+                //cout << "left right" << endl;
                 _right_rotate(daddy);
                 _left_rotate(to_root->parent);
             } else {
                 _left_rotate(daddy);
-                _left_rotate(to_root->parent);
+                _right_rotate(to_root->parent);
             }
         }
 
@@ -514,13 +525,14 @@ private:
             left_middle->left = NULL;
             _update(left_middle);
         }
+        _print_tree(left_middle, 0);
 
         //cout << "splay index " << right - left << endl;
         Node* middle_right = _splay(right - left + 1, left_middle);
         //cout << "after middle_right" << endl;
         Node *right_root = middle_right->right;
         Node* middle_root = middle_right;
-
+        _print_tree(middle_right,0);
         if (right_root) {
             right_root->parent = NULL;
             middle_right->right = NULL;
@@ -698,15 +710,29 @@ private:
 
     /* shape /   /\ */
     int _find_maximum_length(int l, int r) {
+        cout << "BFRE" << endl;
+        _print_tree(root, 0);
         triplet three_roots = _split_into_three(l, r, root);
-
+        cout << "truplets found " << endl;
         Node* left_root = get<0>(three_roots);
         Node* interval_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
+        cout << left_root->residue << " " << interval_root->residue << endl;
+        _print_tree(left_root, 0);
+        cout << "interval" << endl;
+        _print_tree(interval_root, 0);
 
         int result = interval_root->max_sequence_length;
         Node* final_root = _join(left_root, interval_root, right_root);
         root = final_root;
+
+        if (!left_root) cout << "noleft" << endl;
+        if (!right_root) cout << "noright" << endl;
+        if (!interval_root) cout << "nomid" << endl;
+      //  cout << left_root->residue << " " << interval_root->residue << " " << right_root->residue << endl;
+        cout << "=========================================================================" << endl;
+        _print_tree(root, 0);
+        _print_seq_data(root);
 
         return result;
     }
@@ -739,6 +765,11 @@ int main(void) {
     result.O(6, 9);
     result.print_tree();
     cout << "\n\n";
-    result.N(2, 3);
+    result.N(2, 9);
+    result.print_tree();
+    result.insert('f', 3);
+    cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    result.print_tree();
+    result.N(2, 9);
     result.print_tree();
 }
