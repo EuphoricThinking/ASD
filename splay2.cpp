@@ -101,7 +101,7 @@ public:
 
     void N(int l, int r) {
         int result = _find_maximum_length(l, r);
-        cout << result << "\n";
+        cout << "Look at me bitch I'm here " << result << "\n";
     }
 
 private:
@@ -155,6 +155,7 @@ private:
 
             current->count = 1 + _count_nodes(left_child) +
                              _count_nodes(right_child);
+            _update_segment_length(current);
             //current->height = 1 + max(_get_height(left_child),
             //                    _get_height(right_child));
             //_update_height(current);
@@ -169,11 +170,32 @@ private:
         return (cur != NULL ? cur->prefix_length : -1);
     }
 
+    void _print_seq_data(Node* cur) {
+        cout << endl;
+        cout << cur->residue << endl;
+        cout << "max " << cur->max_sequence_length << "\n" <<
+        " pref_res " << cur->prefix_residue << " length " << cur->prefix_length
+        << "\nsuff_res " << cur->suffix_residue << " length " << cur->suffix_length
+        << "\n\n";
+    }
+
     void _update_segment_length(Node* cur_root) {
         if (cur_root != NULL) {
             Node *left_child = cur_root->left;
             Node *right_child = cur_root->right;
 
+            cout << "update segment cur " << cur_root->residue << endl;
+            _print_tree(cur_root, 0);
+            if (left_child) {
+                cout << "left " << endl;
+                _print_tree(left_child, 0);
+                _print_seq_data(left_child);
+            }
+            if (right_child) {
+                cout << "right" << endl;
+                _print_tree(right_child, 0);
+                _print_seq_data(right_child);
+            }
             if ((!left_child) && (!right_child)) {
                 cur_root->prefix_length = 1;
                 cur_root->max_sequence_length = 1;
@@ -182,6 +204,9 @@ private:
             }
             else if (!right_child) {
                 if (cur_root->residue == left_child->suffix_residue) {
+                    cout << "(cur_root->residue == left_child->suffix_residue c " <<
+                    cur_root->residue << " left " << left_child->suffix_residue << endl;
+
                     cur_root->suffix_length =
                             left_child->suffix_length + 1;
                     if (left_child->is_suffix_prefix_equal) {
@@ -339,6 +364,7 @@ private:
         }
 
         _update(current);
+ //       _update_segment_length(current);
 
         return current;
     }
@@ -369,12 +395,12 @@ private:
             return cur;
         }
 
-        cout << "imhere" << endl;
+        //cout << "imhere" << endl;
         if (index <= _count_nodes(left_child)) {
             return _search_index(left_child, index);
         } else if ((index == (_count_nodes(left_child) + 1))
                 || index == 0) {
-            cout << "found " << cur->residue << endl;
+        //    cout << "found " << cur->residue << endl;
             return cur;
         } else {
             return _search_index(right_child, index - 1 -
@@ -410,9 +436,9 @@ private:
         cur_root->parent = first_level;
 
         _update(cur_root);
-        _update_segment_length(cur_root); //added
+  //      _update_segment_length(cur_root); //added
         _update(first_level);
-        _update_segment_length(first_level); //added;
+ //       _update_segment_length(first_level); //added;
     }
 
     //right child of a right child//right right
@@ -449,7 +475,7 @@ private:
 
     Node* _splay(int index, Node* initial_root) {
         Node* to_root = _search_index(initial_root, index);
-        cout << to_root->residue << endl;
+        //cout << to_root->residue << endl;
         while (to_root->parent) {
             Node* grandpa = to_root->parent->parent;
             Node* daddy = to_root->parent;
@@ -489,9 +515,9 @@ private:
             _update(left_middle);
         }
 
-        cout << "splay index " << right - left << endl;
+        //cout << "splay index " << right - left << endl;
         Node* middle_right = _splay(right - left + 1, left_middle);
-        cout << "after middle_right" << endl;
+        //cout << "after middle_right" << endl;
         Node *right_root = middle_right->right;
         Node* middle_root = middle_right;
 
@@ -501,7 +527,7 @@ private:
             _update(middle_right);
         }
 
-        cout << "can" << endl;
+        //cout << "can" << endl;
         /*
         cout << " l " << left_root->residue << " m " << middle_root->residue
             << " r " << right_root->residue << endl; */
@@ -511,7 +537,7 @@ private:
     /*  shape  /   /   \    */
     void _translocate(int l, int r, int ins) {
         triplet three_roots = _split_into_three(l, r, root);
-        cout << "trans" << endl;
+        //cout << "trans" << endl;
         Node* left_root = get<0>(three_roots);
         Node* middle_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
@@ -531,7 +557,7 @@ private:
             return;
         }
 
-        cout << "second block" << endl;
+        //cout << "second block" << endl;
         int merged_segment_length = _count_nodes(new_block);
         Node *to_insert = _splay(ins, new_block);
 
@@ -656,15 +682,15 @@ private:
         Node* right_root = get<2>(three_roots);
 
         cout << "is it here" << endl;
-        if (left_root && right_root) {
+       /* if (left_root && right_root) {
             cout << "REVERSE " << left_root->residue << " "
                  << middle_root->residue
                  << right_root->residue << endl;
-        }
+        }*/
 
-        cout << "swbeg" << endl;
+    //    cout << "swbeg" << endl;
         _swap_top_down(middle_root);
-        cout << "swaft" << endl;
+      //  cout << "swaft" << endl;
 
         Node* final_root = _join(left_root, middle_root, right_root);
         root = final_root;
