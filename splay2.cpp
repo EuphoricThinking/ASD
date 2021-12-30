@@ -234,6 +234,9 @@ private:
         }
 
         cur_root->parent = first_level;
+
+        _update(cur_root);
+        _update(first_level);
     }
 
     //right child of a right child//right right
@@ -262,6 +265,8 @@ private:
         }
 
         cur_root->parent = first_level;
+        _update(cur_root);
+        _update(first_level);
     }
 
     void _local_splay(Node* cur) {
@@ -296,7 +301,7 @@ private:
     }
 
 
-    void _splay(int index, Node* initial_root) {
+    Node* _splay(int index, Node* initial_root) {
         Node* to_root = _search_index(initial_root, index);
         cout << to_root->residue << endl;
         while (to_root->parent) {
@@ -321,6 +326,8 @@ private:
         }
 
         cout << "splay found: " << to_root->residue << " root " << root->residue << endl;
+
+        return to_root;
     }
 
     triplet _split_into_three(int left, int right) {
@@ -346,6 +353,30 @@ private:
         cout << " l " << left_root->residue << " m " << middle_root->residue
             << " r " << right_root->residue << endl;
         return make_tuple(left_root, middle_root, right_root);
+    }
+
+    void _translocate(int l, int r) {
+        triplet three_roots = _split_into_three(l, r);
+
+        Node* left_root = get<0>(three_roots);
+        Node* middle_root = get<1>(three_roots);
+        Node* right_root = get<2>(three_roots);
+
+        if (left_root == NULL && right_root) {
+            Node* rightmost = _splay(right_root->count, right_root);
+            rightmost->right = middle_root;
+            middle_root->parent = rightmost;
+            root = rightmost;
+        } else if (left_root && !right_root) {
+            Node* leftmost_middle = _splay(1, middle_root);
+            leftmost_middle->left = left_root;
+            left_root->parent = leftmost_middle;
+            root = leftmost_middle;
+        } else if (!left_root && !right_root) {
+            root = middle_root;
+        } else {  //left_root && right_root
+
+        }
     }
 };
 
