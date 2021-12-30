@@ -208,46 +208,27 @@ private:
     }
 
     void _right_rotate(Node* cur_root) {
-        /*Node* first_level_right_son = cur_root->left->right;
-        Node* first_level = cur_root->left;
-
-        cur_root->left = first_level_right_son;
-        first_level->right = cur_root;
-
-        first_level->parent = cur_root->parent;
-        cur_root->parent = first_level;
-        first_level->if_left = cur_root->if_left;
-        cur_root->if_left = false;
-
-        if (first_level->parent != NULL) {
-            if (first_level->if_left) {
-                first_level->parent->left = first_level;
-            } else {
-                first_level->parent->right = first_level;
-            }
-        }
-
-        cout << " right " << cur_root->residue << endl;*/
         Node* first_level = cur_root->left;
 
         if (first_level) {
             cur_root->left = first_level->right;
             if (first_level->right) {
-                cur_root->left->if_left = 1;
+         //       cur_root->left->if_left = 0;
                 first_level->right->parent = cur_root;
             }
             first_level->parent = cur_root->parent;
-            first_level->if_left = cur_root->if_left;
+   //         first_level->if_left = cur_root->if_left;
             //cur_root->if_left = 0;
         }
 
         if (!cur_root->parent) root = first_level;
-        else if (cur_root->if_left) cur_root->parent->left = first_level;
+//        else if (cur_root->if_left) cur_root->parent->left = first_level;
+        else if (cur_root->parent->left == cur_root) cur_root->parent->left = first_level;
         else cur_root->parent->right = first_level;
 
         if (first_level) {
             first_level->right = cur_root;
-            cur_root->if_left = 0;
+ //           cur_root->if_left = 0;
         }
 
         cur_root->parent = first_level;
@@ -255,51 +236,32 @@ private:
 
     //right child of a right child//right right
     void _left_rotate(Node *cur_root) {
-        /*Node* first_level = cur_root->right;
-        Node* first_level_left_son = first_level->left;
-        // Node* cur_parent = cur_root->parent;
-
-        cur_root->right = first_level_left_son;
-        first_level->left = cur_root;
-
-        first_level->parent = cur_root->parent;
-        cur_root->parent = first_level;
-        first_level->if_left = cur_root->if_left;
-        cur_root->if_left = true;
-
-        if (first_level->parent != NULL) {
-            if (first_level->if_left) {
-                first_level->parent->left = first_level;
-            } else {
-                first_level->parent->right = first_level;
-            }
-        }
-
-        cout << " left " << cur_root->residue << endl;*/
         Node* first_level = cur_root->right;
 
         if (first_level) {
             cur_root->right = first_level->left;
             if (first_level->left) {
-                cur_root->right->if_left = 0;
+  //              cur_root->right->if_left = 1;
                 first_level->left->parent = cur_root;
             }
             first_level->parent = cur_root->parent;
-            first_level->if_left = cur_root->if_left;
+   //         first_level->if_left = cur_root->if_left;
             //cur_root->if_left = 0;
         }
 
         if (!cur_root->parent) root = first_level;
-        else if (cur_root->if_left) cur_root->parent->left = first_level;
+//        else if (cur_root->if_left) cur_root->parent->left = first_level;
+        else if (cur_root->parent->left == cur_root) cur_root->parent->left = first_level;
         else cur_root->parent->right = first_level;
 
         if (first_level) {
             first_level->left = cur_root;
-            cur_root->if_left = 1;
+   //         cur_root->if_left = 1;
         }
 
         cur_root->parent = first_level;
     }
+
     void _local_splay(Node* cur) {
         if (cur != NULL) {
             if (root->left == cur) {
@@ -336,7 +298,9 @@ private:
         Node* to_root = _search_index(root, index);
         cout << to_root->residue << endl;
         while (to_root->parent) {
-            if (to_root != NULL) {
+            Node* grandpa = to_root->parent->parent;
+            Node* daddy = to_root->parent;
+            /*if (to_root != NULL) {
                 if (root->left == to_root) {
                     _right_rotate(to_root->parent);
                 } else if (root->right == to_root) {
@@ -363,8 +327,26 @@ private:
                     _left_rotate(to_root->parent);
                     _right_rotate(to_root->parent);
                 }
+            }*/
+            if (!grandpa) {
+                if (daddy->left == to_root) _right_rotate(daddy);
+                else _left_rotate(daddy);
+            } else if (daddy->left == to_root && grandpa->left == daddy) {
+                _right_rotate(grandpa);
+                _right_rotate(to_root->parent);
+            } else if (daddy->right == to_root && grandpa->right == daddy) {
+                _left_rotate(grandpa);
+                _left_rotate(to_root->parent);
+            } else if (daddy->left == to_root && grandpa->right == daddy) {
+                _right_rotate(daddy);
+                _left_rotate(to_root->parent);
+            } else {
+                _left_rotate(daddy);
+                _left_rotate(to_root->parent);
             }
         }
+
+        cout << "splay found: " << to_root->residue << " root " << root->residue << endl;
     }
 };
 
