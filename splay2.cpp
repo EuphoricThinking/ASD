@@ -793,6 +793,7 @@ int main(void) {
     int num_commands;
     commands com;
     string dna = read_input(word_length, num_commands, com);
+    cout << dna;
     print_commands(com);
 
     DNAzer result;
