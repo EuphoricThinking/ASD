@@ -772,4 +772,7 @@ int main(void) {
     result.print_tree();
     result.N(2, 9);
     result.print_tree();
+    result.insert('f', 3);
+    result.N(2, 4);
+    result.print_tree();
 }
