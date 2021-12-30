@@ -65,7 +65,7 @@ void print_commands(commands com) {
 class DNAzer {
 public:
     void insert(char res, int index) {
-        root = _insert(root, res, index - 1); //without -1
+        root = _insert(root, res, index - 1, NULL, NULL); //without -1
     }
 
     void insert_sequence(string seq, int seq_length) {
@@ -87,7 +87,8 @@ private:
     struct Node {
         char residue;
         int count;
-        int height;
+        //int height;
+        bool if_left;
 
         char adjacent_residue;
         int max_sequence;
@@ -97,8 +98,8 @@ private:
         struct Node *left;
         struct Node *right;
         struct Node *parent;
-        Node (char _residue): residue(_residue), count(1), left(NULL),
-                              right(NULL), parent(NULL), height(0) {}
+        Node (char _residue, bool child_side): residue(_residue), count(1), left(NULL),
+                              right(NULL), parent(NULL), if_left(child_side) {}
     };
     struct Node *root = NULL;
 
@@ -110,32 +111,6 @@ private:
         return current->residue;
     }
 
-    int _get_height(Node* current) {
-        return (current != NULL ? current->height : -1);  //:0
-    }
-
-    void _update_height(Node* current) {
-        current->height = 1 + max(_get_height(current->left),
-                                  _get_height(current->right));
-    }
-
-    int _get_balance(Node* cur) {
-        return _get_height(cur->left) - _get_height(cur->right);
-    }
-
-    void _update(Node* current) {
-        if (current != NULL) {
-            Node* left_child = current->left;
-            Node* right_child = current->right;
-
-            current->count = 1 + _count_nodes(left_child) +
-                             _count_nodes(right_child);
-            //current->height = 1 + max(_get_height(left_child),
-            //                    _get_height(right_child));
-            _update_height(current);
-        }
-    }
-
     //left child of a left child //left_left
     Node* _right_rotate(Node* cur_root) {
         Node* first_level_right_son = cur_root->left->right;
@@ -144,11 +119,21 @@ private:
         cur_root->left = first_level_right_son;
         first_level->right = cur_root;
 
+        first_level->parent = cur_root->parent;
+        cur_root->parent = first_level;
+        first_level->if_left = cur_root->if_left;
+        cur_root->if_left = false;
+
+        if (first_level->parent != NULL) {
+            if (first_level->if_left) {
+                first_level->parent->left = first_level;
+            } else {
+                first_level->parent->right = first_level;
+            }
+        }
+
         cout << " right " << cur_root->residue << endl;
-        //_update_height(cur_root);
-        //_update_height(first_level);
-        _update(cur_root);
-        _update(first_level);
+
         return first_level;
     }
 
@@ -156,15 +141,26 @@ private:
     Node* _left_rotate(Node *cur_root) {
         Node* first_level = cur_root->right;
         Node* first_level_left_son = first_level->left;
+       // Node* cur_parent = cur_root->parent;
 
         cur_root->right = first_level_left_son;
         first_level->left = cur_root;
 
+        first_level->parent = cur_root->parent;
+        cur_root->parent = first_level;
+        first_level->if_left = cur_root->if_left;
+        cur_root->if_left = true;
+
+        if (first_level->parent != NULL) {
+            if (first_level->if_left) {
+                first_level->parent->left = first_level;
+            } else {
+                first_level->parent->right = first_level;
+            }
+        }
+
         cout << " left " << cur_root->residue << endl;
-        //_update_height(cur_root);
-        //_update_height(first_level);
-        _update(cur_root);
-        _update(first_level);
+
         return first_level;
     }
 
@@ -180,94 +176,27 @@ private:
         return _left_rotate(cur_root);
     }
 
-    Node* _rebalance(Node* current) {
-        int balance = _get_balance(current);
-        cout << " balance " << balance << " " << current->residue << endl;
-
-        if (balance > 1) {
-            Node* left_child = current->left;
-
-            if (_get_balance(left_child) >= 0) {
-                cout << " lb " << _get_balance(left_child) << " higher right " << endl;
-                return _right_rotate(current);
-            } else {
-                cout << " lb " << _get_balance(left_child) << " higher left " << endl;
-                return _left_right(current);
-            }
-        } else if (balance < -1) {
-            Node* right_child = current->right;
-
-            if (_get_balance(right_child) <= 0) {
-                cout << " rb " << _get_balance(right_child) << " higher left " << endl;
-                return _left_rotate(current);
-            } else {
-                cout << " rb " << _get_balance(right_child) << " higher right " << endl;
-                return _right_left(current);
-            }
-        }
-
-        cout << "exit " << current->residue << endl;
-        return current;
-    }
-
-    Node* _insert(Node* current, char res, int index) {
+    Node* _insert(Node* current, char res, int index, Node* parent, bool child_side) {
         if (current == NULL) {
-            return new Node(res);
+            Node* newborn = new Node(res, child_side);
+            newborn->parent = parent;
+            //return new Node(res);
+            return newborn;
         }
 
         int left_nodes = _count_nodes(current->left);
-        cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
+        //cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
             // cout << "here" << endl;
-            current->left = _insert(current->left, res, index);
+            current->left = _insert(current->left, res, index, current, true);
         } else {
             current->right = _insert(current->right, res,
-                                     index - left_nodes - 1);
+                                     index - left_nodes - 1, current, false);
         }
 
-//bez update wsadza odwrotnie
-        _update(current);
-        return _rebalance(current);
-        /*int balance = _get_balance(current);
-        cout << " balance " << balance << " " << current->residue << endl;
-
-        if (balance > 1) {
-            Node* left_child = current->left;
-
-            if (_get_balance(left_child) >= 0) {
-                cout << " lb " << _get_balance(left_child) << " higher right " << endl;
-                return _right_rotate(current);
-            } else {
-                cout << " lb " << _get_balance(left_child) << " higher left " << endl;
-                return _left_right(current);
-            }
-        } else if (balance < -1) {
-            Node* right_child = current->right;
-
-            if (_get_balance(right_child) <= 0) {
-                cout << " rb " << _get_balance(right_child) << " higher left " << endl;
-                return _left_rotate(current);
-            } else {
-                cout << " rb " << _get_balance(right_child) << " higher right " << endl;
-                return _right_left(current);
-            }
-        }
-
-        cout << "exit " << current->residue << endl;
-        return current; */
+        return current;
     }
 
-    Node* _remove(Node* current, int index) {
-        if (current != NULL) {
-            int left_count = _count_nodes(current->left);
-
-            if (index <= left_count) {
-                current->left = _remove(current->left, index);
-            } else if (index == _count_nodes(current)) {
-                return
-            }
-        }
-    }
 
     void _print_sequence(Node* current) {
         if (current != NULL) {
@@ -281,8 +210,60 @@ private:
         if (current != NULL) {
             _print_tree(current->left, h + 1);
             cout << current->residue << " count " << current->count <<
-                 " height " << current->height << " h " << h << endl;
+                  " h " << h << endl;
             _print_tree(current->right, h + 1);
+        }
+    }
+
+    Node* _search_index(Node* cur, int index) {
+        Node* left_child = cur->left;
+        Node* right_child = cur->right;
+
+        if (left_child == NULL && right_child == NULL) {
+            return cur;
+        }
+
+        if (index <= _count_nodes(left_child)) {
+            return _search_index(left_child, index);
+        } else if (index == _count_nodes(cur)) {
+            cout << "found " << cur->residue << endl;
+            return cur;
+        } else {
+            return _search_index(right_child, index - 1 -
+                _count_nodes(left_child));
+        }
+    }
+
+    Node* local_splay(Node* cur) {
+        if (cur != NULL) {
+        if (root->left == cur) {
+            return _right_rotate(root);
+        } else if (root->right == cur) {
+            return _left_rotate(root);
+        }
+
+        Node* grandpa = cur->parent->parent;
+        if (cur->if_left && cur->parent->if_left) {
+            cur->parent = _right_rotate(grandpa);
+            //cur = _right_rotate(cur->parent);
+            return _right_rotate(cur->parent);
+            //return cur;
+        } else if ((!cur->if_left) && (!cur->parent->if_left)) {
+            cur->parent = _left_rotate(cur->parent->parent);
+            //cur = _left_rotate(cur->parent);
+            //return cur;
+            return _left_rotate(cur->parent);
+        } else if ((!cur->if_left) && cur->parent->if_left) {
+            return _left_right(grandpa);
+        } else if (cur->if_left && (!cur->parent->if_left)) {
+            return _right_left(grandpa);
+        }
+    }
+    }
+
+    void _splay(Node* to_root) {
+        while (to_root != root) {
+
         }
     }
 };
