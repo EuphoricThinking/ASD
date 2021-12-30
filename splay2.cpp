@@ -98,6 +98,12 @@ public:
     void O(int l, int r) {
         _reverse(l, r);
     }
+
+    void N(int l, int r) {
+        int result = _find_maximum_length(l, r);
+        cout << result << "\n";
+    }
+
 private:
     struct Node {
         char residue;
@@ -705,5 +711,8 @@ int main(void) {
     result.print_tree();
     cout << "\n\n";
     result.O(6, 9);
+    result.print_tree();
+    cout << "\n\n";
+    result.N(2, 3);
     result.print_tree();
 }
