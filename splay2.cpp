@@ -36,7 +36,7 @@ using interval = pair<int, int>;
 string read_input(int &word_length, int &num_commands, commands &com) {
     string dna_code;
     cin >> word_length >> num_commands >> dna_code;
-    cout << word_length << " " << num_commands << "\n" << dna_code << endl;
+   // cout << word_length << " " << num_commands << "\n" << dna_code << endl;
 
     char type_of_command;
     int temp_index1;
@@ -534,10 +534,10 @@ private:
 
         //cout << "splay index " << right - left << endl;
         Node* middle_right = _splay(right - left + 1, left_middle);
-        cout << "after middle_right" << endl;
+    //    cout << "after middle_right" << endl;
         Node *right_root = middle_right->right;
         Node* middle_root = middle_right;
-        _print_tree(middle_right,0);
+      //  _print_tree(middle_right,0);
         if (right_root) {
             right_root->parent = NULL;
             middle_right->right = NULL;
@@ -589,20 +589,20 @@ private:
 
     /*  shape  /   /   \    */
     void _translocate(int l, int r, int ins) {
-        cout << "beftrans" << endl;
-        _print_tree(root, 0);
+  //      cout << "beftrans" << endl;
+    //    _print_tree(root, 0);
         triplet three_roots = _split_into_three(l, r, root);
-        cout << "trans" << endl;
+      //  cout << "trans" << endl;
         Node* left_root = get<0>(three_roots);
         Node* middle_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
 
-        _print_tree(left_root, 0);
+      /*  _print_tree(left_root, 0);
         cout << "left \n";
         _print_tree(middle_root, 0);
         cout << "middle \n";
         _print_tree(right_root, 0);
-        cout << "right \n";
+        cout << "right \n"; */
 
       /*  Node* new_block;
         if (right_root) {
@@ -623,15 +623,15 @@ private:
         } */
         Node* new_block = _join(left_root, right_root, NULL);
 
-        cout << "\n\nnew block" << endl;
-        _print_tree(new_block,0);
+      //  cout << "\n\nnew block" << endl;
+       // _print_tree(new_block,0);
         int merged_segment_length = _count_nodes(new_block);
         Node *to_insert = _splay(ins, new_block);
 
-        cout << "toinsl" << endl;
+        /*cout << "toinsl" << endl;
         _print_tree(to_insert->left, 0);
         cout << "toins" << endl;
-        _print_tree(to_insert,0);
+        _print_tree(to_insert,0); */
 
         if (ins != merged_segment_length + 1) {
 
@@ -718,7 +718,7 @@ private:
         Node* middle_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
 
-        cout << "is it here" << endl;
+    //    cout << "is it here" << endl;
        /* if (left_root && right_root) {
             cout << "REVERSE " << left_root->residue << " "
                  << middle_root->residue
@@ -776,12 +776,12 @@ private:
             } else if (type_command == 'P') {
                 _translocate(j, k, l);
             } else {
-                cout << "bef" << endl;
-                _print_tree(root, 0);
+        //        cout << "bef" << endl;
+          //      _print_tree(root, 0);
                 int result = _find_maximum_length(j, k);
-                cout << "aft" << endl;
-                _print_tree(root, 0);
-                cout << "\n\n";
+//                cout << "aft" << endl;
+//                _print_tree(root, 0);
+//                cout << "\n\n";
                 cout << result << endl;
             }
         }
@@ -793,7 +793,7 @@ int main(void) {
     int num_commands;
     commands com;
     string dna = read_input(word_length, num_commands, com);
-    print_commands(com);
+ //   print_commands(com);
 
     DNAzer result;
     result.insert_sequence(dna, word_length);
