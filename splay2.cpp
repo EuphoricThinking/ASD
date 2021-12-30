@@ -119,7 +119,7 @@ private:
                                                max_sequence_length(1),
                                                last_segment_length(1) {}
     };
-    
+
     struct Node *root = NULL;
 
     using triplet = tuple<Node*, Node*, Node*>;
@@ -132,19 +132,6 @@ private:
         return current->residue;
     }
 
-    //left child of a left child //left_left
-
-
-    void _left_right(Node* cur_root) {
-        cout << " left right " << cur_root->residue << endl;
-        _left_rotate(cur_root->left);
-    }
-
-    void _right_left(Node* cur_root) {
-        cout << " right left " << cur_root->residue << endl;
-        _right_rotate(cur_root->right);
-    }
-
     void _update(Node* current) {
         if (current != NULL) {
             Node* left_child = current->left;
@@ -155,6 +142,34 @@ private:
             //current->height = 1 + max(_get_height(left_child),
             //                    _get_height(right_child));
             //_update_height(current);
+        }
+    }
+
+    int _get_max_length(Node* cur) {
+        return (cur != NULL ? cur->max_sequence_length : -1);
+    }
+
+    int _get_last_segment_length(Node* cur) {
+        return (cur != NULL ? cur->last_segment_length : -1);
+    }
+
+    void _update_segment(Node* cur_root) {
+        Node* left_child = cur_root->left;
+        Node* right_child = cur_root->right;
+
+        if ((!left_child) && (!right_child)) {
+            cur_root->last_segment_length = 1;
+            cur_root->max_sequence_length = 1;
+            cur_root->max_adjacent_residue = cur_root->residue;
+            cur_root->last_residue = cur_root->residue;
+        } else if (!left_child) {
+            if (cur_root->residue == right_child->residue) {
+                cur_root->last_segment_length += 1;
+                cur_root->max_sequence_length = max(cur_root->last_segment_length,
+                                                    cur_root->max_sequence_length);
+            } else {
+                cur_root->last_segment_length = 1;
+            }
         }
     }
 
