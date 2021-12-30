@@ -88,7 +88,7 @@ public:
     }
 
     void splay(int index) {
-        _splay(index);
+        _splay(index, root);
     }
 
 private:
@@ -110,6 +110,8 @@ private:
                                                right(NULL), parent(NULL), if_left(child_side) {}
     };
     struct Node *root = NULL;
+
+    using triplet = tuple<Node*, Node*, Node*>;
 
     int _count_nodes(Node* cur) {
         return (cur != NULL ? cur->count : 0);
@@ -294,40 +296,12 @@ private:
     }
 
 
-    void _splay(int index) {
-        Node* to_root = _search_index(root, index);
+    void _splay(int index, Node* initial_root) {
+        Node* to_root = _search_index(initial_root, index);
         cout << to_root->residue << endl;
         while (to_root->parent) {
             Node* grandpa = to_root->parent->parent;
             Node* daddy = to_root->parent;
-            /*if (to_root != NULL) {
-                if (root->left == to_root) {
-                    _right_rotate(to_root->parent);
-                } else if (root->right == to_root) {
-                    _left_rotate(to_root->parent);
-                }
-
-                Node* grandpa = to_root->parent->parent;
-                if (to_root->if_left && to_root->parent->if_left) {
-                    _right_rotate(grandpa);
-                    //cur = _right_rotate(cur->parent);
-                    _right_rotate(to_root->parent);
-                    //return cur;
-                } else if ((!to_root->if_left) && (!to_root->parent->if_left)) {
-                    _left_rotate(to_root->parent->parent);
-                    //cur = _left_rotate(cur->parent);
-                    //return cur;
-                    _left_rotate(to_root->parent);
-                } else if ((!to_root->if_left) && to_root->parent->if_left) {
-                    //_left_right(grandpa);
-                    _right_rotate(to_root->parent);
-                    _left_rotate(to_root->parent);
-                } else if (to_root->if_left && (!to_root->parent->if_left)) {
-                    //_right_left(grandpa);
-                    _left_rotate(to_root->parent);
-                    _right_rotate(to_root->parent);
-                }
-            }*/
             if (!grandpa) {
                 if (daddy->left == to_root) _right_rotate(daddy);
                 else _left_rotate(daddy);
@@ -348,6 +322,31 @@ private:
 
         cout << "splay found: " << to_root->residue << " root " << root->residue << endl;
     }
+
+    triplet _split_into_three(int left, int right) {
+        _splay(left, root);
+
+        Node* left_root = root->left;
+        Node* middle_root = root;
+        Node* right_root = NULL;
+
+        if (left_root) {
+            left_root->parent = NULL;
+            root->left = NULL;
+        }
+
+        _splay(right, root);
+        right_root = root->right;
+
+        if (right_root) {
+            right_root->parent = NULL;
+            root->right = NULL;
+        }
+
+        cout << " l " << left_root->residue << " m " << middle_root->residue
+            << " r " << right_root->residue << endl;
+        return make_tuple(left_root, middle_root, right_root);
+    }
 };
 
 int main(void) {
@@ -367,6 +366,6 @@ int main(void) {
     result.insert('p', 5);
     result.print_tree();
     cout << "\n\n";
-    result.splay(4);
+    result.splay(1);
     result.print_tree();
 }
