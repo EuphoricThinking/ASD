@@ -91,10 +91,13 @@ public:
         _splay(index, root);
     }
 
-    void N(int l, int r, int k) {
+    void P(int l, int r, int k) {
         _translocate(l, r, k);
     }
 
+    void O(int l, int r) {
+        _reverse(l, r);
+    }
 private:
     struct Node {
         char residue;
@@ -347,8 +350,9 @@ private:
             _update(left_middle);
         }
 
-        cout << right - left << endl;
+        cout << "splay index " << right - left << endl;
         Node* middle_right = _splay(right - left + 1, left_middle);
+        cout << "after middle_right" << endl;
         Node *right_root = middle_right->right;
         Node* middle_root = middle_right;
 
@@ -358,8 +362,10 @@ private:
             _update(middle_right);
         }
 
+        cout << "can" << endl;
+        /*
         cout << " l " << left_root->residue << " m " << middle_root->residue
-            << " r " << right_root->residue << endl;
+            << " r " << right_root->residue << endl; */
         return make_tuple(left_root, middle_root, right_root);
     }
 
@@ -449,6 +455,81 @@ private:
 //
 //        }
     }
+
+    void _swap(Node* cur) {
+        if (cur != NULL) {
+            Node *temp = cur->left;
+            cur->left = cur->right;
+            cur->right = temp;
+        }
+    }
+
+    void _swap_top_down(Node* cur) {
+        if (cur != NULL) {
+            _swap(cur);
+            _swap_top_down(cur->left);
+           // _swap(cur);
+            _swap_top_down(cur->right);
+        }
+    }
+
+    Node* _join(Node* left_root, Node* middle_root, Node* right_root) {
+        if (!left_root && !right_root) {
+            return middle_root;
+        } else if (!right_root) {
+            Node* left_middle = _splay(1, middle_root);
+            Node* left_right = _splay(_count_nodes(left_root), left_root);
+            left_middle->left = left_right;
+            left_right->parent = left_middle;
+            _update(left_middle);
+
+            return left_middle;
+        } else if (!left_root) {
+            Node* middle_right = _splay(_count_nodes(middle_root), middle_root);
+            Node* right_left = _splay(1, right_root);
+            middle_right->right = right_left;
+            right_left->parent = middle_right;
+            _update(middle_right);
+
+            return middle_right;
+        } else {
+            Node* left_middle = _splay(1, middle_root);
+            Node* left_right = _splay(_count_nodes(left_root), left_root);
+            left_middle->left = left_right;
+            left_right->parent = left_middle;
+            _update(left_middle);
+
+            Node* middle_right = _splay(_count_nodes(left_middle), left_middle);
+            Node* right_left = _splay(1, right_root);
+            middle_right->right = right_left;
+            right_left->parent = middle_right;
+            _update(middle_right);
+
+            return middle_right;
+        }
+    }
+    /* shape / /\ */
+    void _reverse(int l, int r) {
+        triplet three_roots = _split_into_three(l, r, root);
+
+        Node* left_root = get<0>(three_roots);
+        Node* middle_root = get<1>(three_roots);
+        Node* right_root = get<2>(three_roots);
+
+        cout << "is it here" << endl;
+        if (left_root && right_root) {
+            cout << "REVERSE " << left_root->residue << " "
+                 << middle_root->residue
+                 << right_root->residue << endl;
+        }
+        
+        cout << "swbeg" << endl;
+        _swap_top_down(middle_root);
+        cout << "swaft" << endl;
+
+        Node* final_root = _join(left_root, middle_root, right_root);
+        root = final_root;
+    }
 };
 
 int main(void) {
@@ -471,6 +552,9 @@ int main(void) {
     result.splay(1);
     result.print_tree();
     cout << "\n\n";
-    result.N(3, 5, 7);
+    result.P(3, 5, 7);
+    result.print_tree();
+    cout << "\n\n";
+    result.O(6, 9);
     result.print_tree();
 }
