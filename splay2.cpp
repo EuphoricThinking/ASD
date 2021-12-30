@@ -335,25 +335,27 @@ private:
     }
 
     triplet _split_into_three(int left, int right, Node* initial_root) {
-        _splay(left, initial_root);
+        Node* left_middle = _splay(left, initial_root);
 
-        Node* left_root = initial_root->left;
-        Node* middle_root = initial_root;
-        Node* right_root = NULL;
+        Node* left_root = left_middle->left;
+        //Node* middle_root = left_middle;
+        //Node* right_root = NULL;
 
         if (left_root) {
             left_root->parent = NULL;
-            initial_root->left = NULL;
-            _update(initial_root);
+            left_middle->left = NULL;
+            _update(left_middle);
         }
 
-        _splay(right - left, initial_root);
-        right_root = initial_root->right;
+        cout << right - left << endl;
+        Node* middle_right = _splay(right - left + 1, left_middle);
+        Node *right_root = middle_right->right;
+        Node* middle_root = middle_right;
 
         if (right_root) {
             right_root->parent = NULL;
-            initial_root->right = NULL;
-            _update(initial_root);
+            middle_right->right = NULL;
+            _update(middle_right);
         }
 
         cout << " l " << left_root->residue << " m " << middle_root->residue
@@ -364,7 +366,7 @@ private:
     /*  shape  /   /   \    */
     void _translocate(int l, int r, int ins) {
         triplet three_roots = _split_into_three(l, r, root);
-
+        cout << "trans" << endl;
         Node* left_root = get<0>(three_roots);
         Node* middle_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
@@ -455,5 +457,8 @@ int main(void) {
     result.print_tree();
     cout << "\n\n";
     result.splay(1);
+    result.print_tree();
+    cout << "\n\n";
+    result.N(3, 5, 2);
     result.print_tree();
 }
