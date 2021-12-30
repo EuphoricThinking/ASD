@@ -62,8 +62,8 @@ string read_input(int &word_length, int &num_commands, commands &com) {
 
 void print_commands(commands com) {
     for (commands::iterator iter = com.begin(); iter != com.end(); iter++) {
-        cout << get<0>(*iter) << " " << get<1>(*iter) << " "
-             << get<2>(*iter) << " " << get<3>(*iter) << endl;
+        cout << get<0>(*iter) << "|" << get<1>(*iter) << "|"
+             << get<2>(*iter) << "|" << get<3>(*iter) << "//";
     }
 }
 
@@ -793,7 +793,7 @@ int main(void) {
     int num_commands;
     commands com;
     string dna = read_input(word_length, num_commands, com);
- //   print_commands(com);
+    print_commands(com);
 
     DNAzer result;
     result.insert_sequence(dna, word_length);
