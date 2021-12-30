@@ -330,24 +330,26 @@ private:
         return to_root;
     }
 
-    triplet _split_into_three(int left, int right) {
-        _splay(left, root);
+    triplet _split_into_three(int left, int right, Node* initial_root) {
+        _splay(left, initial_root);
 
-        Node* left_root = root->left;
-        Node* middle_root = root;
+        Node* left_root = initial_root->left;
+        Node* middle_root = initial_root;
         Node* right_root = NULL;
 
         if (left_root) {
             left_root->parent = NULL;
-            root->left = NULL;
+            initial_root->left = NULL;
+            _update(initial_root);
         }
 
-        _splay(right, root);
-        right_root = root->right;
+        _splay(right - left, initial_root);
+        right_root = initial_root->right;
 
         if (right_root) {
             right_root->parent = NULL;
-            root->right = NULL;
+            initial_root->right = NULL;
+            _update(initial_root);
         }
 
         cout << " l " << left_root->residue << " m " << middle_root->residue
@@ -366,15 +368,22 @@ private:
             Node* rightmost = _splay(right_root->count, right_root);
             rightmost->right = middle_root;
             middle_root->parent = rightmost;
+            _update(rightmost);
             root = rightmost;
         } else if (left_root && !right_root) {
             Node* leftmost_middle = _splay(1, middle_root);
             leftmost_middle->left = left_root;
             left_root->parent = leftmost_middle;
+            _update(leftmost_middle);
             root = leftmost_middle;
         } else if (!left_root && !right_root) {
             root = middle_root;
         } else {  //left_root && right_root
+            right_root->left = left_root;
+            left_root->parent = right_root;
+            _update(right_root);
+
+            Node* rightmost = _splay(right_root->count, right_root);
 
         }
     }
