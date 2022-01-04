@@ -5,25 +5,37 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <queue>
+#include <functional>
 
 using std::pair;
 using std::unordered_map;
 using std::vector;
+using std::tuple;
+using std::priority_queue;
 
 using std::cout;
 using std::cin;
 using std::endl;
 
 using std::make_pair;
+using std::make_tuple;
 using std::sort;
 using std::get;
+using std::abs;
+using std::greater;
 
 using point = pair<int, int>;
 using island = pair<int, point>;
 using islands = vector<island>;
 using island_and_neighbours = pair<island, islands>;
 using graph = vector<island_and_neighbours>;
-
+using parent = island;
+using distance = int;
+using family = pair<island, parent>;
+using dijkstra_data = pair<distance, family>;
+using dijkstra_queue = priority_queue<dijkstra_data, vector<dijkstra_data>,
+        greater<dijkstra_data>>;
 
 islands read_input(int &num_islands) {
     cin >> num_islands;
@@ -97,8 +109,24 @@ graph create_graph(islands &pp, int num_islands) {
         return a.second < b.second;
     });
     insert_into_graph(result, pp, num_islands);
-    
+
     return result;
+}
+
+int get_distance(island i1, island i2) {
+    point i1_coordinates = i1.second;
+    point i2_coordinates = i2.second;
+
+    int x_diff = abs(i1_coordinates.first - i2_coordinates.first);
+    int y_diff = abs(i1_coordinates.second - i2_coordinates.second);
+
+    return x_diff + y_diff;
+}
+
+islands dijkstra(graph &with_adjacent) {
+    islands shortest;
+
+
 }
 
 
