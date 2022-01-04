@@ -16,11 +16,13 @@ using std::endl;
 
 using std::make_pair;
 using std::sort;
+using std::get;
 
 using point = pair<int, int>;
 using island = pair<int, point>;
 using islands = vector<island>;
-using graph = vector<pair<island, islands>>;
+using island_and_neighbours = pair<island, islands>;
+using graph = vector<island_and_neighbours>;
 
 
 islands read_input(int &num_islands) {
@@ -57,7 +59,7 @@ graph initialize_islands(int num_islands) {
     graph result;
 
     for (int i = 0; i < num_islands; i++) {
-        island isl;
+        island isl = make_pair(-1, make_pair(-1, -1));
         islands isls;
         result.push_back(make_pair(isl, isls));
     }
@@ -65,11 +67,50 @@ graph initialize_islands(int num_islands) {
     return result;
 }
 
-graph create_graph(islands pp, int num_islands) {
+void insert_into_graph (graph &result, islands &pp, int num_islands) {
+    island first_island = pp[0];
+    islands isls;
+    isls.push_back(pp[1]);
+    result[first_island.first] = make_pair(first_island, isls);
+
+    for (int i = 1; i < num_islands - 1; i++) {
+        island current = pp[i];
+        int index = current.first;
+        island_and_neighbours &data = result[index];
+
+        island &inserted_island = data.first;
+        islands &neighbours = data.second;
+
+        if (inserted_island.first == -1) inserted_island = current;
+        neighbours.push_back(pp[i - 1]);
+        neighbours.push_back(pp[i + 1]);
+    }
+}
+
+graph create_graph(islands &pp, int num_islands) {
     graph result = initialize_islands(num_islands);
 
     sort(pp.begin(), pp.end());
-    
+
+    island first_island = pp[0];
+    islands isls;
+    isls.push_back(pp[1]);
+    result[first_island.first] = make_pair(first_island, isls);
+
+    for (int i = 1; i < num_islands - 1; i++) {
+        island current = pp[i];
+        int index = current.first;
+        island_and_neighbours &data = result[index];
+
+        island &inserted_island = data.first;
+        islands &neighbours = data.second;
+
+        if (inserted_island.first == -1) inserted_island = current;
+        neighbours.push_back(pp[i - 1]);
+        neighbours.push_back(pp[i + 1]);
+    }
+
+    return result;
 }
 
 
