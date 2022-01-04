@@ -18,63 +18,64 @@ using std::make_pair;
 using std::sort;
 
 using point = pair<int, int>;
-using neighbours = vector<point>;
-using points = vector<point>;
-using graph = unordered_map<point, neighbours>;
+using island = pair<int, point>;
+using islands = vector<island>;
+using graph = vector<pair<island, islands>>;
 
 
-
-points read_input(int &num_islands) {
+islands read_input(int &num_islands) {
     cin >> num_islands;
 
-    points result;
+    islands result;
 
     int x;
     int y;
     for (int i = 0; i < num_islands; i++) {
         cin >> x >> y;
         point new_point = make_pair(x, y);
-        result.push_back(new_point);
+        result.push_back(make_pair(i, new_point));
     }
 
     return result;
 }
 
-void print_points(points pp) {
-    for (points::iterator iter = pp.begin(); iter != pp.end(); iter++) {
-        cout << iter->first << " " << iter->second << endl;
+void print_points(islands pp) {
+    for (islands::iterator iter = pp.begin(); iter != pp.end(); iter++) {
+        cout << "index " << iter->first << " " <<
+                                               (iter->second).first
+                                               << (iter->second).second
+                                               << endl;
     }
 }
 
-void print_input(int num_islands, points pp) {
+void print_input(int num_islands, islands pp) {
     cout << num_islands << endl;
     print_points(pp);
 }
 
-void insert_into_graph(graph &islands, point current_island, point island_to_insert) {
-    graph::iterator found = islands.find(current_island);
-
-    if (found == islands.end()) {
-        points new_points;
-        new_points.push_back(island_to_insert);
-        islands.insert(make_pair(current_island, new_points));
-    } else {
-        points &old_points = found->second;
-        old_points.push_back(island_to_insert);
-    }
-}
-graph sort_coordinates_and_insert_into_graph(points pp) {
-    sort(pp.begin(), pp.end());
-
-    print_points(pp);
+graph initialize_islands(int num_islands) {
     graph result;
 
-    result
+    for (int i = 0; i < num_islands; i++) {
+        island isl;
+        islands isls;
+        result.push_back(make_pair(isl, isls));
+    }
+
+    return result;
 }
+
+graph create_graph(islands pp, int num_islands) {
+    graph result = initialize_islands(num_islands);
+
+    sort(pp.begin(), pp.end());
+    
+}
+
 
 int main(void) {
     int num_islands;
-    points read_islands = read_input(num_islands);
+    islands read_islands = read_input(num_islands);
     print_input(num_islands, read_islands);
 
     return 0;
