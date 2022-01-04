@@ -24,6 +24,7 @@ using std::sort;
 using std::get;
 using std::abs;
 using std::greater;
+using std::min;
 
 using point = pair<int, int>;
 using island = pair<int, point>;
@@ -130,14 +131,17 @@ islands dijkstra(graph &with_adjacent, island start, island stop) {
     dijkstra_data new_data = make_pair(0, make_pair(start, start));
     dq.push(new_data);
     int dist = 0;
-    while (!dq.empty()) {
+
+    int last_visited = start.first;
+    //while (!dq.empty()) {
+    while (last_visited != stop.first) {
         dijkstra_data returned = dq.top();
         dq.pop();
 
         while (returned.first < dist) {
             returned = dq.top();
             dq.pop();
-        }
+        } //change current index to while inot index of last
 
         int current_dist = returned.first;
         island current_island = returned.second.first;
@@ -146,6 +150,7 @@ islands dijkstra(graph &with_adjacent, island start, island stop) {
 
         dist = current_dist;
         shortest.push_back(current_island);
+        last_visited = current_island.first;
 
         for (islands::iterator iter = neighbours.begin(); iter != neighbours.end();
         iter++) {
@@ -159,13 +164,34 @@ islands dijkstra(graph &with_adjacent, island start, island stop) {
     return shortest;
 }
 
+void sum_x_y(point &result, point to_add) {
+    if (to_add.first > to_add.second) {
+        result.second = result.second + to_add.second;
+    } else {
+        result.first = result.first + to_add.first;
+    }
+}
 
+int return_result(islands from_dijkstra) {
+    point result = make_pair(0, 0);
+    for (islands::iterator iter = from_dijkstra.begin(); iter != from_dijkstra.end();
+    iter++) {
+        sum_x_y(result, iter->second);
+    }
+
+    return min(result.first, result.second);
+}
 int main(void) {
     int num_islands;
     islands read_islands = read_input(num_islands);
     island start = read_islands[0];
     island stop = read_islands[num_islands - 1];
     print_input(num_islands, read_islands);
+
+    graph map_islands = create_graph(read_islands, num_islands);
+    islands from_dijkstra = dijkstra(map_islands, start, stop);
+    int result = return_result(from_dijkstra);
+    cout << result << endl;
 
     return 0;
 }
