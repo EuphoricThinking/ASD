@@ -1,6 +1,7 @@
 //
 // Created by heheszek on 02.01.2022.
 //
+#include <cstdio>
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -42,7 +43,7 @@ node_containter read_input(int &num_projects, int &num_dependencies,
   //  cout << num_projects << "|" << num_dependencies << "|" << required_projects;
     for (int i = 0; i < num_projects; i++) {
         cin >> num_programmers;
-    //    cout << "K" << num_programmers << "K";
+  //     cout << "K" << num_programmers << "K";
         outcoming o;
         node_data new_data = make_tuple(num_programmers, o, 0);
         nodes.push_back(new_data);
@@ -54,7 +55,7 @@ node_containter read_input(int &num_projects, int &num_dependencies,
     for (int i = 0; i < num_dependencies; i++) {
         //cin >> from_node >> to_node;
         cin >> to_node >> from_node;
-     //   cout << "F" << from_node << "T" << to_node;
+    //    cout << "F" << from_node << "T" << to_node;
         num_incoming &referenced_inputs = get<2>(nodes[to_node - 1]);
         outcoming &outcomes = get<1>(nodes[from_node - 1]);
 
@@ -120,7 +121,7 @@ int find_programmers(topo_queue &tq, int k, node_containter &nodes) {
     weights node;
     int programmers;
     int node_number;
-  //  cout << "k: " << k << endl;
+   // cout << "k: " << k << endl;
     while (counter_popped != k) {//(counter_popped != k && !(tq.empty())) {
         node = tq.top();
         tq.pop();
@@ -128,44 +129,50 @@ int find_programmers(topo_queue &tq, int k, node_containter &nodes) {
 
         programmers = node.first;
         node_number = node.second;
-  //      cout << "node: " << node_number << " programmers: " << programmers <<
-    //        " counter: " << counter_popped << " max_before: " << max_num_programmers << endl;
+//        cout << "node: " << node_number << " programmers: " << programmers <<
+  //          " counter: " << counter_popped << " max_before: " << max_num_programmers << endl;
         if (programmers > max_num_programmers) {
             max_num_programmers = programmers;
         }
- //       cout << "max after: " << max_num_programmers << endl;
+  //      cout << "max after: " << max_num_programmers << endl;
 
         node_data info = nodes[node_number - 1];
         outcoming &outs = get<1>(info);
         int inputs = get<2>(info);
 
         for (outcoming::iterator iter = outs.begin(); iter != outs.end(); iter++) {
-            int adjacent_number = (*iter) - 1;
-            node_data adjacent_tuple = nodes[adjacent_number];
-            int &adjacent_inputs = get<2>(adjacent_tuple);
-            adjacent_inputs--;
      //       cout << "adj: " << *iter << " ";
+            int adjacent_number = (*iter) - 1;
+            node_data &adjacent_tuple = nodes[adjacent_number];
+            int &adjacent_inputs = get<2>(adjacent_tuple);
+     //       cout << "inputs  bef: " << adjacent_inputs << " after: ";
+            adjacent_inputs--;
+   //         cout << adjacent_inputs << " ";
+
             if (adjacent_inputs == 0) {
-  //              cout << "no inputs ";
+       //         cout << "no inputs ";
                int employers = get<0>(adjacent_tuple);
                weights new_weight = make_pair(employers, *iter);
                tq.push(new_weight);
             }
     //        cout << endl;
         }
-   //     cout << endl;
+     //   cout << endl;
     }
 
     return max_num_programmers;
 }
 
 int main(void) {
+    std::ios_base::sync_with_stdio(false);
+
+    std::cin.tie(NULL);
     int num_projects, num_dependencies, k;
     node_containter nodes = read_input(num_projects, num_dependencies, k);
-    //print_data(num_projects, num_dependencies, k, nodes);
+   // print_data(num_projects, num_dependencies, k, nodes);
 
     topo_queue no_inputs = create_queue(nodes, num_projects);
-    //print_queue(no_inputs);
+   // print_queue(no_inputs);
     int result = find_programmers(no_inputs, k, nodes);
     cout << result << endl;
 }
