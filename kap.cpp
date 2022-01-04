@@ -79,7 +79,7 @@ graph initialize_islands(int num_islands) {
     return result;
 }
 
-void insert_into_graph (graph &result, islands &pp, int num_islands) {
+void insert_into_graph (graph &result, islands pp, int num_islands) {
     island first_island = pp[0];
     islands isls;
     isls.push_back(pp[1]);
@@ -123,16 +123,48 @@ int get_distance(island i1, island i2) {
     return x_diff + y_diff;
 }
 
-islands dijkstra(graph &with_adjacent) {
+islands dijkstra(graph &with_adjacent, island start, island stop) {
     islands shortest;
 
+    dijkstra_queue dq;
+    dijkstra_data new_data = make_pair(0, make_pair(start, start));
+    dq.push(new_data);
+    int dist = 0;
+    while (!dq.empty()) {
+        dijkstra_data returned = dq.top();
+        dq.pop();
 
+        while (returned.first < dist) {
+            returned = dq.top();
+            dq.pop();
+        }
+
+        int current_dist = returned.first;
+        island current_island = returned.second.first;
+        island_and_neighbours adjacent = with_adjacent[current_island.first];
+        islands neighbours = adjacent.second;
+
+        dist = current_dist;
+        shortest.push_back(current_island);
+
+        for (islands::iterator iter = neighbours.begin(); iter != neighbours.end();
+        iter++) {
+            family fm = make_pair(*iter, current_island);
+            distance to_add = returned.first + get_distance(*iter, current_island);
+            dijkstra_data to_add_dd = make_pair(to_add, fm);
+            dq.push(to_add_dd);
+        }
+    }
+
+    return shortest;
 }
 
 
 int main(void) {
     int num_islands;
     islands read_islands = read_input(num_islands);
+    island start = read_islands[0];
+    island stop = read_islands[num_islands - 1];
     print_input(num_islands, read_islands);
 
     return 0;
