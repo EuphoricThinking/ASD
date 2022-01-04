@@ -91,25 +91,13 @@ graph create_graph(islands &pp, int num_islands) {
     graph result = initialize_islands(num_islands);
 
     sort(pp.begin(), pp.end());
+    insert_into_graph(result, pp, num_islands);
 
-    island first_island = pp[0];
-    islands isls;
-    isls.push_back(pp[1]);
-    result[first_island.first] = make_pair(first_island, isls);
-
-    for (int i = 1; i < num_islands - 1; i++) {
-        island current = pp[i];
-        int index = current.first;
-        island_and_neighbours &data = result[index];
-
-        island &inserted_island = data.first;
-        islands &neighbours = data.second;
-
-        if (inserted_island.first == -1) inserted_island = current;
-        neighbours.push_back(pp[i - 1]);
-        neighbours.push_back(pp[i + 1]);
-    }
-
+    sort(pp.begin(), pp.end(), [](const auto &a, const auto &b) {
+        return a.second < b.second;
+    });
+    insert_into_graph(result, pp, num_islands);
+    
     return result;
 }
 
