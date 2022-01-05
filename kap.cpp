@@ -54,18 +54,20 @@ islands read_input(int &num_islands) {
     return result;
 }
 
-void print_points(islands pp) {
+void print_island(island isl) {
+    cout << "index " << isl.first << " | " << isl.second.first << " " <<
+    isl.second.second << endl;
+}
+
+void print_islands(islands pp) {
     for (islands::iterator iter = pp.begin(); iter != pp.end(); iter++) {
-        cout << "index " << iter->first << " " <<
-                                               (iter->second).first
-                                               << (iter->second).second
-                                               << endl;
+        print_island(*iter);
     }
 }
 
 void print_input(int num_islands, islands pp) {
     cout << num_islands << endl;
-    print_points(pp);
+    print_islands(pp);
 }
 
 graph initialize_islands(int num_islands) {
@@ -100,15 +102,24 @@ void insert_into_graph (graph &result, islands pp, int num_islands) {
     }
 }
 
+bool sort_island_first_coordinate(const island &a, const island &b) {
+    return a.second.first < b.second.first;
+}
+
+bool sort_island_second_coordinate(const island &a, const island &b) {
+    return a.second.second < b.second.second;
+}
+
 graph create_graph(islands &pp, int num_islands) {
     graph result = initialize_islands(num_islands);
-
-    sort(pp.begin(), pp.end());
+  //  cout << endl;
+    sort(pp.begin(), pp.end(), sort_island_first_coordinate);
+  //  print_islands(pp);
     insert_into_graph(result, pp, num_islands);
 
-    sort(pp.begin(), pp.end(), [](const auto &a, const auto &b) {
-        return a.second < b.second;
-    });
+    sort(pp.begin(), pp.end(), sort_island_second_coordinate);
+  //  cout << endl;
+  //  print_islands(pp);
     insert_into_graph(result, pp, num_islands);
 
     return result;
