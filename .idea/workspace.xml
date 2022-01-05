@@ -97,7 +97,7 @@
       <workItem from="1640528570165" duration="1000" />
       <workItem from="1640782474041" duration="61327000" />
       <workItem from="1641126760139" duration="10584000" />
-      <workItem from="1641326929988" duration="21039000" />
+      <workItem from="1641326929988" duration="22910000" />
     </task>
     <servers />
   </component>
@@ -114,16 +114,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/kap.cpp</url>
-          <line>126</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

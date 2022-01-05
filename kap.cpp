@@ -92,6 +92,10 @@ void insert_into_graph (graph &result, islands pp, int num_islands) {
         result[index].push_back(pp[i - 1]);
         result[index].push_back(pp[i + 1]);
     }
+
+    //added
+    island last_island = pp[num_islands - 1];
+    result[last_island.first].push_back(pp[num_islands - 2]);
 }
 
 bool sort_island_first_coordinate(const island &a, const island &b) {
@@ -159,15 +163,15 @@ visited initialize_visited(int num_islands) {
     return result;
 }
 
-islands dijkstra(graph &with_adjacent, island start, int num_islands) {
-    islands parents = initialize_parents(num_islands);
+int dijkstra(graph &with_adjacent, island start, int num_islands) {
+  //  islands parents = initialize_parents(num_islands);
     distances dist = initialize_distances(num_islands);
     visited vis = initialize_visited(num_islands);
 
     dijkstra_queue dq;
     dq.push(make_pair(0, start));
     dist[start.first] = 0;
-    parents[start.first] = start;
+   // parents[start.first] = start;
 
     int new_dist;
     int current_index;
@@ -179,24 +183,31 @@ islands dijkstra(graph &with_adjacent, island start, int num_islands) {
         current_index = current.second.first;
 
         if (!vis[current_index]) {
+         //   cout << "cur: ";
+       //     print_island(current_island);
             islands neighbours = with_adjacent[current_index];
-
+       //     cout << "neighbours:" << endl;
             for (auto & neighbour : neighbours) {
-                new_dist = dist[current_index] +
-                           get_distance(current_island, neighbour);
-
-                if (new_dist < dist[neighbour.first]) {
-                    dist[neighbour.first] = new_dist;
-                    parents[neighbour.first] = current_island;
-                    dq.push(make_pair(new_dist, neighbour));
+                if (!vis[neighbour.first]) {
+                    new_dist = dist[current_index] +
+                               get_distance(current_island, neighbour);
+               //     print_island(neighbour);
+           //         cout << "new dist: " << new_dist << " old: "
+             //            << dist[neighbour.first] << endl;
+                    if (new_dist < dist[neighbour.first]) {
+                 //       cout << "change" << endl;
+                        dist[neighbour.first] = new_dist;
+                        //                parents[neighbour.first] = current_island;
+                        dq.push(make_pair(new_dist, neighbour));
+                    }
                 }
             }
-
+           // cout << endl;
             vis[current_index] = true;
         }
     }
 
-    return parents;
+    return dist[num_islands - 1];
 }
 
     /*islands shortest;
@@ -275,9 +286,10 @@ int main() {
   //  print_input(num_islands, read_islands);
 
     graph map_islands = create_graph(read_islands, num_islands);
-    islands from_dijkstra = dijkstra(map_islands, start, num_islands);
-    int result = return_result(from_dijkstra, stop);
+   // islands from_dijkstra = dijkstra(map_islands, start, num_islands);
+   // int result = return_result(from_dijkstra, stop);
+  //  cout << result << endl;
+    int result = dijkstra(map_islands, start, num_islands);
     cout << result << endl;
-
     return 0;
 }
