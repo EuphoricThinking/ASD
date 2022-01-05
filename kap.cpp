@@ -29,14 +29,16 @@ using std::min;
 using point = pair<int, int>;
 using island = pair<int, point>;
 using islands = vector<island>;
-using island_and_neighbours = pair<island, islands>;
-using graph = vector<island_and_neighbours>;
-using parent = island;
-using distance = int;
-using family = pair<island, parent>;
-using dijkstra_data = pair<distance, family>;
+using graph = vector<islands>;
+
+using distances = vector<int>;
+using visited = vector<bool>;
+using node_number = int;
+using dijkstra_data = pair<int, island>;
 using dijkstra_queue = priority_queue<dijkstra_data, vector<dijkstra_data>,
         greater<dijkstra_data>>;
+
+const int MAX_COORDINATE = 1000000100;
 
 islands read_input(int &num_islands) {
     cin >> num_islands;
@@ -74,9 +76,8 @@ graph initialize_islands(int num_islands) {
     graph result;
 
     for (int i = 0; i < num_islands; i++) {
-        island isl = make_pair(-1, make_pair(-1, -1));
         islands isls;
-        result.push_back(make_pair(isl, isls));
+        result.push_back(isls);
     }
 
     return result;
@@ -84,21 +85,13 @@ graph initialize_islands(int num_islands) {
 
 void insert_into_graph (graph &result, islands pp, int num_islands) {
     island first_island = pp[0];
-    islands isls;
-    isls.push_back(pp[1]);
-    result[first_island.first] = make_pair(first_island, isls);
+    result[first_island.first].push_back(pp[1]);
 
     for (int i = 1; i < num_islands - 1; i++) {
         island current = pp[i];
         int index = current.first;
-        island_and_neighbours &data = result[index];
-
-        island &inserted_island = data.first;
-        islands &neighbours = data.second;
-
-        if (inserted_island.first == -1) inserted_island = current;
-        neighbours.push_back(pp[i - 1]);
-        neighbours.push_back(pp[i + 1]);
+        result[index].push_back(pp[i - 1]);
+        result[index].push_back(pp[i + 1]);
     }
 }
 
@@ -110,7 +103,7 @@ bool sort_island_second_coordinate(const island &a, const island &b) {
     return a.second.second < b.second.second;
 }
 
-graph create_graph(islands &pp, int num_islands) {
+graph create_graph(islands pp, int num_islands) {
     graph result = initialize_islands(num_islands);
   //  cout << endl;
     sort(pp.begin(), pp.end(), sort_island_first_coordinate);
@@ -135,8 +128,78 @@ int get_distance(island i1, island i2) {
     return x_diff + y_diff;
 }
 
-islands dijkstra(graph &with_adjacent, island start, island stop) {
-    islands shortest;
+islands initialize_parents(int num_islands) {
+    islands result;
+
+    for (int i = 0 ; i < num_islands; i++) {
+        island ils;
+        result.push_back(ils);
+    }
+
+    return result;
+}
+
+distances initialize_distances(int num_islands) {
+    distances result;
+
+    for (int i = 0; i < num_islands; i++) {
+        result.push_back(MAX_COORDINATE);
+    }
+
+    return result;
+}
+
+visited initialize_visited(int num_islands) {
+    visited result;
+
+    for (int i = 0; i < num_islands; i++) {
+        result.push_back(false);
+    }
+
+    return result;
+}
+
+islands dijkstra(graph &with_adjacent, island start, int num_islands) {
+    islands parents = initialize_parents(num_islands);
+    distances dist = initialize_distances(num_islands);
+    visited vis = initialize_visited(num_islands);
+
+    dijkstra_queue dq;
+    dq.push(make_pair(0, start));
+    dist[0] = 0;
+    parents[0] = start;
+
+    int new_dist;
+    while (!dq.empty()) {
+        dijkstra_data current = dq.top();
+        dq.pop();
+
+        island current_island = current.second;
+        int current_index = current.second.first;
+
+        if (vis[current_index] != true) {
+            islands neighbours = with_adjacent[current_index];
+
+            for (islands::iterator iter = neighbours.begin(); iter !=
+                                                              neighbours.end(); iter++) {
+                new_dist = dist[current_index] +
+                           get_distance(current_island, *iter);
+
+                if (new_dist < dist[iter->first]) {
+                    dist[iter->first] = new_dist;
+                    parents[iter->first] = current_island;
+                    dq.push(make_pair(new_dist, *iter));
+                }
+            }
+
+            vis[current_index] = true;
+        }
+    }
+
+    return parents;
+}
+
+    /*islands shortest;
 
     dijkstra_queue dq;
     dijkstra_data new_data = make_pair(0, make_pair(start, start));
@@ -172,8 +235,8 @@ islands dijkstra(graph &with_adjacent, island start, island stop) {
         }
     }
 
-    return shortest;
-}
+    return shortest; */
+
 
 void sum_x_y(point &result, point to_add) {
     if (to_add.first > to_add.second) {
@@ -185,22 +248,20 @@ void sum_x_y(point &result, point to_add) {
 
 int return_result(islands from_dijkstra) {
     point result = make_pair(0, 0);
-    for (islands::iterator iter = from_dijkstra.begin(); iter != from_dijkstra.end();
-    iter++) {
-        sum_x_y(result, iter->second);
-    }
+    island 
 
     return min(result.first, result.second);
 }
+
 int main(void) {
     int num_islands;
     islands read_islands = read_input(num_islands);
     island start = read_islands[0];
     island stop = read_islands[num_islands - 1];
-    print_input(num_islands, read_islands);
+  //  print_input(num_islands, read_islands);
 
     graph map_islands = create_graph(read_islands, num_islands);
-    islands from_dijkstra = dijkstra(map_islands, start, stop);
+    islands from_dijkstra = dijkstra(map_islands, start, stop, num_islands);
     int result = return_result(from_dijkstra);
     cout << result << endl;
 
