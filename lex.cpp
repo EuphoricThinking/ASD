@@ -44,8 +44,8 @@ commands read_input(int &word_length, int &num_commands, string &word) {
     indexes sub1, sub2;
     for (int i = 0; i < num_commands; i++) {
         cin >> s1_l >> s1_r >> s2_l >> s2_r;
-        sub1 = make_pair(s1_l, s1_r);
-        sub2 = make_pair(s2_l, s2_r);
+        sub1 = make_pair(s1_l - 1, s1_r - 1); //added -1
+        sub2 = make_pair(s2_l - 1, s2_r - 1); //added -1
         result.push_back(make_pair(sub1, sub2));
     }
 
@@ -248,8 +248,9 @@ indexes get_dbf_indexes(indexes from_raw_array, const dbf &table) {
     int left = from_raw_array.first;
     int right = from_raw_array.second;
     int k = (int)floor(log2(right - left + 1));
+    cout << "k " << k << endl;
     int right_index_row_dbf = right - pow(2, k) + 1;
-
+    cout << left << " " << k << " | " << right_index_row_dbf << " " << k << endl;
     return make_pair(table[left][k], table[right_index_row_dbf][k]);
 }
 
@@ -285,6 +286,15 @@ int compare_subwords_in_command(command com, const dbf &table) {
     int comparison = compare_indexes(dbf1, dbf2);
 
     if (equal_length) {
+        print_indexes(sub1);
+        cout << endl;
+        print_indexes(sub2);
+        cout << "\ndbf1 : ";
+        print_indexes(dbf1);
+        cout << "\ndbf2 : ";
+        print_indexes(dbf2);
+        cout << endl;
+
         return comparison;
     } else if (!first_longer) {
         if (comparison == EQUAL) {
