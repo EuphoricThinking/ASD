@@ -190,13 +190,13 @@ void print_temp(temp_indexes temp) {
 
 dbf fill_dbf_table(int word_length, string s) {
     int floor_log_length = (int)floor(log2(word_length));
-    cout << "FUCK " << floor_log_length << endl;
+ //   cout << "FUCK " << floor_log_length << endl;
     dbf result = create_dbf(word_length, floor_log_length + 1);
    // cout << "dbl created" << endl;
     sorter sorted = initialize_sorter(word_length);
    // cout << "sorter created" << endl;
     initialize_dbf(result, word_length, s);
-    cout << "dbf initialized" << endl;
+  //  cout << "dbf initialized" << endl;
     temp_indexes temp_to_sort;
     indexes indexes_to_sort;
     sorting_pack index_and_pair_of_indexes;
@@ -218,27 +218,27 @@ dbf fill_dbf_table(int word_length, string s) {
         //    cout << i << endl;
         }
         limit -= pow_j;
-        
-        cout << " j " << j << endl;
+
+ /*       cout << " j " << j << endl;
         cout << "temp" << endl;
         print_temp(temp_to_sort);
         cout << "BEF" << endl;
-        print_sorter(sorted, word_length);
+        print_sorter(sorted, word_length); */
 
         radix_sort(sorted, temp_to_sort);
 
-        cout << "RADIX1" << endl;
+       /* cout << "RADIX1" << endl;
         print_sorter(sorted, word_length);
-        cout << "RADIX2" << endl;
+        cout << "RADIX2" << endl; */
 
         assign_number_to_dbf(result, sorted, word_length, j);
 
         clear_sorter(sorted);
         temp_to_sort.clear();
 
-        cout << "AFT clean" << endl;
+     /*   cout << "AFT clean" << endl;
         print_sorter(sorted, word_length);
-        cout << "DONE" << endl;
+        cout << "DONE" << endl; */
     }
 
     return result;
@@ -247,7 +247,7 @@ dbf fill_dbf_table(int word_length, string s) {
 indexes get_dbf_indexes(indexes from_raw_array, const dbf &table) {
     int left = from_raw_array.first;
     int right = from_raw_array.second;
-    int k = (int)floor(log(right - left + 1));
+    int k = (int)floor(log2(right - left + 1));
     int right_index_row_dbf = right - pow(2, k) + 1;
 
     return make_pair(table[left][k], table[right_index_row_dbf][k]);
