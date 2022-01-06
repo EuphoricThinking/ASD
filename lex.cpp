@@ -97,7 +97,7 @@ dbf create_dbf(int word_length, int floor_log_length){
         result.push_back(v);
 
         for (int j = 0; j < floor_log_length; j++) {
-            //probably TODO
+            result[i].push_back(0);
         }
     }
 
@@ -105,11 +105,17 @@ dbf create_dbf(int word_length, int floor_log_length){
 }
 
 int get_alphabet_index(char c) {
+/*    cout << "enter get" << endl;
+    cout << c << endl;
+    cout << int(c) << endl;
+    cout << int(c) - A_POSITION << endl; */
     return int(c) - A_POSITION;
 }
 
 void initialize_dbf(dbf &table, int word_length, string s) {
+ //   cout << "wlength: " << word_length << endl;
     for (int i = 0; i < word_length; i++) {
+ //       cout << "i " << i << endl;
         table[i][0] = get_alphabet_index(s[i]);
     }
 }
@@ -148,22 +154,39 @@ void assign_number_to_dbf(dbf &table, const sorter &sorted, int word_length,
     }
 }
 
+void print_dbf(dbf table) {
+    for (vector<int> v: table) {
+        for (int i: v) {
+            cout << i << " ";
+        }
+        cout << "\n";
+    }
+}
+
 dbf fill_dbf_table(int word_length, string s) {
     int floor_log_length = (int)floor(log(word_length));
-    dbf result = create_dbf(word_length, floor_log_length);
+    dbf result = create_dbf(word_length, floor_log_length + 1);
+   // cout << "dbl created" << endl;
     sorter sorted = initialize_sorter(word_length);
+   // cout << "sorter created" << endl;
     initialize_dbf(result, word_length, s);
+    cout << "dbf initialized" << endl;
     temp_indexes temp_to_sort;
     indexes indexes_to_sort;
     sorting_pack index_and_pair_of_indexes;
 
-    for (int j = 1; j < floor_log_length; j++) {
-        for (int i = 0; i < word_length; i++) {
+    for (int j = 1; j < floor_log_length + 1; j++) {
+        int pow_j = pow(2, j - 1);
+      //  for (int i = 0; i < word_length; i++) {
+        for (int i = 0; i + pow_j < word_length; i++) {
+        //    cout << "i " << i << endl;
             indexes_to_sort = make_pair(result[i][j - 1],
                                         result[i + pow(2, j - 1)][j - 1]);
             index_and_pair_of_indexes = make_pair(i, indexes_to_sort);
             temp_to_sort.push_back(index_and_pair_of_indexes);
+        //    cout << i << endl;
         }
+        //cout << " j " << j << endl;
 
         radix_sort(sorted, temp_to_sort);
         assign_number_to_dbf(result, sorted, word_length, j);
@@ -257,6 +280,7 @@ int main() {
     print_input(word_length, num_commands, word, com);
 
     dbf table = fill_dbf_table(word_length, word);
+    cout <<  "after dbl" << endl;
     evaluate_commands_final(com, table, num_commands);
 
     return 0;
