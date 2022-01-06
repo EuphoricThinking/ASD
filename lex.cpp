@@ -117,6 +117,33 @@ void radix_sort(sorter &sorted, temp_indexes temp) {
     }
 }
 
+void clear_sorter(sorter &sorted) {
+    for (vector<vector<sorting_pack>> outside_vs: sorted) {
+        for (vector<sorting_pack> inside_vs: outside_vs) {
+            inside_vs.clear();
+        }
+    }
+}
+
+void assign_number_to_dbf(dbf &table, const sorter &sorted, int word_length,
+                          int power_index) {
+    int counter = 1;
+
+    for (int i = 0; i < word_length; i++) {
+        for (int j = 0; j < word_length; j++) {
+            if (!sorted[i][j].empty()) {
+                for (sorting_pack sp: sorted[i][j]) {
+                    int index = sp.first;
+
+                    table[index][power_index] = counter;
+                }
+
+                counter++;
+            }
+        }
+    }
+}
+
 dbf fill_dbf_table(int word_length, string s) {
     int floor_log_length = (int)floor(log(word_length));
     dbf result = create_dbf(word_length, floor_log_length);
@@ -135,7 +162,13 @@ dbf fill_dbf_table(int word_length, string s) {
         }
 
         radix_sort(sorted, temp_to_sort);
+        assign_number_to_dbf(result, sorted, word_length, j);
+
+        clear_sorter(sorted);
+        temp_to_sort.clear();
     }
+
+    return result;
 }
 
 int main() {
