@@ -164,7 +164,8 @@ void print_dbf(dbf table) {
 }
 
 dbf fill_dbf_table(int word_length, string s) {
-    int floor_log_length = (int)floor(log(word_length));
+    int floor_log_length = (int)floor(log2(word_length));
+    cout << "FUCK " << floor_log_length << endl;
     dbf result = create_dbf(word_length, floor_log_length + 1);
    // cout << "dbl created" << endl;
     sorter sorted = initialize_sorter(word_length);
@@ -281,6 +282,7 @@ int main() {
 
     dbf table = fill_dbf_table(word_length, word);
     cout <<  "after dbl" << endl;
+    print_dbf(table);
     evaluate_commands_final(com, table, num_commands);
 
     return 0;
