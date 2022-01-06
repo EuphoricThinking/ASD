@@ -200,24 +200,28 @@ dbf fill_dbf_table(int word_length, string s) {
     temp_indexes temp_to_sort;
     indexes indexes_to_sort;
     sorting_pack index_and_pair_of_indexes;
+    int limit = word_length;
 
     for (int j = 1; j < floor_log_length + 1; j++) {
         int pow_j = pow(2, j - 1);
       //  for (int i = 0; i < word_length; i++) {
-        cout << "POW " << pow_j << endl;
-        for (int i = 0; i + pow_j < word_length; i++) {
-            cout << "i " << i << endl;
-            cout << i + pow_j << endl;
-            cout << "pow_j " << pow_j << endl;
+      //  cout << "POW " << pow_j << endl;
+        //for (int i = 0; i + pow_j < word_length; i++) {
+        for (int i = 0; i + pow_j < limit; i++) {
+       //     cout << "i " << i << endl;
+        //    cout << i + pow_j << endl;
+      //      cout << "pow_j " << pow_j << endl;
             indexes_to_sort = make_pair(result[i][j - 1],
                                         result[i + pow(2, j - 1)][j - 1]);
             index_and_pair_of_indexes = make_pair(i, indexes_to_sort);
             temp_to_sort.push_back(index_and_pair_of_indexes);
         //    cout << i << endl;
         }
+        limit -= pow_j;
+        
         cout << " j " << j << endl;
         cout << "temp" << endl;
-        //print_temp(temp_to_sort);
+        print_temp(temp_to_sort);
         cout << "BEF" << endl;
         print_sorter(sorted, word_length);
 
