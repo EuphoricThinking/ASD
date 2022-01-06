@@ -128,8 +128,8 @@ void radix_sort(sorter &sorted, temp_indexes temp) {
 }
 
 void clear_sorter(sorter &sorted) {
-    for (vector<vector<sorting_pack>> outside_vs: sorted) {
-        for (vector<sorting_pack> inside_vs: outside_vs) {
+    for (vector<vector<sorting_pack>> &outside_vs: sorted) {
+        for (vector<sorting_pack> &inside_vs: outside_vs) {
             inside_vs.clear();
         }
     }
@@ -163,6 +163,31 @@ void print_dbf(dbf table) {
     }
 }
 
+void print_sorting_pack(sorting_pack sp) {
+    cout << "i: " << sp.first << " | ";
+    print_indexes(sp.second);
+    cout << endl;
+}
+
+void print_sorter(sorter sorted, int word_length) {
+    for (int i = 0; i < word_length; i++) {
+        cout << "S " << i << endl;
+        for (int j = 0; j < word_length; j++) {
+            if (!sorted[i][j].empty()) {
+                for (sorting_pack sp: sorted[i][j]) {
+                    print_sorting_pack(sp);
+                }
+            }
+        }
+    }
+}
+
+void print_temp(temp_indexes temp) {
+    for (sorting_pack sp: temp) {
+        print_sorting_pack(sp);
+    }
+}
+
 dbf fill_dbf_table(int word_length, string s) {
     int floor_log_length = (int)floor(log2(word_length));
     cout << "FUCK " << floor_log_length << endl;
@@ -179,21 +204,37 @@ dbf fill_dbf_table(int word_length, string s) {
     for (int j = 1; j < floor_log_length + 1; j++) {
         int pow_j = pow(2, j - 1);
       //  for (int i = 0; i < word_length; i++) {
+        cout << "POW " << pow_j << endl;
         for (int i = 0; i + pow_j < word_length; i++) {
-        //    cout << "i " << i << endl;
+            cout << "i " << i << endl;
+            cout << i + pow_j << endl;
+            cout << "pow_j " << pow_j << endl;
             indexes_to_sort = make_pair(result[i][j - 1],
                                         result[i + pow(2, j - 1)][j - 1]);
             index_and_pair_of_indexes = make_pair(i, indexes_to_sort);
             temp_to_sort.push_back(index_and_pair_of_indexes);
         //    cout << i << endl;
         }
-        //cout << " j " << j << endl;
+        cout << " j " << j << endl;
+        cout << "temp" << endl;
+        //print_temp(temp_to_sort);
+        cout << "BEF" << endl;
+        print_sorter(sorted, word_length);
 
         radix_sort(sorted, temp_to_sort);
+
+        cout << "RADIX1" << endl;
+        print_sorter(sorted, word_length);
+        cout << "RADIX2" << endl;
+
         assign_number_to_dbf(result, sorted, word_length, j);
 
         clear_sorter(sorted);
         temp_to_sort.clear();
+
+        cout << "AFT clean" << endl;
+        print_sorter(sorted, word_length);
+        cout << "DONE" << endl;
     }
 
     return result;
