@@ -32,6 +32,10 @@ const int MAX_LENGTH = 300000;
 const int NUM_LETTERS = 26;
 const int A_POSITION = 96;
 
+const int SMALLER = -1;
+const int EQUAL = 0;
+const int GREATER = 1;
+
 commands read_input(int &word_length, int &num_commands, string &word) {
     cin >> word_length >> num_commands >> word;
 
@@ -171,9 +175,89 @@ dbf fill_dbf_table(int word_length, string s) {
     return result;
 }
 
+indexes get_dbf_indexes(indexes from_raw_array, const dbf &table) {
+    int left = from_raw_array.first;
+    int right = from_raw_array.second;
+    int k = (int)floor(log(right - left + 1));
+    int right_index_row_dbf = right - pow(2, k) + 1;
+
+    return make_pair(table[left][k], table[right_index_row_dbf][k]);
+}
+
+int compare_indexes(indexes sub1, indexes sub2) {
+    if (sub1 == sub2) {
+        return EQUAL;
+    } else if (sub1 < sub2) {
+        return SMALLER;
+    } else {
+        return GREATER;
+    }
+}
+
+int compare_subwords_in_command(command com, const dbf &table) {
+    indexes sub1 = com.first;
+    indexes sub2 = com.second;
+    int sub1_length = sub1.second - sub1.first;
+    int sub2_length = sub2.second - sub2.first;
+    bool equal_length = false;
+    bool first_longer = false;
+
+    if ((sub1_length) > (sub2_length)) {
+        sub1 = make_pair(sub1.first, sub1.first + sub2_length);
+        first_longer = true;
+    } else if (sub1_length < sub2_length) {
+        sub2 = make_pair(sub2.first, sub2.first + sub1_length);
+    } else {
+        equal_length = true;
+    }
+
+    indexes dbf1 = get_dbf_indexes(sub1, table);
+    indexes dbf2 = get_dbf_indexes(sub2, table);
+    int comparison = compare_indexes(dbf1, dbf2);
+
+    if (equal_length) {
+        return comparison;
+    } else if (!first_longer) {
+        if (comparison == EQUAL) {
+            return SMALLER;
+        } else {
+            return comparison;
+        }
+    } else {
+        if (comparison == EQUAL) {
+            return GREATER;
+        } else {
+            return comparison;
+        }
+    }
+}
+
+void print_result(int result) {
+    if (result == EQUAL) {
+        cout << "=" << "\n";
+    } else if (result == SMALLER) {
+        cout << "<" << "\n";
+    } else {
+        cout << ">" << "\n";
+    }
+}
+
+void evaluate_commands_final(commands com, dbf table, int num_commands) {
+    int result;
+    for (int i = 0; i < num_commands; i++) {
+        result = compare_subwords_in_command(com[i], table);
+        print_result(result);
+    }
+}
+
 int main() {
     int word_length, num_commands;
     string word;
     commands com = read_input(word_length, num_commands, word);
     print_input(word_length, num_commands, word, com);
+
+    dbf table = fill_dbf_table(word_length, word);
+    evaluate_commands_final(com, table, num_commands);
+
+    return 0;
 }
