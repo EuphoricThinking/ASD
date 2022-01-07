@@ -33,10 +33,11 @@ const int A_POSITION = 96;
 const int SMALLER = -1;
 const int EQUAL = 0;
 const int GREATER = 1;
+const int ALPH_LIMIT_BIASED = 30;
 
 int result[300000][18];
-vector<sorting_pack> buckets[300000];
-vector<sorting_pack> single_bucket[300000];
+vector<sorting_pack> buckets[ALPH_LIMIT_BIASED];
+vector<sorting_pack> single_bucket[ALPH_LIMIT_BIASED];
 
 commands read_input(int &word_length, int &num_commands, string &word) {
     cin >> word_length >> num_commands >> word;
@@ -130,6 +131,42 @@ void radix_sort(sorter &sorted, temp_indexes temp) {
     }
 }
 
+void radix_sort2(temp_indexes temp, int word_length, int j) {
+    for (sorting_pack sp: temp) {
+        indexes coordinates = sp.second;
+        buckets[coordinates.first].push_back(sp);
+    }
+
+    int counter = 1;
+
+    for (int i = 0; i < ALPH_LIMIT_BIASED; i++) {
+        if (!buckets[i].empty()) {
+            for (sorting_pack sp: buckets[i]) {
+                indexes coordinates = sp.second;
+                single_bucket[coordinates.second].push_back(sp);
+            }
+
+            for (int j = 0; j < ALPH_LIMIT_BIASED; j++) {
+                if (!single_bucket[j].empty()) {
+                    for (sorting_pack sp: single_bucket[j]) {
+                        result[sp.first][j] = counter;
+                    }
+
+                    counter++;
+                }
+            }
+
+            for (int j = 0; j < ALPH_LIMIT_BIASED; j++) {
+                single_bucket[j].clear();
+            }
+        }
+    }
+
+    for (int i = 0; i < ALPH_LIMIT_BIASED; i++) {
+        buckets[i].clear();
+    }
+}
+
 void clear_sorter(sorter &sorted) {
     for (vector<vector<sorting_pack>> &outside_vs: sorted) {
         for (vector<sorting_pack> &inside_vs: outside_vs) {
@@ -207,6 +244,7 @@ void fill_dbf_table(int word_length, const string &s) {
     sorting_pack index_and_pair_of_indexes;
     int limit = word_length;
 
+
     for (int j = 1; j < floor_log_length + 1; j++) {
         int pow_j = (int)pow(2, j - 1);
       //  for (int i = 0; i < word_length; i++) {
@@ -221,6 +259,7 @@ void fill_dbf_table(int word_length, const string &s) {
                                         result[i + pow_j][j - 1]);
             index_and_pair_of_indexes = make_pair(i, indexes_to_sort);
             temp_to_sort.push_back(index_and_pair_of_indexes);
+     //       buckets[0].push_back(index_and_pair_of_indexes);
         //    cout << i << endl;
         }
         limit -= pow_j;
@@ -230,7 +269,7 @@ void fill_dbf_table(int word_length, const string &s) {
         print_temp(temp_to_sort);
         cout << "BEF" << endl;
         print_sorter(sorted, word_length); */
-        cout << "nef" << endl;
+     //   cout << "nef" << endl;
       //  return result;
 
     //    radix_sort(sorted, temp_to_sort); //TODO
@@ -242,7 +281,14 @@ void fill_dbf_table(int word_length, const string &s) {
     //    assign_number_to_dbf(result, sorted, word_length, j); //TODO
 
    //     clear_sorter(sorted);  //TODO
+    //    cout << "here" << endl;
+
+        radix_sort2(temp_to_sort, word_length, j);
+
+
+ //       cout << "here2" << endl;
         temp_to_sort.clear();
+   //     buckets[0].clear();
 
      /*   cout << "AFT clean" << endl;
         print_sorter(sorted, word_length);
@@ -252,14 +298,14 @@ void fill_dbf_table(int word_length, const string &s) {
  //   return result; //TODO
 }
 
-indexes get_dbf_indexes(indexes from_raw_array, const dbf &table) {
+indexes get_dbf_indexes(indexes from_raw_array) {
     int left = from_raw_array.first;
     int right = from_raw_array.second;
     int k = (int)floor(log2(right - left + 1));
     //cout << "k " << k << endl;
     int right_index_row_dbf = right - pow(2, k) + 1;
     //cout << left << " " << k << " | " << right_index_row_dbf << " " << k << endl;
-    return make_pair(table[left][k], table[right_index_row_dbf][k]);
+    return make_pair(result[left][k], result[right_index_row_dbf][k]);
 }
 
 int compare_indexes(indexes sub1, indexes sub2) {
@@ -272,7 +318,7 @@ int compare_indexes(indexes sub1, indexes sub2) {
     }
 }
 
-int compare_subwords_in_command(const command &com, const dbf &table) {
+int compare_subwords_in_command(const command &com) {
     indexes sub1 = com.first;
     indexes sub2 = com.second;
     int sub1_length = sub1.second - sub1.first;
@@ -289,8 +335,8 @@ int compare_subwords_in_command(const command &com, const dbf &table) {
         equal_length = true;
     }
 
-    indexes dbf1 = get_dbf_indexes(sub1, table);
-    indexes dbf2 = get_dbf_indexes(sub2, table);
+    indexes dbf1 = get_dbf_indexes(sub1);
+    indexes dbf2 = get_dbf_indexes(sub2);
     int comparison = compare_indexes(dbf1, dbf2);
 
     if (equal_length) {
@@ -329,10 +375,10 @@ void print_result(int result) {
     }
 }
 
-void evaluate_commands_final(const commands &com, const dbf &table, int num_commands) {
+void evaluate_commands_final(const commands &com, int num_commands) {
     int result;
     for (int i = 0; i < num_commands; i++) {
-        result = compare_subwords_in_command(com[i], table);
+        result = compare_subwords_in_command(com[i]);
         print_result(result);
     }
 }
@@ -347,7 +393,7 @@ int main() {
     fill_dbf_table(word_length, word);
   //  cout <<  "after dbl" << endl;
   //  print_dbf(table);
-   // evaluate_commands_final(com, table, num_commands); //TODO
+    evaluate_commands_final(com, num_commands); //TODO
 
     return 0;
 }
