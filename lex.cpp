@@ -28,13 +28,15 @@ using sorter = vector<vector<vector<sorting_pack>>>;
 using dbf = vector<vector<int>>;
 using temp_indexes = vector<sorting_pack>;
 
-const int MAX_LENGTH = 300000;
-const int NUM_LETTERS = 26;
 const int A_POSITION = 96;
 
 const int SMALLER = -1;
 const int EQUAL = 0;
 const int GREATER = 1;
+
+int result[300000][18];
+vector<sorting_pack> buckets[300000];
+vector<sorting_pack> single_bucket[300000];
 
 commands read_input(int &word_length, int &num_commands, string &word) {
     cin >> word_length >> num_commands >> word;
@@ -56,7 +58,7 @@ void print_indexes(indexes ind) {
     cout << ind.first << " " << ind.second;
 }
 
-void print_pair_of_indexes(command com) {
+void print_pair_of_indexes(command &com) {
     print_indexes(com.first);
     cout << " | ";
     print_indexes(com.second);
@@ -112,7 +114,8 @@ int get_alphabet_index(char c) {
     return int(c) - A_POSITION;
 }
 
-void initialize_dbf(dbf &table, int word_length, string s) {
+//void initialize_dbf(dbf &table, int word_length, const string &s) {
+void initialize_table(int table[300000][18], int word_length, const string &s) {
  //   cout << "wlength: " << word_length << endl;
     for (int i = 0; i < word_length; i++) {
  //       cout << "i " << i << endl;
@@ -188,14 +191,16 @@ void print_temp(temp_indexes temp) {
     }
 }
 
-dbf fill_dbf_table(int word_length, string s) {
+//dbf fill_dbf_table(int word_length, const string &s) {
+void fill_dbf_table(int word_length, const string &s) {
     int floor_log_length = (int)floor(log2(word_length));
  //   cout << "FUCK " << floor_log_length << endl;
-    dbf result = create_dbf(word_length, floor_log_length + 1);
+//    dbf result = create_dbf(word_length, floor_log_length + 1); //TODO
    // cout << "dbl created" << endl;
-    sorter sorted = initialize_sorter(word_length);
+ //   sorter sorted = initialize_sorter(word_length); //TODO
    // cout << "sorter created" << endl;
-    initialize_dbf(result, word_length, s);
+    //initialize_dbf(result, word_length, s); //TODO
+    initialize_table(result, word_length, s);
   //  cout << "dbf initialized" << endl;
     temp_indexes temp_to_sort;
     indexes indexes_to_sort;
@@ -203,7 +208,7 @@ dbf fill_dbf_table(int word_length, string s) {
     int limit = word_length;
 
     for (int j = 1; j < floor_log_length + 1; j++) {
-        int pow_j = pow(2, j - 1);
+        int pow_j = (int)pow(2, j - 1);
       //  for (int i = 0; i < word_length; i++) {
       //  cout << "POW " << pow_j << endl;
         //for (int i = 0; i + pow_j < word_length; i++) {
@@ -212,7 +217,8 @@ dbf fill_dbf_table(int word_length, string s) {
         //    cout << i + pow_j << endl;
       //      cout << "pow_j " << pow_j << endl;
             indexes_to_sort = make_pair(result[i][j - 1],
-                                        result[i + pow(2, j - 1)][j - 1]);
+                                        //result[i + pow(2, j - 1)][j - 1]);
+                                        result[i + pow_j][j - 1]);
             index_and_pair_of_indexes = make_pair(i, indexes_to_sort);
             temp_to_sort.push_back(index_and_pair_of_indexes);
         //    cout << i << endl;
@@ -224,16 +230,18 @@ dbf fill_dbf_table(int word_length, string s) {
         print_temp(temp_to_sort);
         cout << "BEF" << endl;
         print_sorter(sorted, word_length); */
+        cout << "nef" << endl;
+      //  return result;
 
-        radix_sort(sorted, temp_to_sort);
+    //    radix_sort(sorted, temp_to_sort); //TODO
 
        /* cout << "RADIX1" << endl;
         print_sorter(sorted, word_length);
         cout << "RADIX2" << endl; */
 
-        assign_number_to_dbf(result, sorted, word_length, j);
+    //    assign_number_to_dbf(result, sorted, word_length, j); //TODO
 
-        clear_sorter(sorted);
+   //     clear_sorter(sorted);  //TODO
         temp_to_sort.clear();
 
      /*   cout << "AFT clean" << endl;
@@ -241,7 +249,7 @@ dbf fill_dbf_table(int word_length, string s) {
         cout << "DONE" << endl; */
     }
 
-    return result;
+ //   return result; //TODO
 }
 
 indexes get_dbf_indexes(indexes from_raw_array, const dbf &table) {
@@ -264,7 +272,7 @@ int compare_indexes(indexes sub1, indexes sub2) {
     }
 }
 
-int compare_subwords_in_command(command com, const dbf &table) {
+int compare_subwords_in_command(const command &com, const dbf &table) {
     indexes sub1 = com.first;
     indexes sub2 = com.second;
     int sub1_length = sub1.second - sub1.first;
@@ -321,7 +329,7 @@ void print_result(int result) {
     }
 }
 
-void evaluate_commands_final(commands com, dbf table, int num_commands) {
+void evaluate_commands_final(const commands &com, const dbf &table, int num_commands) {
     int result;
     for (int i = 0; i < num_commands; i++) {
         result = compare_subwords_in_command(com[i], table);
@@ -335,10 +343,11 @@ int main() {
     commands com = read_input(word_length, num_commands, word);
  //   print_input(word_length, num_commands, word, com);
 
-    dbf table = fill_dbf_table(word_length, word);
+    //dbf table = fill_dbf_table(word_length, word); //TODO
+    fill_dbf_table(word_length, word);
   //  cout <<  "after dbl" << endl;
   //  print_dbf(table);
-    evaluate_commands_final(com, table, num_commands);
+   // evaluate_commands_final(com, table, num_commands); //TODO
 
     return 0;
 }
