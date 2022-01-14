@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 using std::cout;
 using std::cin;
@@ -17,6 +18,7 @@ using std::make_pair;
 using std::floor;
 using std::log;
 using std::pow;
+using std::sort;
 
 using indexes = pair<int, int>;
 using command = pair<indexes, indexes>;
@@ -35,7 +37,7 @@ const int EQUAL = 0;
 const int GREATER = 1;
 const int ALPH_LIMIT_BIASED = 30;
 
-int result[300000][18];
+int result[300000][20];
 vector<sorting_pack> buckets[ALPH_LIMIT_BIASED];
 vector<sorting_pack> single_bucket[ALPH_LIMIT_BIASED];
 
@@ -59,6 +61,13 @@ void print_indexes(indexes ind) {
     cout << ind.first << " " << ind.second;
 }
 
+void force_szkopul(int length, string s, int coms, commands com) {
+    cout << length<< "|" << coms << "|"<< s << "&";
+    for (command c: com) {
+        cout << c.first.first << "," << c.first.second << "|" <<
+        c.second.first << "," << c.second.second << "%";
+    }
+}
 void print_pair_of_indexes(command &com) {
     print_indexes(com.first);
     cout << " | ";
@@ -116,11 +125,11 @@ int get_alphabet_index(char c) {
 }
 
 //void initialize_dbf(dbf &table, int word_length, const string &s) {
-void initialize_table(int table[300000][18], int word_length, const string &s) {
+void initialize_table(int word_length, const string &s) {
  //   cout << "wlength: " << word_length << endl;
     for (int i = 0; i < word_length; i++) {
  //       cout << "i " << i << endl;
-        table[i][0] = get_alphabet_index(s[i]);
+        result[i][0] = get_alphabet_index(s[i]);
     }
 }
 
@@ -131,7 +140,7 @@ void radix_sort(sorter &sorted, temp_indexes temp) {
     }
 }
 
-void radix_sort2(temp_indexes temp, int word_length, int j) {
+void radix_sort2(temp_indexes temp, int j_outside) {
     for (sorting_pack sp: temp) {
         indexes coordinates = sp.second;
         buckets[coordinates.first].push_back(sp);
@@ -149,22 +158,25 @@ void radix_sort2(temp_indexes temp, int word_length, int j) {
             for (int j = 0; j < ALPH_LIMIT_BIASED; j++) {
                 if (!single_bucket[j].empty()) {
                     for (sorting_pack sp: single_bucket[j]) {
-                        result[sp.first][j] = counter;
+                        result[sp.first][j_outside] = counter;
                     }
 
                     counter++;
+
+                    single_bucket[j].clear();
                 }
             }
 
-            for (int j = 0; j < ALPH_LIMIT_BIASED; j++) {
+      /*      for (int j = 0; j < ALPH_LIMIT_BIASED; j++) {
                 single_bucket[j].clear();
-            }
+            } */
+            buckets[i].clear();
         }
     }
 
-    for (int i = 0; i < ALPH_LIMIT_BIASED; i++) {
+  /*  for (int i = 0; i < ALPH_LIMIT_BIASED; i++) {
         buckets[i].clear();
-    }
+    } */
 }
 
 void clear_sorter(sorter &sorted) {
@@ -228,6 +240,20 @@ void print_temp(temp_indexes temp) {
     }
 }
 
+bool compare_similar(const sorting_pack &a, const sorting_pack &b) {
+    if (a.second.first == b.second.first) {
+        return a.second.second < b.second.second;
+    }
+    }
+
+bool compare_same(const sorting_pack &a, const sorting_pack &b) {
+    return a.second.first < b.second.first;
+}
+void sort_shit_assign(temp_indexes temp) {
+    sort(temp.begin(), temp.end(), compare_same);
+    so
+
+}
 //dbf fill_dbf_table(int word_length, const string &s) {
 void fill_dbf_table(int word_length, const string &s) {
     int floor_log_length = (int)floor(log2(word_length));
@@ -237,7 +263,7 @@ void fill_dbf_table(int word_length, const string &s) {
  //   sorter sorted = initialize_sorter(word_length); //TODO
    // cout << "sorter created" << endl;
     //initialize_dbf(result, word_length, s); //TODO
-    initialize_table(result, word_length, s);
+    initialize_table(word_length, s);
   //  cout << "dbf initialized" << endl;
     temp_indexes temp_to_sort;
     indexes indexes_to_sort;
@@ -282,9 +308,7 @@ void fill_dbf_table(int word_length, const string &s) {
 
    //     clear_sorter(sorted);  //TODO
     //    cout << "here" << endl;
-
-        radix_sort2(temp_to_sort, word_length, j);
-
+      //  radix_sort2(temp_to_sort, j); //TODO 2
 
  //       cout << "here2" << endl;
         temp_to_sort.clear();
@@ -387,6 +411,7 @@ int main() {
     int word_length, num_commands;
     string word;
     commands com = read_input(word_length, num_commands, word);
+    force_szkopul(word_length, word, num_commands, com);
  //   print_input(word_length, num_commands, word, com);
 
     //dbf table = fill_dbf_table(word_length, word); //TODO
