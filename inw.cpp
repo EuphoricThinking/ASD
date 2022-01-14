@@ -62,18 +62,28 @@ void print_range(int range, int start) {
     cout << endl;
 }
 
+void print_row(int range, int start) {
+    cout << range << " ";
+    print_range(range, start);
+}
+
 void print_result(vec_int found_limits) {
     int num_limits = found_limits.size();
 
     for (int i = 0; i < num_limits - 1) {
         int range = size(found_limits[i], found_limits[i + 1]);
+        print_row(range, found_limits[i]);
     }
 }
+
 int main() {
     int num_nodes;
     vec_int inversion = read_input(num_nodes);
     cout << num_nodes << endl;
     print_vector(inversion);
+
+    vec_int limits = find_limits(inversion, num_nodes);
+    print_result(limits);
 
     return 0;
 }
