@@ -70,7 +70,7 @@ void print_row(int range, int start) {
 void print_result(vec_int found_limits) {
     int num_limits = found_limits.size();
 
-    for (int i = 0; i < num_limits - 1) {
+    for (int i = 0; i < num_limits - 1; i++) {
         int range = size(found_limits[i], found_limits[i + 1]);
         print_row(range, found_limits[i]);
     }
