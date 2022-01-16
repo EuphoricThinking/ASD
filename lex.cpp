@@ -240,20 +240,46 @@ void print_temp(temp_indexes temp) {
     }
 }
 
-bool compare_similar(const sorting_pack &a, const sorting_pack &b) {
+/*bool compare_similar(const sorting_pack &a, const sorting_pack &b) {
     if (a.second.first == b.second.first) {
         return a.second.second < b.second.second;
     }
-    }
+    } */
 
 bool compare_same(const sorting_pack &a, const sorting_pack &b) {
     return a.second.first < b.second.first;
 }
 void sort_shit_assign(temp_indexes temp) {
     sort(temp.begin(), temp.end(), compare_same);
-    so
 
 }
+
+bool same_as_previous(sorting_pack prev, sorting_pack cur) {
+    if (prev.second.first == cur.second.first && prev.second.second == cur.second.second) return true;
+    return false;
+}
+
+void assig_sorted_to_result(temp_indexes temp, int j) {
+    int how_many = temp.size();
+    sorting_pack prev = temp[0];
+    int index = prev.first;
+    sorting_pack cur;
+    int counter = 1;
+    result[index][j] = counter;
+
+    for (int i = 1; i < how_many; i++) {
+        cur = temp[i];
+        index = cur.first;
+        if (same_as_previous(prev, cur)) {
+            result[index][j] = counter;
+        } else {
+            counter++;
+            result[index][j] = counter;
+        }
+        prev = cur;
+    }
+}
+
 //dbf fill_dbf_table(int word_length, const string &s) {
 void fill_dbf_table(int word_length, const string &s) {
     int floor_log_length = (int)floor(log2(word_length));
@@ -311,6 +337,9 @@ void fill_dbf_table(int word_length, const string &s) {
       //  radix_sort2(temp_to_sort, j); //TODO 2
 
  //       cout << "here2" << endl;
+
+        sort(temp_to_sort.begin(), temp_to_sort.end());
+        assig_sorted_to_result(temp_to_sort, j);
         temp_to_sort.clear();
    //     buckets[0].clear();
 

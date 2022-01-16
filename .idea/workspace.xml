@@ -5,14 +5,14 @@
       <config projectName="ASD" targetName="ASD" />
     </generated>
   </component>
-  <component name="CMakeSettings">
+  <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
       <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="52a5ba76-9b7c-4d56-be61-f758f5b09d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/inw.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hash.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lex.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lex.cpp" afterDir="false" />
     </list>
@@ -101,7 +101,9 @@
       <workItem from="1641326929988" duration="22910000" />
       <workItem from="1641485770858" duration="25589000" />
       <workItem from="1641725649973" duration="626000" />
-      <workItem from="1642155117855" duration="1102000" />
+      <workItem from="1642155117855" duration="2465000" />
+      <workItem from="1642243782721" duration="739000" />
+      <workItem from="1642333893534" duration="1428000" />
     </task>
     <servers />
   </component>
