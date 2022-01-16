@@ -19,6 +19,7 @@ using std::floor;
 using std::log;
 using std::pow;
 using std::sort;
+using std::min;
 
 using indexes = pair<int, int>;
 using command = pair<indexes, indexes>;
@@ -114,6 +115,39 @@ vec_int calculate_hash_table(string &word, int word_length) {
 int calculate_hash_value(int i, int j, const vec_int &hash_table, const vec_int &powers) {
     int current_power = j - i + 1;
     return (hash_table[j] - hash_table[i]*powers[current_power])%MODULO;
+}
+
+int find_longest_common_prefix(command com, vec_int &powers, vec_int &hash_table) {
+    indexes s1 = com.first;
+    indexes s2 = com.second;
+    int s1_l = s1.first;
+    int s1_r = s1.second;
+    int s2_l = s2.first;
+    int s2_r = s2.second;
+
+    //using only indexes, thus we have l = 0;
+    int l = 0;
+    int r = min(s1_r - s1_l + 1, s2_r - s1_l + 1);
+    int mid;
+    int hash_s1;
+    int hash_s2;
+    while (l < r) {
+        mid = (l + r)/2;
+        hash_s1 = calculate_hash_value(s1_l, s1_l + mid - 1, hash_table, powers);
+        hash_s2 = calculate_hash_value(s2_l, s2_l + mid - 1, hash_table, powers);
+
+        if (hash_s1 == hash_s2) {
+            l = mid + 1;
+        } else {
+            r = mid;
+        }
+    }
+
+    if (l == r) {
+        return -1;
+    } else {
+        return l;
+    }
 }
 
 int main() {
