@@ -117,7 +117,7 @@ int calculate_hash_value(int i, int j, const vec_int &hash_table, const vec_int 
     return (hash_table[j] - hash_table[i]*powers[current_power])%MODULO;
 }
 
-int find_longest_common_prefix(command com, vec_int &powers, vec_int &hash_table) {
+int find_longest_common_prefix(const command &com, const vec_int &powers, const vec_int &hash_table) {
     indexes s1 = com.first;
     indexes s2 = com.second;
     int s1_l = s1.first;
@@ -150,6 +150,34 @@ int find_longest_common_prefix(command com, vec_int &powers, vec_int &hash_table
     }
 }
 
+void print_result(const string &word, int ind1, int ind2) {
+    if (value_of_a_letter(word[ind1]) <
+        value_of_a_letter(word[ind2])) {
+        cout << SMALLER << "\n";
+    }
+    else {
+        cout << GREATER << "\n";
+    }
+}
+void compare_subwords(const string &word, const vec_int &powers, const vec_int &hash_table,
+                      const command &com) {
+    int index_first_different = find_longest_common_prefix(com, powers, hash_table);
+    if (index_first_different == -1) {
+        cout << EQUAL << "\n";
+    }
+    else {
+        print_result(word, com.first.first + index_first_different - 1,
+                     com.second.first + index_first_different - 1);
+    }
+}
+
+void execute_commands(const string &word, const vec_int &powers, const vec_int &hash_table,
+                      const commands &coms) {
+    for (command com: coms) {
+        compare_subwords(word, powers, hash_table, com);
+    }
+}
+
 int main() {
     int word_length, num_commands;
     string word;
@@ -157,6 +185,7 @@ int main() {
 
     vec_int hash_table = calculate_hash_table(word, word_length);
     vec_int powers = calculate_powers(word_length);
+    execute_commands(word, powers, hash_table, com);
 
     return 0;
 }
