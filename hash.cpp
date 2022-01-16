@@ -24,9 +24,15 @@ using indexes = pair<int, int>;
 using command = pair<indexes, indexes>;
 using commands = vector<command>;
 
+using vec_int = vector<int>;
+
 const char SMALLER = '<';
 const char GREATER = '>';
 const char EQUAL = '=';
+
+const int SCALE_LETTERS = 96;
+const int BASE = 27;
+const int MODULO = 740000;
 
 commands read_input(int &word_length, int &num_commands, string &word) {
     cin >> word_length >> num_commands >> word;
@@ -71,4 +77,52 @@ void print_commands(commands coms) {
 void print_input(int word_length, int num_commands, string s, commands com) {
     cout << word_length << " " << num_commands << "\n" << s << "\n";
     print_commands(com);
+}
+
+int value_of_a_letter(char c) {
+    return (int)c - SCALE_LETTERS;
+}
+
+vec_int calculate_powers(int word_length) {
+    vec_int powers;
+    powers.push_back(1);
+    int new_power;
+
+    for (int i = 1; i < word_length; i++) {
+        new_power = (powers[i - 1]*BASE)%MODULO;
+        powers.push_back(new_power);
+    }
+
+    return powers;
+}
+
+//prefixes
+vec_int calculate_hash_table(string &word, int word_length) {
+
+    vec_int hash_table;
+    hash_table.push_back(value_of_a_letter(word[0]));
+    cout << BASE*MODULO << endl;
+    int new_hash;
+    for (int i = 1; i < word_length; i++) {
+        new_hash = (hash_table[i - 1]*BASE + value_of_a_letter(word[i]))%MODULO;
+        hash_table.push_back(new_hash);
+    }
+
+    return hash_table;
+}
+
+int calculate_hash_value(int i, int j, const vec_int &hash_table, const vec_int &powers) {
+    int current_power = j - i + 1;
+    return (hash_table[j] - hash_table[i]*powers[current_power])%MODULO;
+}
+
+int main() {
+    int word_length, num_commands;
+    string word;
+    commands com = read_input(word_length, num_commands, word);
+
+    vec_int hash_table = calculate_hash_table(word, word_length);
+    vec_int powers = calculate_powers(word_length);
+
+    return 0;
 }
