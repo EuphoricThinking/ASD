@@ -12,11 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="52a5ba76-9b7c-4d56-be61-f758f5b09d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/prz.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/hash.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lex_test1.in" beforeDir="false" afterPath="$PROJECT_DIR$/lex_test1.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tomek.sh" beforeDir="false" afterPath="$PROJECT_DIR$/tomek.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prz.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/prz.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,7 +104,7 @@
       <workItem from="1643363715284" duration="1194000" />
       <workItem from="1643376938892" duration="575000" />
       <workItem from="1643390906114" duration="1000" />
-      <workItem from="1643415810664" duration="1000" />
+      <workItem from="1643415810664" duration="1789000" />
     </task>
     <servers />
   </component>
