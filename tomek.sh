@@ -1,4 +1,4 @@
 #!/bin/bash
 
-g++ hash.cpp
-./a.out <lex_test1.in
+g++ -Wall -Wextra -Werror prz.cpp
+./a.out <test_prz1.in

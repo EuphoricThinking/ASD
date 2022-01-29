@@ -12,8 +12,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="52a5ba76-9b7c-4d56-be61-f758f5b09d3e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/prz.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/hash.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lex_test1.in" beforeDir="false" afterPath="$PROJECT_DIR$/lex_test1.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tomek.sh" beforeDir="false" afterPath="$PROJECT_DIR$/tomek.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,12 +66,7 @@
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ASD" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ASD" TARGET_NAME="ASD" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ASD" RUN_TARGET_NAME="ASD">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="ASD" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="true" REDIRECT_INPUT_PATH="$PROJECT_DIR$/lex_test2.in" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ASD" TARGET_NAME="ASD" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ASD" RUN_TARGET_NAME="ASD">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -104,7 +102,12 @@
       <workItem from="1642155117855" duration="2465000" />
       <workItem from="1642243782721" duration="739000" />
       <workItem from="1642333893534" duration="1428000" />
-      <workItem from="1642359299364" duration="7350000" />
+      <workItem from="1642359299364" duration="15448000" />
+      <workItem from="1642494313191" duration="474000" />
+      <workItem from="1643363715284" duration="1194000" />
+      <workItem from="1643376938892" duration="575000" />
+      <workItem from="1643390906114" duration="1000" />
+      <workItem from="1643415810664" duration="1000" />
     </task>
     <servers />
   </component>
@@ -121,5 +124,21 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/hash.cpp</url>
+          <line>143</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/hash.cpp</url>
+          <line>147</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

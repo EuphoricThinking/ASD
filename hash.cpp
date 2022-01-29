@@ -5,6 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#define int long long
 
 using std::cout;
 using std::cin;
@@ -32,8 +33,8 @@ const char GREATER = '>';
 const char EQUAL = '=';
 
 const int SCALE_LETTERS = 96;
-const int BASE = 27;
-const int MODULO = 740000;
+const int BASE = 35;
+const int MODULO = 10000000019LL;
 
 commands read_input(int &word_length, int &num_commands, string &word) {
     cin >> word_length >> num_commands >> word;
@@ -89,8 +90,8 @@ vec_int calculate_powers(int word_length) {
     powers.push_back(1);
     int new_power;
 
-    for (int i = 1; i < word_length; i++) {
-        new_power = (powers[i - 1]*BASE)%MODULO;
+    for (int i = 1; i <= word_length; i++) {
+        new_power = (powers[i - 1] * BASE) % MODULO;
         powers.push_back(new_power);
     }
 
@@ -102,7 +103,7 @@ vec_int calculate_hash_table(string &word, int word_length) {
 
     vec_int hash_table;
     hash_table.push_back(value_of_a_letter(word[0]));
-    cout << BASE*MODULO << endl;
+    // cout << BASE*MODULO << endl;
     int new_hash;
     for (int i = 1; i < word_length; i++) {
         new_hash = (hash_table[i - 1]*BASE + value_of_a_letter(word[i]))%MODULO;
@@ -113,8 +114,14 @@ vec_int calculate_hash_table(string &word, int word_length) {
 }
 
 int calculate_hash_value(int i, int j, const vec_int &hash_table, const vec_int &powers) {
-    int current_power = j - i + 1;
-    return (hash_table[j] - hash_table[i]*powers[current_power])%MODULO;
+    int current_power = j - i + 1; // +1
+    int lower_hash = 0;
+    if (i > 0) {
+        lower_hash = hash_table[i-1];
+    }
+    int res = ((hash_table[j] - lower_hash*powers[current_power])%MODULO+MODULO)%MODULO;
+//    std::cerr << res << endl;
+    return res;
 }
 
 int find_longest_common_prefix(const command &com, const vec_int &powers, const vec_int &hash_table) {
@@ -125,35 +132,37 @@ int find_longest_common_prefix(const command &com, const vec_int &powers, const 
     int s2_l = s2.first;
     int s2_r = s2.second;
 
-    //using only indexes, thus we have l = 0;
+    // using only indices, thus we have l = 0;
     int l = 0;
-    int r = min(s1_r - s1_l + 1, s2_r - s1_l + 1);
-    cout << "s1_l " << s1_l << " s1_r " << s1_r << " s2_l " << s2_l <<
-        " s2_r " << s2_r << " r " << r << endl;
+    int s1_length = s1_r - s1_l + 1;
+    int s2_length = s2_r - s2_l + 1;
+    int r = min(s1_length, s2_length) - 1;
+    //  cout << "s1_l " << s1_l << " s1_r " << s1_r << " s2_l " << s2_l <<
+    //      " s2_r " << s2_r << " r " << r << endl;
     int mid;
     int hash_s1;
     int hash_s2;
     while (l < r) {
         mid = (l + r)/2;
-        cout << "l " << l << " | r " << r << " | mid " << mid << endl;
-        hash_s1 = calculate_hash_value(s1_l, s1_l + mid - 1, hash_table, powers);
-        hash_s2 = calculate_hash_value(s2_l, s2_l + mid - 1, hash_table, powers);
-        cout << "s1_l, s1_l + mid - 1 : " << s1_l << " " << s1_l + mid - 1;
-        cout << "s2_l, s2_l + mid - 1 : " << s2_l << " " << s2_l + mid - 1;
+        //     cout << "l " << l << " | r " << r << " | mid " << mid << endl;
+        hash_s1 = calculate_hash_value(s1_l, s1_l + mid, hash_table, powers); //mid - 1
+        hash_s2 = calculate_hash_value(s2_l, s2_l + mid, hash_table, powers); //mid - 1
+        //     cout << "s1_l, s1_l + mid : " << s1_l << " " << s1_l + mid << endl; //mid - 1
+        //     cout << "s2_l, s2_l + mid : " << s2_l << " " << s2_l + mid << endl; //mid - 1
 
         if (hash_s1 == hash_s2) {
-            cout << "UP" << endl;
+            //          cout << "UP" << endl;
             l = mid + 1;
         } else {
             r = mid;
         }
     }
 
- /*   if (l == r) {
-        return -1;
-    } else {
-        return l;
-    }*/
+    /*   if (l == r) {
+           return -1;
+       } else {
+           return l;
+       }*/
     return l;
 }
 
@@ -173,11 +182,12 @@ void print_result(const string &word, int ind1, int ind2, int len1, int len2) {
 }
 
 void compare_subwords(const string &word, const vec_int &powers, const vec_int &hash_table,
-                      const command &com) {
+                      const command &com, int word_length) {
     int index_first_different = find_longest_common_prefix(com, powers, hash_table);
     int len1 = com.first.second - com.first.first;
     int len2 = com.second.second - com.second.first;
-    cout << "\nL: " << index_first_different << "\n\n";
+//    if (index_first_different >= word_length) cout << EQUAL << "\n";
+//    cout << "\nL: " << index_first_different << "\n\n";
 
 /*    if (index_first_different == -1) {
         if (len1 == len2) cout << EQUAL << "\n";
@@ -185,30 +195,34 @@ void compare_subwords(const string &word, const vec_int &powers, const vec_int &
         else cout << GREATER << endl;
     }
     else {*/
-        print_result(word, com.first.first + index_first_different,
-                     com.second.first + index_first_different , len1, len2); //-1 from index
- //   }
+    print_result(word, com.first.first + index_first_different,
+                 com.second.first + index_first_different , len1, len2); //-1 from index
+    //   }
 }
 
 void execute_commands(const string &word, const vec_int &powers, const vec_int &hash_table,
-                      const commands &coms) {
-    for (command com: coms) {
-        cout << "NEW\n\n" << endl;
-        compare_subwords(word, powers, hash_table, com);
-        cout << "\n\n";
+                      const commands &coms, int word_length) {
+    for (int i = 0; i < coms.size(); ++i) {
+        command com = coms[i];
+        //    cout << "NEW\n\n" << endl;
+        compare_subwords(word, powers, hash_table, com, word_length);
+        //    cout << "\n\n";
     }
 }
 
+#undef int
+
 int main() {
     //freopen("lex_test1.in","r",stdin);
-    int word_length, num_commands;
+    long long word_length, num_commands;
     string word;
     commands com = read_input(word_length, num_commands, word);
-    print_input(word_length, num_commands, word, com);
+    //  print_input(word_length, num_commands, word, com);
+    // force_szkopul(word_length, word, num_commands, com);
 
     vec_int hash_table = calculate_hash_table(word, word_length);
     vec_int powers = calculate_powers(word_length);
-    execute_commands(word, powers, hash_table, com);
+    execute_commands(word, powers, hash_table, com, word_length);
 
     return 0;
 }
