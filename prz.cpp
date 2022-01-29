@@ -23,12 +23,11 @@ using std::min;
 using ixes = set<int>;
 using interval = pair<int, int>;
 using set_of_intervals = set<interval>;
-using ixes_track = pair<ixes, int>;
 
 using command = pair<char, interval >;
 using list_of_commands = vector<command>;
 
-
+const char ADD = '+';
 
 list_of_commands read_input(int &U_range, int &num_commmands) {
     cin >> U_range >> num_commmands;
@@ -61,22 +60,50 @@ void print_input(int U_range, int num_commands, list_of_commands &coms) {
     print_commands(coms);
 }
 
-void add_interval(interval inter, set_of_intervals &current, ixes_track &prefix,
-                  ixes_track &suffix, int &num_outside) {
+void add_interval(interval inter, set_of_intervals &current, ixes &prefix,
+                  ixes &suffix) {
     if (current.insert(inter).second) {
         if (inter.first == 1) {
-            if (prefix.second < inter.second) {
-                prefix.second = inter.second;
-                prefix.first.insert(inter.second);
-            }
+            prefix.insert(inter.second);
         } else {
-            if (suffix.second > inter.first) {
-                suffix.second = inter.first;
-                suffix.first.insert(inter.first);
-            }
+            suffix.insert(inter.first);
         }
 
-        cout << min(0, suffix.second - prefix.second) << endl;
+        int max_pref = *(prefix.end()--);
+        int min_suff = *suffix.begin();
+
+        cout << min(0, min_suff - max_pref + 1) << endl;
+    }
+}
+
+void remove_interval(interval inter, set_of_intervals &current, ixes &prefix,
+                     ixes &suffix, int U_range) {
+    if (current.erase(inter) == 1) {
+        if (inter.first == 1) {
+            prefix.erase(inter.second);
+        } else {
+            suffix.erase(inter.first);
+        }
+
+        if (!current.empty()) {
+            int max_pref = *(prefix.end()--);
+            int min_suff = *suffix.begin();
+
+            cout << min(0, min_suff - max_pref + 1);
+        } else {
+            cout << U_range << endl;
+        }
+    }
+}
+
+void execute_commands(list_of_commands &coms, set_of_intervals &current, ixes &prefix,
+                      ixes &suffix, int U_range) {
+    for (command com: coms) {
+        if (com.first == ADD) {
+            add_interval(com.second, current, prefix, suffix);
+        } else {
+            remove_interval(com.second, current, prefix, suffix, U_range);
+        }
     }
 }
 
@@ -86,15 +113,11 @@ int main() {
     list_of_commands commands = read_input(U_range, num_commands);
     print_input(U_range, num_commands, commands);
 
-    int num_outside_U;
-    ixes pref_pre;
-    ixes suff_pre;
+    ixes preffix;
+    ixes suffix;
     set_of_intervals current_intervals;
 
-    ixes_track prefixes = make_pair(pref_pre, 0);
-    ixes_track suffixes = make_pair(suff_pre, 0);
-
-
+    execute_commands(commands, current_intervals, preffix, suffix, U_range);
 }
 
 
