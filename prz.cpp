@@ -73,7 +73,7 @@ void mess(std::string message) {
 }
 
 void add_interval(interval inter, set_of_intervals &current, ixes &prefix,
-                  ixes &suffix, int U_range) {
+                  ixes &suffix) {
     if (current.insert(inter).second) {
         if (inter.first == 1) {
         //    cout << "s" << inter.second << endl;
@@ -83,29 +83,45 @@ void add_interval(interval inter, set_of_intervals &current, ixes &prefix,
         }
 
         //print_interval(inter);
-        //print_ixes(prefix);
-        ixes::iterator it = prefix.end();
-        it--;
 //        cout << "add p " << *(--prefix.end()) << endl;
 //        cout << "add i " << *(it) << endl;
 //        cout << "add rp " << *(prefix.rbegin()) << endl;
 //        cout << "add s " << *(suffix.begin()) << endl;
-        if (prefix.empty()) {
-            cout << *suffix.begin() << endl;
-        } else if (suffix.empty()) {
-            cout << U_range - *(--prefix.end()) << endl;
-        } else {
-            int max_pref = *(--prefix.end());
-            int min_suff = *suffix.begin();
-
-            cout << max(0, min_suff - max_pref - 1) << endl;
-        }
+//        if (prefix.empty()) {
+//            cout << *suffix.begin() - 1<< endl;
+//        } else if (suffix.empty()) {
+//            cout << U_range - *(--prefix.end()) << endl;
+//        } else {
+//            int max_pref = *(--prefix.end());
+//            int min_suff = *suffix.begin();
+//
+//            cout << max(0, min_suff - max_pref - 1) << endl;
+//        }
     }
 }
 
+void print_num_outisde(set_of_intervals &current, ixes &prefix,
+                       ixes &suffix, int U_range) {
+    if (current.empty()) {
+        //     mess("empty");
+        cout << U_range << endl;
+    } if (prefix.empty()) {
+        //   mess("pref empty");
+        cout << *suffix.begin() - 1 << endl;
+    } else if (suffix.empty()) {
+        //   mess("suff empty");
+        cout << U_range - *(--prefix.end()) << endl;
+    } else {
+        //   mess("full");
+        int max_pref = *(--prefix.end());
+        int min_suff = *suffix.begin();
+        //cout << max_pref << " p " << min_suff << endl;
+        cout << max(0, min_suff - max_pref - 1) << endl;
+    }
+}
 
 void remove_interval(interval inter, set_of_intervals &current, ixes &prefix,
-                     ixes &suffix, int U_range) {
+                     ixes &suffix) {
     if (current.erase(inter) == 1) {
         if (inter.first == 1) {
             prefix.erase(inter.second);
@@ -117,33 +133,22 @@ void remove_interval(interval inter, set_of_intervals &current, ixes &prefix,
 //        print_ixes(prefix);
 //        mess("suff");
 //        print_ixes(suffix);
-        if (current.empty()) {
-       //     mess("empty");
-            cout << U_range << endl;
-        } if (prefix.empty()) {
-         //   mess("pref empty");
-            cout << *suffix.begin() << endl;
-        } else if (suffix.empty()) {
-         //   mess("suff empty");
-            cout << U_range - *(--prefix.end()) << endl;
-        } else {
-         //   mess("full");
-            int max_pref = *(--prefix.end());
-            int min_suff = *suffix.begin();
-            //cout << max_pref << " p " << min_suff << endl;
-            cout << max(0, min_suff - max_pref - 1) << endl;
-        }
     }
 }
 
 void execute_commands(list_of_commands &coms, set_of_intervals &current, ixes &prefix,
                       ixes &suffix, int U_range) {
+   // int counter = 0;
     for (command com: coms) {
+        //cout << "com: " << counter << endl;
         if (com.first == ADD) {
-            add_interval(com.second, current, prefix, suffix, U_range);
+            add_interval(com.second, current, prefix, suffix);
         } else {
-            remove_interval(com.second, current, prefix, suffix, U_range);
+            remove_interval(com.second, current, prefix, suffix);
         }
+
+        print_num_outisde(current, prefix, suffix, U_range);
+     //   counter++;
     }
 }
 
