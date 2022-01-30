@@ -22,13 +22,14 @@ vec_int read_input_find_components(int &num_nodes) {
     vec_int components;
     int cur_node;
     cin >> cur_node;
+    int comp_size = 0;
     if (cur_node == 1) {
         components.push_back(make_pair(1, 1));
+        comp_size++;
     }
     cout << cur_node << endl;
     int max = cur_node;
     int counter = 1;
-    int comp_size = 0;
     for (int i = 1; i < num_nodes; i++) {
         cin >> cur_node;
         //cout << cur_node << " max: " << max << " i: " << i << endl;
