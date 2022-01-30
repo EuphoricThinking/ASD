@@ -46,6 +46,7 @@ list_of_commands read_input(int &U_range, int &num_commmands) {
     return result;
 }
 
+
 void print_interval(interval inter) {
     cout << inter.first << " " << inter.second << endl;
 }
@@ -59,6 +60,13 @@ void print_commands(list_of_commands &coms) {
 void print_input(int U_range, int num_commands, list_of_commands &coms) {
     cout << U_range << " " << num_commands << endl;
     print_commands(coms);
+}
+
+void force_szkopul(int U_range, int num_commands, list_of_commands &coms) {
+    cout << U_range << "|" << num_commands << "[";
+    for (command com:coms) {
+        cout << com.first <<"*"<<com.second.first << ":"<<com.second.second<<"&";
+    }
 }
 
 void print_ixes(ixes &ix) {
@@ -102,10 +110,11 @@ void add_interval(interval inter, set_of_intervals &current, ixes &prefix,
 
 void print_num_outisde(set_of_intervals &current, ixes &prefix,
                        ixes &suffix, int U_range) {
+    //cout << "here ";
     if (current.empty()) {
         //     mess("empty");
         cout << U_range << endl;
-    } if (prefix.empty()) {
+    } else if (prefix.empty()) {
         //   mess("pref empty");
         cout << *suffix.begin() - 1 << endl;
     } else if (suffix.empty()) {
@@ -138,9 +147,10 @@ void remove_interval(interval inter, set_of_intervals &current, ixes &prefix,
 
 void execute_commands(list_of_commands &coms, set_of_intervals &current, ixes &prefix,
                       ixes &suffix, int U_range) {
-   // int counter = 0;
+    int counter = 0;
     for (command com: coms) {
         //cout << "com: " << counter << endl;
+       // print_interval(com.second);
         if (com.first == ADD) {
             add_interval(com.second, current, prefix, suffix);
         } else {
@@ -148,7 +158,7 @@ void execute_commands(list_of_commands &coms, set_of_intervals &current, ixes &p
         }
 
         print_num_outisde(current, prefix, suffix, U_range);
-     //   counter++;
+        counter++;
     }
 }
 
@@ -156,7 +166,8 @@ int main() {
     int U_range;
     int num_commands;
     list_of_commands commands = read_input(U_range, num_commands);
-    print_input(U_range, num_commands, commands);
+   // print_input(U_range, num_commands, commands);
+    //force_szkopul(U_range, num_commands, commands);
 
     ixes preffix;
     ixes suffix;
