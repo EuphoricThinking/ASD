@@ -16,10 +16,16 @@ using std::max;
 using zadanie = pair<int, int>;
 using std::abs;
 
+typedef struct odlWierzch {
+    int odl;
+    int wierzch;
+} odlWierzch;
+
 using polecenia = vector<zadanie>;
 using wierzchołki = vector<int>;
 using odleglosc = vector<int>;
 using macierz = vector<vector<int>>;
+using wykaz_odlWierzch = vector<odlWierzch>;
 
 
 
@@ -93,14 +99,48 @@ void wczytajWejsceStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
     }
 }
 
-void wyznaczGlebokosc(const wierzchołki& prawy, const wierzchołki& lewy,
-                      odleglosc& glebokosc, int akt_gl, int nr_wierzcholka) {
+odlWierzch porownajNajdalszeWierzcholki(odlWierzch kand1, odlWierzch kand2) {
+    if (kand1.odl > kand2.odl) {
+        return kand1;
+    }
+
+    return kand2;
+}
+
+odlWierzch stworzOdlWierzch(int odl, int wierzch) {
+    odlWierzch nowy;
+    nowy.odl = odl;
+    nowy.wierzch = wierzch;
+
+    return nowy;
+}
+
+odlWierzch wyznaczGlebokosc(const wierzchołki& prawy, const wierzchołki& lewy,
+                      odleglosc& glebokosc, int akt_gl, int nr_wierzcholka,
+                      wykaz_odlWierzch& najdalszyDol) {
     if (nr_wierzcholka != -1) {
         glebokosc[nr_wierzcholka] = akt_gl;
-        wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
-                             prawy[nr_wierzcholka]);
-        wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
-                         lewy[nr_wierzcholka]);
+
+        odlWierzch prawyNajd = wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
+                             prawy[nr_wierzcholka], najdalszyDol);
+        odlWierzch lewyNajd = wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
+                         lewy[nr_wierzcholka], najdalszyDol);
+
+        if (prawyNajd.odl == -1 && lewyNajd.odl == -1) {
+            najdalszyDol[nr_wierzcholka] = stworzOdlWierzch(0, nr_wierzcholka);
+
+            return stworzOdlWierzch(1, nr_wierzcholka);
+        }
+        else {
+            odlWierzch najdalszy = porownajNajdalszeWierzcholki(prawyNajd, lewyNajd);
+            najdalszyDol[nr_wierzcholka] = najdalszy;
+            najdalszy.odl = najdalszy.odl + 1;
+
+            return najdalszy;
+        }
+    }
+    else {
+        return stworzOdlWierzch(-1, -1);
     }
 }
 
@@ -110,6 +150,12 @@ void printVec(const vector<int>& v) {
         cout << " "  << i;
     }
     cout << endl;
+}
+
+void printOdlWierzch(const wykaz_odlWierzch & odlw) {
+    for (odlWierzch ow: odlw) {
+        cout << ow.wierzch << " gl: " << ow.odl << endl;
+    }
 }
 int main() {
     polecenia pol;
@@ -125,6 +171,8 @@ int main() {
              lewy, pol);
 
     odleglosc glebokosc(liczbaPolanek + 1, -1);
-    wyznaczGlebokosc(prawy, lewy, glebokosc, 0, 1);
+    wykaz_odlWierzch najdalszyDol(liczbaPolanek + 1);
+    odlWierzch najdalszy = wyznaczGlebokosc(prawy, lewy, glebokosc, 0, 1, najdalszyDol);
     printVec(glebokosc);
+    printOdlWierzch(najdalszyDol);
 }
