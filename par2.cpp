@@ -93,6 +93,24 @@ void wczytajWejsceStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
     }
 }
 
+void wyznaczGlebokosc(const wierzchołki& prawy, const wierzchołki& lewy,
+                      odleglosc& glebokosc, int akt_gl, int nr_wierzcholka) {
+    if (nr_wierzcholka != -1) {
+        glebokosc[nr_wierzcholka] = akt_gl;
+        wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
+                             prawy[nr_wierzcholka]);
+        wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
+                         lewy[nr_wierzcholka]);
+    }
+}
+
+void printVec(const vector<int>& v) {
+    cout << "gl";
+    for (int i: v) {
+        cout << " "  << i;
+    }
+    cout << endl;
+}
 int main() {
     polecenia pol;
     wierzchołki rodzic;
@@ -105,4 +123,8 @@ int main() {
                                lewy, pol);
     printRes(liczbaPolanek, liczbaPolecen, rodzic, prawy,
              lewy, pol);
+
+    odleglosc glebokosc(liczbaPolanek + 1, -1);
+    wyznaczGlebokosc(prawy, lewy, glebokosc, 0, 1);
+    printVec(glebokosc);
 }
