@@ -11,6 +11,10 @@ using std::cin;
 using std::endl;
 using std::set;
 using std::vector;
+using std::pair;
+
+using std::make_pair;
+using std::lower_bound;
 
 typedef struct {
     int left;
@@ -19,6 +23,10 @@ typedef struct {
 } paint;
 
 using polecenia = vector<paint>;
+using set_limits = set<pair<int, int>>;
+
+const char WHITE = 'B';
+const char BLACK = 'C';
 
 paint createPaint(int l, int r, char c) {
     paint p;
@@ -43,4 +51,27 @@ polecenia readInput(int &roadLength, int &numOfActions) {
     }
 
     return res;
+}
+
+bool compareFirst(const pair<int, int> & p, int toComp) {
+    return p.first < toComp;
+}
+
+bool compareSecond(const pair<int, int> & p, int toComp) {
+    return p.second < toComp;
+}
+
+void findDelete(set_limits &whiteStore, const paint & toRecolor, int &whiteLength) {
+    auto left_a = whiteStore.lower_bound(toRecolor.left, compareSecond);
+
+}
+
+void insertIntoSet(set_limits &whiteStore, const paint & toRecolor, int &whiteLength) {
+    if (whiteStore.empty() && toRecolor.col == WHITE) {
+        whiteStore.insert(make_pair(toRecolor.left, toRecolor.right));
+
+        whiteLength = toRecolor.right - toRecolor.left + 1;
+    } else if (toRecolor.col == BLACK) {
+
+    }
 }
