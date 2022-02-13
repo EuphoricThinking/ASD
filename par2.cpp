@@ -262,6 +262,30 @@ int znajdzK_tegoPrzodka(const macierz & k_przodkowie, const odleglosc & glebokos
     return nr_wierzcholka;
 }
 
+int znajdzLCA(int a_wierzcholek, int b_wierzcholwek, const macierz & k_przodkowie,
+              const odleglosc & glebokosc, int log) {
+    if (glebokosc[a_wierzcholek] < glebokosc[b_wierzcholwek]) {
+        int temp = a_wierzcholek;
+        a_wierzcholek = b_wierzcholwek;
+        b_wierzcholwek = temp;
+    }
+
+    int k = glebokosc[a_wierzcholek] - glebokosc[b_wierzcholwek];
+    a_wierzcholek = znajdzK_tegoPrzodka(k_przodkowie, glebokosc, a_wierzcholek,
+                                        k, log);
+
+    if (a_wierzcholek == b_wierzcholwek) return a_wierzcholek;
+
+    for (int i = 0; i < log; i++) {
+        if (k_przodkowie[a_wierzcholek][i] != k_przodkowie[b_wierzcholwek][i]) {
+            a_wierzcholek = k_przodkowie[a_wierzcholek][i];
+            b_wierzcholwek = k_przodkowie[b_wierzcholwek][i];
+        }
+    }
+
+    return k_przodkowie[a_wierzcholek][0];
+}
+
 int main() {
     polecenia pol;
     wierzchołki rodzic;
