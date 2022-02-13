@@ -206,10 +206,10 @@ void stworzNajdalszyGora(const wierzchołki & rodzice, const wierzchołki & praw
 }
 
 macierz stworzMacierz(int liczbaPolanek, int log) {
-    int log = 0;
-    while (1 << log < liczbaPolanek + 1) {
-        log++;
-    } //log++
+//    int log = 0;
+//    while (1 << log < liczbaPolanek + 1) {
+//        log++;
+//    } //log++
 //    cout << log << endl;
     macierz wynik;
     for (int i = 0; i < liczbaPolanek + 1; i++) {
@@ -221,13 +221,33 @@ macierz stworzMacierz(int liczbaPolanek, int log) {
 }
 
 macierz wyznaczK_przodkow(const wierzchołki & rodzice, int liczbaPolanek) {
-    macierz k_przodkowie = stworzMacierz(liczbaPolanek);
+    int log = ceil(log2(liczbaPolanek + 1));
+    macierz k_przodkowie = stworzMacierz(liczbaPolanek, log);
 
     for (int i = 1; i < liczbaPolanek + 1; i++) {
         k_przodkowie[i][0] = rodzice[i];
     }
 
-    for (int i = 1; i < liczbaPolanek + 1;)
+    for (int i = 1; i < liczbaPolanek + 1; i++) {
+        for (int j = 1; j < log; j++) {
+            k_przodkowie[i][j] = k_przodkowie[ k_przodkowie[i][j - 1] ][j - 1];
+        }
+    }
+
+    return k_przodkowie;
+}
+
+void printAncestors(macierz k_przodkowie) {
+    int nodes = k_przodkowie.size();
+    int log = k_przodkowie[0].size();
+
+    for (int i = 0; i < nodes; i++) {
+        for (int j = 0; j < log; j++) {
+            cout << k_przodkowie[i][j] << " ";
+        }
+
+        cout << endl;
+    }
 }
 
 int main() {
@@ -256,6 +276,7 @@ int main() {
     cout << endl;
     printOdlWierzch(najdalszyGora);
 
-    stworzMacierz(8);
+    macierz k_przodkowie = wyznaczK_przodkow(rodzic, liczbaPolanek);
     //cout << std::ceil(std::log2(8)) << endl;
+    printAncestors(k_przodkowie);
 }
