@@ -170,7 +170,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int distance = 1;
     iter_0 temp_level;
     //log("after first");
-    int found_dist = -1;
+    int found_dist = 0;
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
@@ -206,7 +206,11 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
 //    }
 //
 //    std::reverse(shortest_path.begin(), shortest_path.end());
-    shortest_path[found_dist] = num_junctions;
+
+/*
+ * found changed to 0, but when it's the case?
+ */
+    shortest_path[found_dist] = num_junctions; //TODO THIS PART CAUSES RUNTIME ERROR
     for (int i = found_dist - 1; i >= 0; i--) {
         //cout << i <<  endl;
         shortest_path[i] = preceding[cur];
@@ -453,11 +457,11 @@ int main() {
     alarm_values forbidden = read_data(junctions, capacity, cost, disallowed,
                                        num_junctions, num_roads, powerbanks);
 
-    //shortest path - memory limit exceeded
+    //shortest path - RUNTIME ERROR
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
-
+//
 //    int max_score = -1;
 //    chargers used_chargers;
 //
