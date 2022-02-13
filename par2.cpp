@@ -325,6 +325,17 @@ int obsluzJednoZapytanie(zadanie pol, const macierz & k_przodkowie,
     }
 }
 
+void obsluzZapytania(const polecenia & pol, const macierz & k_przodkowie,
+                     const odleglosc & glebokosc, int log,
+                     const wykaz_odlWierzch & najdalszeDol,
+                     const wykaz_odlWierzch & najdalszeGora) {
+    int wynik;
+    for (zadanie zad: pol) {
+        wynik = obsluzJednoZapytanie(zad, k_przodkowie, glebokosc, log,
+                                     najdalszeDol, najdalszeGora);
+        cout << wynik << endl;
+    }
+}
 
 int main() {
     polecenia pol;
