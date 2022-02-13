@@ -205,6 +205,31 @@ void stworzNajdalszyGora(const wierzchołki & rodzice, const wierzchołki & praw
     }
 }
 
+macierz stworzMacierz(int liczbaPolanek, int log) {
+    int log = 0;
+    while (1 << log < liczbaPolanek + 1) {
+        log++;
+    } //log++
+//    cout << log << endl;
+    macierz wynik;
+    for (int i = 0; i < liczbaPolanek + 1; i++) {
+        vector<int> k_przodkowie(log, 0);
+        wynik.push_back(k_przodkowie);
+    }
+
+    return wynik;
+}
+
+macierz wyznaczK_przodkow(const wierzchołki & rodzice, int liczbaPolanek) {
+    macierz k_przodkowie = stworzMacierz(liczbaPolanek);
+
+    for (int i = 1; i < liczbaPolanek + 1; i++) {
+        k_przodkowie[i][0] = rodzice[i];
+    }
+
+    for (int i = 1; i < liczbaPolanek + 1;)
+}
+
 int main() {
     polecenia pol;
     wierzchołki rodzic;
@@ -230,4 +255,7 @@ int main() {
     stworzNajdalszyGora(rodzic, prawy, lewy, najdalszyGora, najdalszyDol, 1);
     cout << endl;
     printOdlWierzch(najdalszyGora);
+
+    stworzMacierz(8);
+    //cout << std::ceil(std::log2(8)) << endl;
 }
