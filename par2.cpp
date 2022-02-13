@@ -286,7 +286,7 @@ int znajdzLCA(int a_wierzcholek, int b_wierzcholwek, const macierz & k_przodkowi
     return k_przodkowie[a_wierzcholek][0];
 }
 
-int znajdzNizej(int nr_wierzcholka, const macierz & k_przodkowie,
+int znajdzNizej(const macierz & k_przodkowie,
                  int odlegloscOdWierzcholka, odlWierzch najdalszy,
                  const odleglosc & glebokosc, int log) {
     int k = najdalszy.odl - odlegloscOdWierzcholka;
@@ -296,15 +296,35 @@ int znajdzNizej(int nr_wierzcholka, const macierz & k_przodkowie,
 
 int znajdzPozaPoddrzewem(int nr_wierzcholka, odlWierzch najdalszy,
                          const macierz & k_przodkowie, const odleglosc & glebokosc,
-                         int log) {
+                         int log, int odlegloscOdWierzcholka) {
     int lca = znajdzLCA(nr_wierzcholka, najdalszy.wierzch, k_przodkowie,
                         glebokosc, log);
 
-    int bezOdWyjsciowegoDoLCA = glebokosc[nr_wierzcholka] - glebokosc[lca];
+    int bezOdWyjsciowegoDoLCA = odlegloscOdWierzcholka - (glebokosc[nr_wierzcholka] - glebokosc[lca]);
     int k = glebokosc[najdalszy.wierzch] - glebokosc[lca] - bezOdWyjsciowegoDoLCA;
 
     return znajdzK_tegoPrzodka(k_przodkowie, glebokosc, najdalszy.wierzch, k, log);
 }
+
+int obsluzJednoZapytanie(zadanie pol, const macierz & k_przodkowie,
+                         const odleglosc & glebokosc, int log,
+                         const wykaz_odlWierzch & najdalszeDol,
+                         const wykaz_odlWierzch & najdalszeGora) {
+    int skad = pol.first;
+    int jakDaleko = pol.second;
+    odlWierzch najdDol = najdalszeDol[skad];
+    odlWierzch najdGora = najdalszeGora[skad];
+
+    if (jakDaleko <= najdDol.odl) {
+        return znajdzNizej(k_przodkowie, jakDaleko, najdDol, glebokosc, log);
+    } else if (jakDaleko <= najdGora.odl) {
+        return znajdzPozaPoddrzewem(skad, najdGora, k_przodkowie, glebokosc,
+                                    log, jakDaleko);
+    } else {
+        return -1;
+    }
+}
+
 
 int main() {
     polecenia pol;
