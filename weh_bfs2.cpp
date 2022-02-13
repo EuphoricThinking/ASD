@@ -157,3 +157,38 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
 
     return shortest_path;
 }
+
+void print_vec(const vector<int> & v) {
+    for (int i: v) {
+        cout << i << " ";
+    }
+    cout << endl;
+}
+
+void print_map(const tracks & junctions) {
+    for (const auto & junction : junctions) {
+        cout << junction.first << ": ";
+        print_vec(junction.second.first);
+        cout << junction.second.second << endl;
+    }
+}
+
+int main() {
+    int capacity;
+    int cost;
+    int disallowed;
+    int num_junctions;
+    int num_roads;
+
+    tracks junctions;
+    available_power powerbanks;
+
+    alarm_values forbidden = read_data(junctions, capacity, cost, disallowed,
+                                       num_junctions, num_roads, powerbanks);
+    vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
+                                                                           num_junctions,
+                                                                           powerbanks);
+
+
+    return 0;
+}
