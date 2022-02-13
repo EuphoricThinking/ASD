@@ -155,7 +155,7 @@ void assign_powerbank_value(trackiter & iter, int val) {
 
 vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
                                                 int num_junctions,
-                                                available_power powerbanks) {
+                                                const available_power & powerbanks) {
     queue<int> levels_queued;
     vector<int> preceding(num_junctions + 1, -1);
     preceding[1] = 1;
@@ -170,6 +170,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int distance = 1;
     iter_0 temp_level;
     //log("after first");
+    int found_dist = -1;
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
@@ -180,6 +181,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
             temp_level = push_into_queue_without_0(levels_queued, junctions,
                                                    next_junc, preceding, visited);
             //log("ass");
+            if (next_junc == num_junctions) found_dist = distance;
             assign_powerbank_value(temp_level.first, powerbanks[distance]);
             //log("died");
             if (next_level == next_junc) {
@@ -193,16 +195,23 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
         }
     }
     //log("after while");
-    vector<int> shortest_path;
-    shortest_path.push_back(num_junctions);
+    //cout << found_dist << endl;
+    vector<int> shortest_path(found_dist + 1, -1);
     int cur = num_junctions;
-
-    while (cur != 1) {
-        shortest_path.push_back(preceding[cur]);
+//    shortest_path.push_back(num_junctions);
+//
+//    while (cur != 1) {
+//        shortest_path.push_back(preceding[cur]);
+//        cur = preceding[cur];
+//    }
+//
+//    std::reverse(shortest_path.begin(), shortest_path.end());
+    shortest_path[found_dist] = num_junctions;
+    for (int i = found_dist - 1; i >= 0; i--) {
+        //cout << i <<  endl;
+        shortest_path[i] = preceding[cur];
         cur = preceding[cur];
     }
-
-    std::reverse(shortest_path.begin(), shortest_path.end());
 
     return shortest_path;
 }
@@ -444,29 +453,23 @@ int main() {
     alarm_values forbidden = read_data(junctions, capacity, cost, disallowed,
                                        num_junctions, num_roads, powerbanks);
 
-    //print_vec(powerbanks);
-    //print_set(forbidden);
-    //print_map(junctions);
-    //print_map(junctions);
-
+    //shortest path - memory limit exceeded
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
 
-    //print_map(junctions);
-    //print_vec(shortest_path);
-
-    int max_score = -1;
-    chargers used_chargers;
-
-    //   cout << "here" << endl;
-    bool is_possible_shortest = if_possible_short_path(shortest_path,
-                                                       capacity,
-                                                       forbidden,
-                                                       junctions, cost,
-                                                       used_chargers, max_score);
-
-    print_result(is_possible_shortest, shortest_path, used_chargers, max_score);
+//    int max_score = -1;
+//    chargers used_chargers;
+//
+//    //print_vec(shortest_path);
+//    //   cout << "here" << endl;
+//    bool is_possible_shortest = if_possible_short_path(shortest_path,
+//                                                       capacity,
+//                                                       forbidden,
+//                                                       junctions, cost,
+//                                                       used_chargers, max_score);
+//
+//    print_result(is_possible_shortest, shortest_path, used_chargers, max_score);
 
     return 0;
 }
