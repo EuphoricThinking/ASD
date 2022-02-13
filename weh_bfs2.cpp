@@ -98,7 +98,7 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
 
     for (int i = 0; i < num_of_roads; i++) {
         cin >> road_in >> road_out;
-
+        //cout << "roads " << i << endl;
         insert_into_map(road_in, road_out, junctions);
         insert_into_map(road_out, road_in, junctions);
     }
@@ -106,6 +106,7 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
     int power_value;
     for (int i = 0; i < num_of_junctions; i++) {
         cin >> power_value;
+        //cout << "pow " << power_value << " " << i << endl;
         powerbanks.push_back(power_value);
     }
 
@@ -120,7 +121,7 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
     adjacent_junctions adj_junc = found_junc->second.first;
     int size = (int)adj_junc.size();
 
-    int first_not_visited;
+    int first_not_visited = 0;
     for (int i = 0; i < size; i++) {
         if (!visited[adj_junc[i]]) {
             first_not_visited = i;
@@ -134,7 +135,7 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
             preceding[adj_junc[i]] = num_junc;
         }
     }
-
+    log("after all");
     if (size >= 1) return make_pair(found_junc, adj_junc[first_not_visited]);
     else return make_pair(found_junc, -1);
 }
@@ -160,18 +161,19 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int next_level = init.second;
     int distance = 1;
     iter_0 temp_level;
-
+    log("after first");
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
 
         if (!visited[next_junc]) {
-            //cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
+            cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
             visited[next_junc] = true;
             temp_level = push_into_queue_without_0(levels_queued, junctions,
                                                    next_junc, preceding, visited);
+            log("ass");
             assign_powerbank_value(temp_level.first, powerbanks[distance]);
-
+            log("died");
             if (next_level == next_junc) {
                 if (temp_level.second != -1) next_level = temp_level.second;
                 else next_level = -1;
@@ -182,7 +184,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
             }
         }
     }
-
+    log("after while");
     vector<int> shortest_path;
     shortest_path.push_back(num_junctions);
     int cur = num_junctions;
@@ -213,6 +215,7 @@ int main() {
     //print_vec(powerbanks);
     //print_set(forbidden);
     //print_map(junctions);
+    print_map(junctions);
 
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
