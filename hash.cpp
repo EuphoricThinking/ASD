@@ -33,8 +33,8 @@ const char GREATER = '>';
 const char EQUAL = '=';
 
 const int SCALE_LETTERS = 96;
-const int BASE = 35;
-const int MODULO = 10000000019LL;
+const int BASE = 31; //35;
+const int MODULO = 1000696969LL; //10000000019LL;
 
 commands read_input(int &word_length, int &num_commands, string &word) {
     cin >> word_length >> num_commands >> word;
