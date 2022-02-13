@@ -115,16 +115,22 @@ odlWierzch stworzOdlWierzch(int odl, int wierzch) {
     return nowy;
 }
 
-odlWierzch wyznaczGlebokosc(const wierzchołki& prawy, const wierzchołki& lewy,
-                      odleglosc& glebokosc, int akt_gl, int nr_wierzcholka,
-                      wykaz_odlWierzch& najdalszyDol) {
+odlWierzch wyznaczGlebokoscOrazNajdalszyDol(const wierzchołki& prawy, const wierzchołki& lewy,
+                                            odleglosc& glebokosc, int akt_gl, int nr_wierzcholka,
+                                            wykaz_odlWierzch& najdalszyDol) {
     if (nr_wierzcholka != -1) {
         glebokosc[nr_wierzcholka] = akt_gl;
 
-        odlWierzch prawyNajd = wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
-                             prawy[nr_wierzcholka], najdalszyDol);
-        odlWierzch lewyNajd = wyznaczGlebokosc(prawy, lewy, glebokosc, akt_gl + 1,
-                         lewy[nr_wierzcholka], najdalszyDol);
+        odlWierzch prawyNajd = wyznaczGlebokoscOrazNajdalszyDol(prawy, lewy,
+                                                                glebokosc,
+                                                                akt_gl + 1,
+                                                                prawy[nr_wierzcholka],
+                                                                najdalszyDol);
+        odlWierzch lewyNajd = wyznaczGlebokoscOrazNajdalszyDol(prawy, lewy,
+                                                               glebokosc,
+                                                               akt_gl + 1,
+                                                               lewy[nr_wierzcholka],
+                                                               najdalszyDol);
 
         if (prawyNajd.odl == -1 && lewyNajd.odl == -1) {
             najdalszyDol[nr_wierzcholka] = stworzOdlWierzch(0, nr_wierzcholka);
@@ -157,6 +163,43 @@ void printOdlWierzch(const wykaz_odlWierzch & odlw) {
         cout << ow.wierzch << " gl: " << ow.odl << endl;
     }
 }
+
+int znajdzRodzenstwo(int dziecko, int rodzic, const wierzchołki & prawy,
+                     const wierzchołki & lewy) {
+    int praweD = prawy[rodzic];
+    if (praweD != dziecko) return praweD;
+
+    return lewy[rodzic];
+}
+
+void stworzNajdalszyGora(const wierzchołki & rodzice, const wierzchołki & prawy,
+                         const wierzchołki & lewy, wykaz_odlWierzch & najdalszyGora,
+                         const wykaz_odlWierzch & najdalszyDol, int nr_wierzcholka) {
+    if (nr_wierzcholka == 1) {
+        najdalszyGora[nr_wierzcholka] = stworzOdlWierzch(0, nr_wierzcholka);
+    }
+    else if (nr_wierzcholka != -1) {
+        int rodzic = rodzice[nr_wierzcholka];
+        int rodzenstwo = znajdzRodzenstwo(nr_wierzcholka, rodzic, prawy, lewy);
+        odlWierzch odlegloscRodzenstwoDol = (rodzenstwo == -1) ?
+                                         stworzOdlWierzch(-1, -1) :
+                                         stworzOdlWierzch(
+                                                 najdalszyDol[rodzenstwo].odl + 2,
+                                                 najdalszyDol[rodzenstwo].wierzch);
+
+        odlWierzch odlegloscRodzicGora = stworzOdlWierzch(najdalszyGora[rodzic].odl + 1,
+                                                          najdalszyGora[rodzic].wierzch);
+
+        najdalszyGora[nr_wierzcholka] = porownajNajdalszeWierzcholki(odlegloscRodzenstwoDol,
+                                                     odlegloscRodzicGora);
+
+        stworzNajdalszyGora(rodzice, prawy, lewy, najdalszyGora, najdalszyDol,
+                            prawy[nr_wierzcholka]);
+        stworzNajdalszyGora(rodzice, prawy, lewy, najdalszyGora, najdalszyDol,
+                            lewy[nr_wierzcholka]);
+    }
+}
+
 int main() {
     polecenia pol;
     wierzchołki rodzic;
@@ -172,7 +215,9 @@ int main() {
 
     odleglosc glebokosc(liczbaPolanek + 1, -1);
     wykaz_odlWierzch najdalszyDol(liczbaPolanek + 1);
-    odlWierzch najdalszy = wyznaczGlebokosc(prawy, lewy, glebokosc, 0, 1, najdalszyDol);
+    odlWierzch najdalszy = wyznaczGlebokoscOrazNajdalszyDol(prawy, lewy,
+                                                            glebokosc, 0, 1,
+                                                            najdalszyDol);
     printVec(glebokosc);
     printOdlWierzch(najdalszyDol);
 }
