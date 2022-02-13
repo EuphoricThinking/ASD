@@ -304,7 +304,7 @@ int znajdzPozaPoddrzewem(int nr_wierzcholka, odlWierzch najdalszy,
         return znajdzK_tegoPrzodka(k_przodkowie, glebokosc, nr_wierzcholka,
                                    odlegloscOdWierzcholka, log);
     }
-    
+
     int bezOdWyjsciowegoDoLCA = odlegloscOdWierzcholka - (glebokosc[nr_wierzcholka] - glebokosc[lca]);
     int k = glebokosc[najdalszy.wierzch] - glebokosc[lca] - bezOdWyjsciowegoDoLCA;
 
@@ -352,33 +352,33 @@ int main() {
 
     wczytajWejsceStworzTablice(liczbaPolanek, liczbaPolecen, rodzic, prawy,
                                lewy, pol);
-    printRes(liczbaPolanek, liczbaPolecen, rodzic, prawy,
-             lewy, pol);
+    //printRes(liczbaPolanek, liczbaPolecen, rodzic, prawy,
+    //         lewy, pol);
 
     odleglosc glebokosc(liczbaPolanek + 1, -1);
     wykaz_odlWierzch najdalszyDol(liczbaPolanek + 1);
     odlWierzch najdalszy = wyznaczGlebokoscOrazNajdalszyDol(prawy, lewy,
                                                             glebokosc, 0, 1,
                                                             najdalszyDol);
-    printVec(glebokosc);
-    printOdlWierzch(najdalszyDol);
+    //printVec(glebokosc);
+    //printOdlWierzch(najdalszyDol);
 
     wykaz_odlWierzch najdalszyGora(liczbaPolanek + 1);
     stworzNajdalszyGora(rodzic, prawy, lewy, najdalszyGora, najdalszyDol, 1);
-    cout << endl;
-    printOdlWierzch(najdalszyGora);
+    //cout << endl;
+    //printOdlWierzch(najdalszyGora);
 
     int log = std::ceil(std::log2(liczbaPolanek + 1));
     macierz k_przodkowie = wyznaczK_przodkow(rodzic, liczbaPolanek, log);
     //cout << std::ceil(std::log2(8)) << endl;
-    printAncestors(k_przodkowie);
-    cout << "anc\n";
-    int anc = znajdzK_tegoPrzodka(k_przodkowie, glebokosc, 8, 2, log);
-    cout << anc << endl;
+    //printAncestors(k_przodkowie);
+    //cout << "anc\n";
+    //int anc = znajdzK_tegoPrzodka(k_przodkowie, glebokosc, 8, 2, log);
+    //cout << anc << endl;
 
     int lca = znajdzLCA(4, 8, k_przodkowie, glebokosc, log);
-    cout << "lca " << lca << endl;
+    //cout << "lca " << lca << endl;
 
-    cout << "\n\nWYNIK\n\n";
+    //cout << "\n\nWYNIK\n\n";
     obsluzZapytania(pol, k_przodkowie, glebokosc, log, najdalszyDol, najdalszyGora);
 }
