@@ -220,8 +220,7 @@ macierz stworzMacierz(int liczbaPolanek, int log) {
     return wynik;
 }
 
-macierz wyznaczK_przodkow(const wierzchołki & rodzice, int liczbaPolanek) {
-    int log = ceil(log2(liczbaPolanek + 1));
+macierz wyznaczK_przodkow(const wierzchołki & rodzice, int liczbaPolanek, int log) {
     macierz k_przodkowie = stworzMacierz(liczbaPolanek, log);
 
     for (int i = 1; i < liczbaPolanek + 1; i++) {
@@ -250,6 +249,19 @@ void printAncestors(macierz k_przodkowie) {
     }
 }
 
+int znajdzK_tegoPrzodka(const macierz & k_przodkowie, const odleglosc & glebokosc,
+                        int nr_wierzcholka, int k, int log) {
+    if (k > glebokosc[nr_wierzcholka]) return -1;
+
+    for (int j = 0; j < log; j++) {
+        if (k & ( 1 << j)) {
+            nr_wierzcholka = k_przodkowie[nr_wierzcholka][j];
+        }
+    }
+
+    return nr_wierzcholka;
+}
+
 int main() {
     polecenia pol;
     wierzchołki rodzic;
@@ -276,7 +288,11 @@ int main() {
     cout << endl;
     printOdlWierzch(najdalszyGora);
 
-    macierz k_przodkowie = wyznaczK_przodkow(rodzic, liczbaPolanek);
+    int log = std::ceil(std::log2(liczbaPolanek + 1));
+    macierz k_przodkowie = wyznaczK_przodkow(rodzic, liczbaPolanek, log);
     //cout << std::ceil(std::log2(8)) << endl;
     printAncestors(k_przodkowie);
+    cout << "anc\n";
+    int anc = znajdzK_tegoPrzodka(k_przodkowie, glebokosc, 8, 2, log);
+    cout << anc << endl;
 }
