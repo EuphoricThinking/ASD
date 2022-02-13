@@ -300,6 +300,11 @@ int znajdzPozaPoddrzewem(int nr_wierzcholka, odlWierzch najdalszy,
     int lca = znajdzLCA(nr_wierzcholka, najdalszy.wierzch, k_przodkowie,
                         glebokosc, log);
 
+    if (glebokosc[nr_wierzcholka] - glebokosc[lca] >= odlegloscOdWierzcholka) {
+        return znajdzK_tegoPrzodka(k_przodkowie, glebokosc, nr_wierzcholka,
+                                   odlegloscOdWierzcholka, log);
+    }
+    
     int bezOdWyjsciowegoDoLCA = odlegloscOdWierzcholka - (glebokosc[nr_wierzcholka] - glebokosc[lca]);
     int k = glebokosc[najdalszy.wierzch] - glebokosc[lca] - bezOdWyjsciowegoDoLCA;
 
