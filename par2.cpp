@@ -373,4 +373,7 @@ int main() {
 
     int lca = znajdzLCA(4, 8, k_przodkowie, glebokosc, log);
     cout << "lca " << lca << endl;
+
+    cout << "\n\nWYNIK\n\n";
+    obsluzZapytania(pol, k_przodkowie, glebokosc, log, najdalszyDol, najdalszyGora);
 }
