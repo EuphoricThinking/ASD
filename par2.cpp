@@ -319,4 +319,7 @@ int main() {
     cout << "anc\n";
     int anc = znajdzK_tegoPrzodka(k_przodkowie, glebokosc, 8, 2, log);
     cout << anc << endl;
+
+    int lca = znajdzLCA(4, 8, k_przodkowie, glebokosc, log);
+    cout << "lca " << lca << endl;
 }
