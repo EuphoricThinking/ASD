@@ -76,7 +76,7 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
     for (int i = 0; i < num_of_roads; i++) {
         cin >> road_in >> road_out;
         insert_into_map(junctions, road_in, road_out, num_of_roads, num_of_junctions);
-        //insert_into_map(junctions, road_out, road_in, num_of_roads);
+        //insert_into_map(junctions, road_out, road_in, num_of_roads, num_of_junctions); //added + added num of junctions
         if (road_out == num_of_junctions) {
             insert_into_map(junctions, road_out, -1, num_of_roads, num_of_junctions);
         }
@@ -446,10 +446,10 @@ int main(void) {
     alarm_values forbidden = read_data(junctions, capacity, cost, disallowed,
                                        num_junctions, num_roads, powerbanks);
 
-    print_input(junctions, forbidden, capacity, cost, disallowed,
-                num_junctions, num_roads, powerbanks);
+    //print_input(junctions, forbidden, capacity, cost, disallowed,
+    //            num_junctions, num_roads, powerbanks);
 
-    cout << endl;
+    //cout << endl;
 
     int shortest_length = num_roads + 1;
     int current_length = 0;
@@ -462,7 +462,7 @@ int main(void) {
                                                    num_junctions, current_path,
                                                    powerbanks);
 
-    print_path(shortest_path);
+    //print_path(shortest_path);
 
     int max_score = -1;
     chargers used_chargers;

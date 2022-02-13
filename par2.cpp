@@ -22,14 +22,14 @@ typedef struct odlWierzch {
 } odlWierzch;
 
 using polecenia = vector<zadanie>;
-using wierzchołki = vector<int>;
+using wierzcholki = vector<int>;
 using odleglosc = vector<int>;
 using macierz = vector<vector<int>>;
 using wykaz_odlWierzch = vector<odlWierzch>;
 
 
 
-void inicjujWierzcholki(int ileElementow, wierzchołki &w) {
+void inicjujWierzcholki(int ileElementow, wierzcholki &w) {
     for (int i = 0; i < ileElementow + 1; i++) {
         w.push_back(-1);
     }
@@ -42,8 +42,8 @@ void inicjujGlebokosc(int ileElementow, odleglosc &w) {
 }
 
 void printRes(int &liczbaPolanek, int &liczbaPolecen,
-              wierzchołki &rodzic, wierzchołki &prawy,
-              wierzchołki &lewy, polecenia &pol) {
+              wierzcholki &rodzic, wierzcholki &prawy,
+              wierzcholki &lewy, polecenia &pol) {
     cout << liczbaPolanek << endl;
 
     for (int i = 0; i < liczbaPolanek + 1; i++) {
@@ -63,9 +63,9 @@ void printRes(int &liczbaPolanek, int &liczbaPolecen,
     }
 }
 
-void wczytajWejsceStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
-                                wierzchołki &rodzic, wierzchołki &prawy,
-                                wierzchołki &lewy, polecenia &pol) {
+void wczytajWejscieStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
+                                 wierzcholki &rodzic, wierzcholki &prawy,
+                                 wierzcholki &lewy, polecenia &pol) {
 
     cin >> liczbaPolanek;
     inicjujWierzcholki(liczbaPolanek + 1, rodzic);
@@ -99,6 +99,32 @@ void wczytajWejsceStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
     }
 }
 
+void forceSzkopul() {
+    int liczbaPolanek;
+    cin >> liczbaPolanek;
+
+    cout << liczbaPolanek << "&";
+    int prawe_dziecko;
+    int lewe_dziecko;
+    for (int i = 1; i < liczbaPolanek + 1; i++) {
+        cin >> lewe_dziecko >> prawe_dziecko;
+
+        cout << "L" << lewe_dziecko << "P" << prawe_dziecko << "|";
+    }
+
+    int liczbaPolecen;
+    cin >> liczbaPolecen;
+    cout << liczbaPolecen << "&";
+
+    int skad;
+    int dokad;
+    for (int i = 0; i < liczbaPolecen; i++) {
+        cin >> skad >> dokad;
+
+        cout << "W" << skad << "X" << dokad << "|";
+    }
+}
+
 odlWierzch porownajNajdalszeWierzcholki(odlWierzch kand1, odlWierzch kand2) {
     if (kand1.odl > kand2.odl) {
         return kand1;
@@ -115,7 +141,7 @@ odlWierzch stworzOdlWierzch(int odl, int wierzch) {
     return nowy;
 }
 
-odlWierzch wyznaczGlebokoscOrazNajdalszyDol(const wierzchołki& prawy, const wierzchołki& lewy,
+odlWierzch wyznaczGlebokoscOrazNajdalszyDol(const wierzcholki& prawy, const wierzcholki& lewy,
                                             odleglosc& glebokosc, int akt_gl, int nr_wierzcholka,
                                             wykaz_odlWierzch& najdalszyDol) {
     if (nr_wierzcholka != -1) {
@@ -164,16 +190,16 @@ void printOdlWierzch(const wykaz_odlWierzch & odlw) {
     }
 }
 
-int znajdzRodzenstwo(int dziecko, int rodzic, const wierzchołki & prawy,
-                     const wierzchołki & lewy) {
+int znajdzRodzenstwo(int dziecko, int rodzic, const wierzcholki & prawy,
+                     const wierzcholki & lewy) {
     int praweD = prawy[rodzic];
     if (praweD != dziecko) return praweD;
 
     return lewy[rodzic];
 }
 
-void stworzNajdalszyGora(const wierzchołki & rodzice, const wierzchołki & prawy,
-                         const wierzchołki & lewy, wykaz_odlWierzch & najdalszyGora,
+void stworzNajdalszyGora(const wierzcholki & rodzice, const wierzcholki & prawy,
+                         const wierzcholki & lewy, wykaz_odlWierzch & najdalszyGora,
                          const wykaz_odlWierzch & najdalszyDol, int nr_wierzcholka) {
     if (nr_wierzcholka == 1) {
         najdalszyGora[nr_wierzcholka] = stworzOdlWierzch(0, nr_wierzcholka);
@@ -220,15 +246,20 @@ macierz stworzMacierz(int liczbaPolanek, int log) {
     return wynik;
 }
 
-macierz wyznaczK_przodkow(const wierzchołki & rodzice, int liczbaPolanek, int log) {
+macierz wyznaczK_przodkow(const wierzcholki & rodzice, int liczbaPolanek, int log) {
     macierz k_przodkowie = stworzMacierz(liczbaPolanek, log);
 
     for (int i = 1; i < liczbaPolanek + 1; i++) {
         k_przodkowie[i][0] = rodzice[i];
     }
 
-    for (int i = 1; i < liczbaPolanek + 1; i++) {
-        for (int j = 1; j < log; j++) {
+//    for (int i = 1; i < liczbaPolanek + 1; i++) {
+//        for (int j = 1; j < log; j++) {
+//            k_przodkowie[i][j] = k_przodkowie[ k_przodkowie[i][j - 1] ][j - 1];
+//        }
+//    }
+    for (int j = 1; j < log; j++) {
+        for (int i = 1; i < liczbaPolanek + 1; i++) {
             k_przodkowie[i][j] = k_przodkowie[ k_przodkowie[i][j - 1] ][j - 1];
         }
     }
@@ -265,6 +296,9 @@ int znajdzK_tegoPrzodka(const macierz & k_przodkowie, const odleglosc & glebokos
 int znajdzLCA(int a_wierzcholek, int b_wierzcholwek, const macierz & k_przodkowie,
               const odleglosc & glebokosc, int log) {
     if (glebokosc[a_wierzcholek] < glebokosc[b_wierzcholwek]) {
+//        a_wierzcholek ^= b_wierzcholwek;
+//        b_wierzcholwek ^= a_wierzcholek;
+//        a_wierzcholek ^= b_wierzcholwek;
         int temp = a_wierzcholek;
         a_wierzcholek = b_wierzcholwek;
         b_wierzcholwek = temp;
@@ -276,7 +310,18 @@ int znajdzLCA(int a_wierzcholek, int b_wierzcholwek, const macierz & k_przodkowi
 
     if (a_wierzcholek == b_wierzcholwek) return a_wierzcholek;
 
+    int lastpow = 0;
     for (int i = 0; i < log; i++) {
+        if (k_przodkowie[a_wierzcholek][i] != k_przodkowie[b_wierzcholwek][i]) {
+            a_wierzcholek = k_przodkowie[a_wierzcholek][i];
+            b_wierzcholwek = k_przodkowie[b_wierzcholwek][i];
+        } else {
+            lastpow = i;
+            break;
+        }
+    }
+
+    for (int i = lastpow - 1; i >= 0; --i) {
         if (k_przodkowie[a_wierzcholek][i] != k_przodkowie[b_wierzcholwek][i]) {
             a_wierzcholek = k_przodkowie[a_wierzcholek][i];
             b_wierzcholwek = k_przodkowie[b_wierzcholwek][i];
@@ -343,42 +388,31 @@ void obsluzZapytania(const polecenia & pol, const macierz & k_przodkowie,
 }
 
 int main() {
+
+    std::ios_base::sync_with_stdio(false);
+
     polecenia pol;
-    wierzchołki rodzic;
-    wierzchołki prawy;
-    wierzchołki lewy;
+    wierzcholki rodzic;
+    wierzcholki prawy;
+    wierzcholki lewy;
     int liczbaPolanek;
     int liczbaPolecen;
 
-    wczytajWejsceStworzTablice(liczbaPolanek, liczbaPolecen, rodzic, prawy,
-                               lewy, pol);
-    //printRes(liczbaPolanek, liczbaPolecen, rodzic, prawy,
-    //         lewy, pol);
+    //forceSzkopul();
+    wczytajWejscieStworzTablice(liczbaPolanek, liczbaPolecen, rodzic, prawy,
+                                lewy, pol);
+    //printRes(liczbaPolanek, liczbaPolecen, rodzic, prawy, lewy, pol);
 
     odleglosc glebokosc(liczbaPolanek + 1, -1);
     wykaz_odlWierzch najdalszyDol(liczbaPolanek + 1);
     odlWierzch najdalszy = wyznaczGlebokoscOrazNajdalszyDol(prawy, lewy,
                                                             glebokosc, 0, 1,
                                                             najdalszyDol);
-    //printVec(glebokosc);
-    //printOdlWierzch(najdalszyDol);
 
     wykaz_odlWierzch najdalszyGora(liczbaPolanek + 1);
     stworzNajdalszyGora(rodzic, prawy, lewy, najdalszyGora, najdalszyDol, 1);
-    //cout << endl;
-    //printOdlWierzch(najdalszyGora);
 
     int log = std::ceil(std::log2(liczbaPolanek + 1));
-    macierz k_przodkowie = wyznaczK_przodkow(rodzic, liczbaPolanek, log);
-    //cout << std::ceil(std::log2(8)) << endl;
-    //printAncestors(k_przodkowie);
-    //cout << "anc\n";
-    //int anc = znajdzK_tegoPrzodka(k_przodkowie, glebokosc, 8, 2, log);
-    //cout << anc << endl;
-
-    int lca = znajdzLCA(4, 8, k_przodkowie, glebokosc, log);
-    //cout << "lca " << lca << endl;
-
-    //cout << "\n\nWYNIK\n\n";
-    obsluzZapytania(pol, k_przodkowie, glebokosc, log, najdalszyDol, najdalszyGora);
+    macierz k_przodkowie = wyznaczK_przodkow(rodzic, liczbaPolanek, log+1);
+    obsluzZapytania(pol, k_przodkowie, glebokosc, log+1, najdalszyDol, najdalszyGora);
 }

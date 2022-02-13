@@ -42,9 +42,9 @@ void inicjujGlebokosc(int ileElementow, odleglosc &w) {
     }
 }
 
-void wczytajWejsceStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
-                                wierzchołki &rodzic, wierzchołki &prawy,
-                                wierzchołki &lewy, polecenia &pol) {
+void wczytajWejscieStworzTablice(int &liczbaPolanek, int &liczbaPolecen,
+                                 wierzchołki &rodzic, wierzchołki &prawy,
+                                 wierzchołki &lewy, polecenia &pol) {
 
     cin >> liczbaPolanek;
     inicjujWierzcholki(liczbaPolanek + 1, rodzic);
