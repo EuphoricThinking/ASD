@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <queue>
+#include <algorithm>
 
 using std::cin;
 using std::cout;
@@ -84,12 +85,17 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
 }
 
 
-iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int num_junc) {
+iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int num_junc,
+                                 vector<int> & preceding) {
     auto found_junc = junctions.find(num_junc);
     adjacent_junctions adj_junc = found_junc->second.first;
     uint64_t size = adj_junc.size();
     for (uint64_t i = size - 1; i >= 0; i++) {
         levels.push(adj_junc[i]);
+
+        if (preceding[adj_junc[i]] == -1) {
+            preceding[adj_junc[i]] = num_junc;
+        }
     }
 
     if (size >= 1) return make_pair(found_junc, adj_junc[0]);
@@ -101,16 +107,17 @@ void assign_powerbank_value(trackiter & iter, int val) {
     adj_pow.second = val;
 }
 
-void find_shortest_path_assign_powerbank_values(tracks & junctions,
+vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
                                                 int num_junctions,
                                                 available_power powerbanks) {
     queue<int> levels_queued;
-    iter_0 init = push_into_queue_without_0(levels_queued, junctions, 1);
+    vector<int> preceding(num_junctions + 1, -1);
+    preceding[1] = 1;
+    iter_0 init = push_into_queue_without_0(levels_queued, junctions, 1, preceding);
     assign_powerbank_value(init.first, powerbanks[0]);
     vector<bool> visited(num_junctions + 1, false);
     visited[1] = true;
 
-    bool found = false;
     int next_level = init.second;
     int distance = 1;
     iter_0 temp_level;
@@ -118,10 +125,11 @@ void find_shortest_path_assign_powerbank_values(tracks & junctions,
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
+
         if (!visited[next_junc]) {
             visited[next_junc] = true;
             temp_level = push_into_queue_without_0(levels_queued, junctions,
-                                                   next_junc);
+                                                   next_junc, preceding);
 
             if (next_level == next_junc) {
                 if (temp_level.second != -1) next_level = temp_level.second;
@@ -135,4 +143,17 @@ void find_shortest_path_assign_powerbank_values(tracks & junctions,
             assign_powerbank_value(temp_level.first, powerbanks[distance]);
         }
     }
+
+    vector<int> shortest_path;
+    shortest_path.push_back(num_junctions);
+    int cur = num_junctions;
+
+    while (cur != 1) {
+        shortest_path.push_back(preceding[cur]);
+        cur = preceding[cur];
+    }
+
+    std::reverse(shortest_path.begin(), shortest_path.end());
+
+    return shortest_path;
 }
