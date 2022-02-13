@@ -83,11 +83,6 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
     return set_of_forbidden;
 }
 
-void assign_powerbank_value(tracks & junctions, int junction_num, int val) {
-    auto junc_iter = junctions.find(junction_num);
-    adjacent_and_powerbanks & adj_pow = junc_iter->second;
-    adj_pow.second = val;
-}
 
 iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int num_junc) {
     auto found_junc = junctions.find(num_junc);
@@ -101,26 +96,43 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
     else return make_pair(found_junc, -1);
 }
 
-void assign_distance(trackiter iter, int dist) {
-    adjacent_and_powerbanks & adj_pow
+void assign_powerbank_value(trackiter & iter, int val) {
+    adjacent_and_powerbanks & adj_pow = iter->second;
+    adj_pow.second = val;
 }
 
 void find_shortest_path_assign_powerbank_values(tracks & junctions,
                                                 int num_junctions,
                                                 available_power powerbanks) {
-    assign_powerbank_value(junctions, 1, powerbanks[0]);
-    int distance = 1;
+    queue<int> levels_queued;
+    iter_0 init = push_into_queue_without_0(levels_queued, junctions, 1);
+    assign_powerbank_value(init.first, powerbanks[0]);
     vector<bool> visited(num_junctions + 1, false);
     visited[1] = true;
-    queue<int> levels_queued;
-    bool found = false;
 
-    int next_level = push_into_queue_without_0(levels_queued, junctions, 1);
-    int temp_level;
+    bool found = false;
+    int next_level = init.second;
+    int distance = 1;
+    iter_0 temp_level;
+
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
-        temp_level = push_into_queue_without_0(levels_queued, )
+        if (!visited[next_junc]) {
+            visited[next_junc] = true;
+            temp_level = push_into_queue_without_0(levels_queued, junctions,
+                                                   next_junc);
 
+            if (next_level == next_junc) {
+                if (temp_level.second != -1) next_level = temp_level.second;
+                else next_level = -1;
+
+                distance++;
+            } else if (next_level == -1) {
+                if (temp_level.second != -1) next_level = temp_level.second;
+            }
+
+            assign_powerbank_value(temp_level.first, powerbanks[distance]);
+        }
     }
 }
