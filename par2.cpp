@@ -286,6 +286,26 @@ int znajdzLCA(int a_wierzcholek, int b_wierzcholwek, const macierz & k_przodkowi
     return k_przodkowie[a_wierzcholek][0];
 }
 
+int znajdzNizej(int nr_wierzcholka, const macierz & k_przodkowie,
+                 int odlegloscOdWierzcholka, odlWierzch najdalszy,
+                 const odleglosc & glebokosc, int log) {
+    int k = najdalszy.odl - odlegloscOdWierzcholka;
+    return znajdzK_tegoPrzodka(k_przodkowie, glebokosc, najdalszy.wierzch,
+                               k, log);
+}
+
+int znajdzPozaPoddrzewem(int nr_wierzcholka, odlWierzch najdalszy,
+                         const macierz & k_przodkowie, const odleglosc & glebokosc,
+                         int log) {
+    int lca = znajdzLCA(nr_wierzcholka, najdalszy.wierzch, k_przodkowie,
+                        glebokosc, log);
+
+    int bezOdWyjsciowegoDoLCA = glebokosc[nr_wierzcholka] - glebokosc[lca];
+    int k = glebokosc[najdalszy.wierzch] - glebokosc[lca] - bezOdWyjsciowegoDoLCA;
+
+    return znajdzK_tegoPrzodka(k_przodkowie, glebokosc, najdalszy.wierzch, k, log);
+}
+
 int main() {
     polecenia pol;
     wierzchołki rodzic;
