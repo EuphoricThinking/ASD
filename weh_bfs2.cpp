@@ -118,17 +118,12 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
     auto found_junc = junctions.find(num_junc);
     adjacent_junctions adj_junc = found_junc->second.first;
     int size = (int)adj_junc.size();
-    print_vec(adj_junc);
-    cout << "s " << size << endl;
-    log("bef loop");
     for (int i = size - 1; i >= 0; i--) {
         levels.push(adj_junc[i]);
-        cout << i << " " << adj_junc[i] << endl;
         if (preceding[adj_junc[i]] == -1) {
             preceding[adj_junc[i]] = num_junc;
         }
     }
-    log("after loop");
     if (size >= 1) return make_pair(found_junc, adj_junc[0]);
     else return make_pair(found_junc, -1);
 }
@@ -141,12 +136,10 @@ void assign_powerbank_value(trackiter & iter, int val) {
 vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
                                                 int num_junctions,
                                                 available_power powerbanks) {
-    log("tap out");
     queue<int> levels_queued;
     vector<int> preceding(num_junctions + 1, -1);
     preceding[1] = 1;
     iter_0 init = push_into_queue_without_0(levels_queued, junctions, 1, preceding);
-    log("after push");
     assign_powerbank_value(init.first, powerbanks[0]);
     vector<bool> visited(num_junctions + 1, false);
     visited[1] = true;
@@ -155,7 +148,6 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int distance = 1;
     iter_0 temp_level;
 
-    log("init 1");
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
@@ -213,7 +205,8 @@ int main() {
                                                                            num_junctions,
                                                                            powerbanks);
 
-
+    print_map(junctions);
+    //print_vec(shortest_path);
 
     return 0;
 }
