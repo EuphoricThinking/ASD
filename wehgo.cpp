@@ -446,8 +446,8 @@ int main(void) {
     alarm_values forbidden = read_data(junctions, capacity, cost, disallowed,
                                        num_junctions, num_roads, powerbanks);
 
-    //print_input(junctions, forbidden, capacity, cost, disallowed,
-    //            num_junctions, num_roads, powerbanks);
+    print_input(junctions, forbidden, capacity, cost, disallowed,
+                num_junctions, num_roads, powerbanks);
 
     //cout << endl;
 
