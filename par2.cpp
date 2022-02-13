@@ -177,6 +177,11 @@ void stworzNajdalszyGora(const wierzchołki & rodzice, const wierzchołki & praw
                          const wykaz_odlWierzch & najdalszyDol, int nr_wierzcholka) {
     if (nr_wierzcholka == 1) {
         najdalszyGora[nr_wierzcholka] = stworzOdlWierzch(0, nr_wierzcholka);
+
+        stworzNajdalszyGora(rodzice, prawy, lewy, najdalszyGora, najdalszyDol,
+                            prawy[nr_wierzcholka]);
+        stworzNajdalszyGora(rodzice, prawy, lewy, najdalszyGora, najdalszyDol,
+                            lewy[nr_wierzcholka]);
     }
     else if (nr_wierzcholka != -1) {
         int rodzic = rodzice[nr_wierzcholka];
@@ -220,4 +225,9 @@ int main() {
                                                             najdalszyDol);
     printVec(glebokosc);
     printOdlWierzch(najdalszyDol);
+
+    wykaz_odlWierzch najdalszyGora(liczbaPolanek + 1);
+    stworzNajdalszyGora(rodzic, prawy, lewy, najdalszyGora, najdalszyDol, 1);
+    cout << endl;
+    printOdlWierzch(najdalszyGora);
 }
