@@ -35,6 +35,14 @@ using std::queue;
 using trackiter = tracks::iterator;
 using iter_0 = pair<trackiter, int>;
 
+const int MAX_ROW = 1002;
+const int MAX_COL = 5002;
+int if_previous_charged[MAX_ROW][MAX_COL]; //[path_length][capacity + 1];
+//przejdź po kolumnach, by znaleźć największe
+//wysstarczy znac numer kolumny - zawsze przejedzam o +1 wzgledem sciezki
+int previous_coordinates[MAX_ROW][MAX_COL];
+int last_charging[MAX_COL];
+
 
 void log(const char* message) {
     cout << message << endl;
@@ -135,7 +143,7 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
             preceding[adj_junc[i]] = num_junc;
         }
     }
-    log("after all");
+    //log("after all");
     if (size >= 1) return make_pair(found_junc, adj_junc[first_not_visited]);
     else return make_pair(found_junc, -1);
 }
@@ -161,19 +169,19 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int next_level = init.second;
     int distance = 1;
     iter_0 temp_level;
-    log("after first");
+    //log("after first");
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
 
         if (!visited[next_junc]) {
-            cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
+            //cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
             visited[next_junc] = true;
             temp_level = push_into_queue_without_0(levels_queued, junctions,
                                                    next_junc, preceding, visited);
-            log("ass");
+            //log("ass");
             assign_powerbank_value(temp_level.first, powerbanks[distance]);
-            log("died");
+            //log("died");
             if (next_level == next_junc) {
                 if (temp_level.second != -1) next_level = temp_level.second;
                 else next_level = -1;
@@ -184,7 +192,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
             }
         }
     }
-    log("after while");
+    //log("after while");
     vector<int> shortest_path;
     shortest_path.push_back(num_junctions);
     int cur = num_junctions;
@@ -197,6 +205,230 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     std::reverse(shortest_path.begin(), shortest_path.end());
 
     return shortest_path;
+}
+
+/*
+ * End of BFS
+ */
+
+void charge_if_possible(int &available_power, int &current_power,
+                        alarm_values &forbidden_powers, int capacity,
+                        chargers &used_chargers, int junc_num) {
+    if (available_power == -1) return;
+
+    int new_value = current_power + available_power;
+    cout << " cur " << current_power << " avail " << available_power << " new " << new_value << endl;
+    if (new_value <= capacity &&
+        forbidden_powers.find(new_value) == forbidden_powers.end()) {
+        current_power = new_value;
+        used_chargers.push_back(junc_num);
+        available_power = -1;
+    }
+}
+
+bool if_possible_charging(int available_power, int &current_power, alarm_values &forbidden,
+                          int capacity) {
+    int new_value = current_power + available_power;
+    if (new_value <= capacity
+        && forbidden.find(new_value) == forbidden.end()) {
+        current_power = new_value;
+        return true;
+    }
+    return false;
+}
+
+int give_power(tracks &junction, path shortest_path, int cur_pos) {
+    tracks::iterator found_junc = junction.find(shortest_path[cur_pos]);
+    adjacent_and_powerbanks &roads_powers = found_junc->second;
+    int junction_power = get<1>(roads_powers);
+
+    return junction_power;
+}
+
+void fill_next_row(int cur_pos, int cur_cap, tracks &junction, alarm_values &forbidden,
+                   int capacity,
+                   path &shortest_path, int cost) {
+
+    int junction_power = give_power(junction, shortest_path, cur_pos);
+
+    if (cur_cap - cost >= 0) {
+        previous_coordinates[cur_pos + 1][cur_cap - cost] = cur_cap; //pozycja, skad przybywa - wiersz znany
+    }
+
+    int changed_capacity = cur_cap;
+    bool is_chargeable = if_possible_charging(junction_power, changed_capacity, forbidden, capacity);
+    if (is_chargeable) {
+        //cout << " |prev " << cur_cap << " changed " << changed_capacity <<"| ";
+        //cout << "POS " << cur_pos << " " << cur_cap << endl;
+        //       cout << " |nextI " << cur_pos + 1 << " " << changed_capacity - cost << "| ";
+        if (changed_capacity - cost >= 0) {
+            previous_coordinates[cur_pos + 1][changed_capacity - cost] = cur_cap;
+            if_previous_charged[cur_pos + 1][changed_capacity - cost] = 1;
+        }
+    }
+}
+
+int find_max_in_row(int max_val, int row[], int length) {
+    for (int i = 0; i < length; i++) {
+
+        //       cout << " mi : " << i << " ri " << row[i] << endl;
+        if (row[i] != -1 && i > max_val) {
+            max_val = i;
+
+        }
+
+    }
+    //   cout << "max: <<" << max_val << endl;
+    return max_val;
+}
+
+void find_best_route(chargers &used_chargers, path &shortest_path,
+                     int charged[MAX_ROW][MAX_COL], int coord[MAX_ROW][MAX_COL],
+                     int capacity, int start, int last_row) {
+
+    int i = last_row;
+    int j = start;
+
+    int tempj = j;
+    while (i != 0 && j != capacity) {
+        if (charged[i][j] == 1) {
+            used_chargers.push_back(shortest_path[i - 1]); //previous was charged
+        }
+//        cout << "ri " << i << " rj " << j << endl;
+        j = coord[i][tempj];
+        tempj = j;
+        i -= 1;
+    }
+}
+
+bool if_possible_short_path(path &shortest_path, int capacity, alarm_values &forbidden,
+                            tracks &junction, int cost, chargers &used_chargers,
+                            int &max_score) {
+
+    int path_length = shortest_path.size();
+    //opusc uzupelnianie ostatniego wiersza
+    //while i != 0 && j != capacity
+    //0, 1
+    /* int if_previous_charged[MAX_ROW][MAX_COL]; //[path_length][capacity + 1];
+     //przejdź po kolumnach, by znaleźć największe
+     //wysstarczy znac numer kolumny - zawsze przejedzam o +1 wzgledem sciezki
+     int previous_coordinates[MAX_ROW][MAX_COL];
+     int last_charging[MAX_COL]; */
+
+    for (int i = 0; i < path_length; i++) {
+        for (int j = 0; j < capacity + 1; j++) {
+            //          cout << i << " " << j << endl;
+            if_previous_charged[i][j] = 0;
+            previous_coordinates[i][j] = -1;
+            last_charging[j] = -1;
+        }
+    }
+
+    //initialization -> beginnging of the trip
+    fill_next_row(0, capacity, junction, forbidden,
+                  capacity,shortest_path, cost);
+
+    //ostatni osobno obslugujemy
+    for (int i = 1; i < path_length - 1; i++) {
+        //       cout << "i : " << i << endl;
+        for (int j = 0; j < capacity + 1; j++) {
+            //cout << "i: " << i << " j: " << j << endl;
+            //          cout << previous_coordinates[i][j] << " ";
+            //           cout << j << endl;
+            if (previous_coordinates[i][j] != -1) {
+                //cout << "i: " << i << " j: " << j << endl;
+                fill_next_row(i, j, junction, forbidden,
+                              capacity,
+                              shortest_path, cost);
+            }
+        }
+        //       cout << endl;
+    }
+
+    bool short_is_possible = false;
+    for (int j = 0; j < capacity + 1; j++) {
+        //      cout << previous_coordinates[path_length - 1][j] << endl;
+        if (previous_coordinates[path_length - 1][j] != -1) {
+            short_is_possible = true;
+        }
+    }
+
+    if (!short_is_possible) {
+        return false;
+    }
+
+    bool possible_last_charge = false;
+    bool temp_bool;
+    for (int j = 0; j < capacity + 1; j++) {
+        //       cout << previous_coordinates[path_length - 1][j] << endl;
+        if (previous_coordinates[path_length - 1][j] != -1) {
+            if (!possible_last_charge) {
+                possible_last_charge = true;
+            }
+
+            int junction_power = give_power(junction, shortest_path, path_length - 1);
+            int changed_capacity = j;
+            temp_bool = if_possible_charging(junction_power, changed_capacity, forbidden, capacity);
+            if (temp_bool) {
+                last_charging[changed_capacity] = j;
+            }
+        }
+    }
+
+    int index2 = -1;
+    int final_index;
+    int starting_index;
+
+    index2 = find_max_in_row(index2, previous_coordinates[path_length - 1], capacity + 1);
+    if (possible_last_charge) {
+        int index1 = -1;
+        index1 = find_max_in_row(index1, last_charging, capacity + 1);
+        final_index = max(index1, index2);
+        if (final_index == index1) {
+            starting_index = last_charging[final_index];
+            used_chargers.push_back(shortest_path[path_length - 1]);
+        } else {
+            starting_index = index2;
+        }
+    }
+
+    max_score = final_index;
+
+    find_best_route(used_chargers, shortest_path, if_previous_charged, previous_coordinates,
+                    capacity, starting_index, path_length - 1);
+
+    return true;
+}
+
+
+void print_chargers_reverse(chargers used_chargers) {
+    for (chargers::reverse_iterator riter = used_chargers.rbegin(); riter != used_chargers.rend(); riter++) {
+        cout << *riter << " ";
+    }
+
+    cout << endl;
+}
+
+void print_path(path &shortest) {
+    for (path::iterator piter = shortest.begin(); piter != shortest.end(); piter++) {
+        cout << *piter << " ";
+    }
+
+    cout << endl;
+}
+
+void print_result(bool shortest_is_possible, path &shortest_path,
+                  chargers &used_chargers, int current_power) {
+    if (shortest_is_possible) {
+        cout << shortest_path.size() << " " << current_power << " "
+             << used_chargers.size() << endl;
+
+        print_path(shortest_path);
+
+        print_chargers_reverse(used_chargers);
+    } else {
+        cout << -1 << endl;
+    }
 }
 
 int main() {
@@ -215,14 +447,28 @@ int main() {
     //print_vec(powerbanks);
     //print_set(forbidden);
     //print_map(junctions);
-    print_map(junctions);
+    //print_map(junctions);
 
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
 
-    print_map(junctions);
-    print_vec(shortest_path);
+    //print_map(junctions);
+    //print_vec(shortest_path);
+
+    int max_score = -1;
+    chargers used_chargers;
+
+    //   cout << "here" << endl;
+    bool is_possible_shortest = if_possible_short_path(shortest_path,
+                                                       capacity,
+                                                       forbidden,
+                                                       junctions, cost,
+                                                       used_chargers, max_score);
+
+    print_result(is_possible_shortest, shortest_path, used_chargers, max_score);
 
     return 0;
 }
+
+
