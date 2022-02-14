@@ -256,7 +256,20 @@ int find_max_row(int path_length, int capacity) {
     return max_cap;
 }
 
-bool is_shortest_possible(const tracks & junctions, const path & shortest,
+void find_chargers(int max_cap, vector<int> & chargers, int path_length,
+                   const vector<int> & shortest) {
+    int i = path_length - 1;
+    int j = max_cap;
+
+    while (i != 0) {
+        if (if_previous_charged[i][j]) chargers.push_back(shortest[i - 1]);
+
+        j = previous_coordinates[i][j];
+        i--;
+    }
+}
+
+bool if_possible_short_path(const tracks & junctions, const path & shortest,
                           int capacity, int & max_score, const alarm_values & forbidden_values,
                           int cost, vector<int> & chargers) {
     int path_length = shortest.size();
@@ -292,6 +305,10 @@ bool is_shortest_possible(const tracks & junctions, const path & shortest,
     } else {
         max_score = max_cap;
     }
+
+    find_chargers(max_cap, chargers, path_length, shortest);
+
+    return true;
 }
 
 
@@ -353,11 +370,10 @@ int main() {
 
     //print_vec(shortest_path);
     //   cout << "here" << endl;
-    bool is_possible_shortest = if_possible_short_path(shortest_path,
-                                                       capacity,
-                                                       forbidden,
-                                                       junctions, cost,
-                                                       used_chargers, max_score);
+    bool is_possible_shortest = if_possible_short_path(junctions, shortest_path,
+                                                       capacity, max_score,
+                                                       forbidden, cost,
+                                                       used_chargers);
     if (max_score > capacity) {
         cout << -1 << endl;
         return 0;
