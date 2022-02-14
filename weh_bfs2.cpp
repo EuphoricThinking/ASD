@@ -138,9 +138,11 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
     }
 
     for (int i = size - 1; i >= first_not_visited; i--) {
-        levels.push(adj_junc[i]);
-        if (preceding[adj_junc[i]] == -1) {
-            preceding[adj_junc[i]] = num_junc;
+        if (!visited[adj_junc[i]]){
+            levels.push(adj_junc[i]);
+            if (preceding[adj_junc[i]] == -1) {
+                preceding[adj_junc[i]] = num_junc;
+            }
         }
     }
     //log("after all");
