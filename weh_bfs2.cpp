@@ -122,32 +122,27 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
 }
 
 
-iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int num_junc,
+void push_into_queue(queue<int> & levels, tracks & junctions, int num_junc,
                                  vector<int> & preceding,
-                                 const vector<bool> & visited) {
+                                 vector<bool> & visited,
+                                 vector<int> & distances,
+                                 const available_power & powerbanks) {
     auto found_junc = junctions.find(num_junc);
-    adjacent_junctions adj_junc = found_junc->second.first;
+    //adjacent_junctions adj_junc = found_junc->second.first;
+    adjacent_and_powerbanks & adj_pow = found_junc->second;
+    adjacent_junctions adj_junc = adj_pow.first;
+    adj_pow.second = powerbanks[distances[num_junc]];
+
     int size = (int)adj_junc.size();
 
-    int first_not_visited = size;//0;
     for (int i = 0; i < size; i++) {
-        if (!visited[adj_junc[i]]) {
-            first_not_visited = i;
-            break;
-        }
-    }
-
-    for (int i = size - 1; i >= first_not_visited; i--) {
         if (!visited[adj_junc[i]]){
             levels.push(adj_junc[i]);
-            if (preceding[adj_junc[i]] == -1) {
-                preceding[adj_junc[i]] = num_junc;
-            }
+            preceding[adj_junc[i]] = num_junc;
+            distances[adj_junc[i]] = distances[num_junc] + 1;
+            visited[adj_junc[i]] = true;
         }
     }
-    //log("after all");
-    if (size > first_not_visited) return make_pair(found_junc, adj_junc[first_not_visited]); //size >= 1
-    else return make_pair(found_junc, -1);
 }
 
 void assign_powerbank_value(trackiter & iter, int val) {
@@ -163,42 +158,33 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     preceding[1] = 1;
     vector<bool> visited(num_junctions + 1, false);
     visited[1] = true;
+    vector<int> distances(num_junctions + 1, -1);
+    distances[1] = 0;
 
-    iter_0 init = push_into_queue_without_0(levels_queued, junctions, 1, preceding,
-                                            visited);
-    assign_powerbank_value(init.first, powerbanks[0]);
-
-    int next_level = init.second;
-    int distance = 1;
-    iter_0 temp_level;
+    push_into_queue(levels_queued, junctions, 1, preceding, visited, distances,
+                    powerbanks);
+ //   int shortest_distance = 0;//-1;//0;
     //log("after first");
-    int found_dist = 0; //0;  //TODO -1 powoduje runtime error
+    //int found_dist = 0; //0;  //TODO -1 powoduje runtime error
+//    int shortest_distance = -1;
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
+//        shortest_distance = 0;
 
-        if (!visited[next_junc]) {
-            //cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
-            visited[next_junc] = true;
-            temp_level = push_into_queue_without_0(levels_queued, junctions,
-                                                   next_junc, preceding, visited);
-            //log("ass");
-            if (next_junc == num_junctions) found_dist = distance;  //TODO tested outside with -1, there's something wrong
-            assign_powerbank_value(temp_level.first, powerbanks[distance]);
-            //log("died");
-            if (next_level == next_junc) {
-                if (temp_level.second != -1) next_level = temp_level.second;
-                else next_level = -1;
-
-                distance++;
-            } else if (next_level == -1) {
-                if (temp_level.second != -1) next_level = temp_level.second;
-            }
-        }
+        //cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
+        push_into_queue(levels_queued, junctions, next_junc, preceding, visited, distances,
+                        powerbanks);
+        //log("ass");
+    //        if (next_junc == num_junctions) shortest_distance = distances[next_junc];      //found_dist = distance;  //TODO tested outside with -1, there's something wrong
     }
     //log("after while");
     //cout << found_dist << endl;
-    vector<int> shortest_path(found_dist + 1, -1);
+    // TODO: SPRAWDZIĆ CZY JEST POŁACZENIE W OGÓLE OD 1 DO NUM_JUNCTIONS (czy visited = true)++
+    if (!visited[num_junctions]) return vector<int>(1, -1);
+    int shortest_distance = distances[num_junctions];
+//    cout << shortest_distance << endl;
+    vector<int> shortest_path(shortest_distance + 1, -1);
     int cur = num_junctions;
 //    shortest_path.push_back(num_junctions);
 //
@@ -212,9 +198,9 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
 /*
  * found changed to 0, but when it's the case?
  */
-    shortest_path[found_dist] = num_junctions; //TODO THIS PART CAUSES RUNTIME ERROR
-    for (int i = found_dist - 1; i >= 0; i--) {
-        //cout << i <<  endl;
+    shortest_path[shortest_distance] = num_junctions; //TODO THIS PART CAUSES RUNTIME ERROR
+    for (int i = shortest_distance - 1; i >= 0; i--) {
+//        cout << i <<  endl;
         shortest_path[i] = preceding[cur];
         cur = preceding[cur];
     }
@@ -463,20 +449,24 @@ int main() {
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
+    if (shortest_path[0] == -1) {
+        cout << -1 << endl;
+        return 0;
+    }
 //    //TODO without runtime error up to this part
-//
-//    int max_score = -1;
-//    chargers used_chargers;
-//
-//    //print_vec(shortest_path);
-//    //   cout << "here" << endl;
-//    bool is_possible_shortest = if_possible_short_path(shortest_path,
-//                                                       capacity,
-//                                                       forbidden,
-//                                                       junctions, cost,
-//                                                       used_chargers, max_score);
-//
-//    print_result(is_possible_shortest, shortest_path, used_chargers, max_score);
+
+    int max_score = -1;
+    chargers used_chargers;
+
+    //print_vec(shortest_path);
+    //   cout << "here" << endl;
+    bool is_possible_shortest = if_possible_short_path(shortest_path,
+                                                       capacity,
+                                                       forbidden,
+                                                       junctions, cost,
+                                                       used_chargers, max_score);
+
+    print_result(is_possible_shortest, shortest_path, used_chargers, max_score);
 
     return 0;
 }
