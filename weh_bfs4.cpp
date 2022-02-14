@@ -44,7 +44,9 @@ int if_previous_charged[MAX_ROW][MAX_COL]; //[path_length][capacity + 1];
 //przejdź po kolumnach, by znaleźć największe
 //wysstarczy znac numer kolumny - zawsze przejedzam o +1 wzgledem sciezki
 int previous_coordinates[MAX_ROW][MAX_COL];
-int last_charging[MAX_COL];
+int last_prev[MAX_COL];
+int last_if_prev_charged[MAX_COL];
+int if_last_charged[MAX_COL];
 
 
 void log(const char* message) {
@@ -249,11 +251,10 @@ void fill_next_row(int cur_pos, int cur_cap, int capacity, const alarm_values & 
     }
 }
 
-int find_max_row(int path_length, int capacity) {
+int find_max_row(int capacity) {
     int max_cap = -1;
     for (int j = capacity; j >= 0; j--) {
-        if (previous_coordinates[path_length - 1][j] != -1
-            && j > max_cap) {
+        if (last_prev[j] != -1 && j > max_cap) {
             max_cap = j;
             break;
         }
@@ -262,16 +263,15 @@ int find_max_row(int path_length, int capacity) {
     return max_cap;
 }
 
-void find_chargers(int max_cap, vector<int> & chargers, int path_length,
+void find_chargers(int max_cap, vector<int> & chargers, int last_row,
                    const vector<int> & shortest) {
-    int i = path_length - 1;
     int j = max_cap;
 
-    while (i != 0) {
-        if (if_previous_charged[i][j]) chargers.push_back(shortest[i - 1]);
+    while (last_row != 0) {
+        if (if_previous_charged[last_row][j]) chargers.push_back(shortest[last_row - 1]);
 
-        j = previous_coordinates[i][j];
-        i--;
+        j = previous_coordinates[last_row][j];
+        last_row--;
     }
 }
 
@@ -284,6 +284,43 @@ void print_matrix(int path_length, int capacity) {
     }
 }
 
+bool if_short_possible_check_last(int path_length, int capacity) {
+    for (int j = 0; j < capacity + 1; j++) {
+        if (previous_coordinates[path_length - 1][j] != -1) return true;
+    }
+
+    return false;
+}
+
+int handle_last_row(int max_cap, vector<int> & chargers, vector<int> shortest,
+                    int last_row) {
+    if (if_last_charged[max_cap]) chargers.push_back(shortest[last_row]);
+    if (last_if_prev_charged[max_cap]) chargers.push_back(shortest[last_row - 1]);
+
+    return last_prev[max_cap];
+}
+
+void reassign_last_properties_check_if_last_chargeable(const tracks & junctions,
+                                                       const vector<int> & shortest,
+                                                       int last_row, int capacity,
+                                                       const alarm_values & forbidden_values) {
+    int available_power = give_power(junctions, shortest[last_row]);
+    int new_power;
+    for (int j = 0; j < capacity + 1; j++) {
+        if (previous_coordinates[last_row][j] != -1) {
+            if (is_charging_possible(available_power, j, capacity, forbidden_values)) {
+                new_power = j + available_power;
+                last_prev[new_power] = previous_coordinates[last_row][j];
+                last_if_prev_charged[new_power] = if_previous_charged[last_row][j];
+                if_last_charged[new_power] = 1;
+            } else {
+                last_prev[j] = previous_coordinates[last_row][j];
+                last_if_prev_charged[j] = if_previous_charged[last_row][j];
+            }
+        }
+    }
+}
+
 bool if_possible_short_path(const tracks & junctions, const path & shortest,
                           int capacity, int & max_score, const alarm_values & forbidden_values,
                           int cost, vector<int> & chargers) {
@@ -293,7 +330,9 @@ bool if_possible_short_path(const tracks & junctions, const path & shortest,
         for (int j = 0; j < capacity + 1; j++) {
             if_previous_charged[i][j] = 0;
             previous_coordinates[i][j] = -1;
-            last_charging[j] = -1;
+            last_prev[j] = -1;
+            last_if_prev_charged[j] = 0;
+            if_last_charged[j] = 0;
         }
     }
 
@@ -309,22 +348,32 @@ bool if_possible_short_path(const tracks & junctions, const path & shortest,
         }
     }
 
-    print_matrix(path_length, capacity);
+    bool short_possible = if_short_possible_check_last(path_length, capacity);
+    if (!short_possible) return false;
 
-    int max_cap = find_max_row(path_length, capacity);
+//    print_matrix(path_length, capacity);
+//
+//    int max_cap = find_max_row(path_length, capacity);
+//
+//    if (max_cap == -1) return false;
+//
+//    int available_power = give_power(junctions, shortest[path_length - 1]);
+//    if (is_charging_possible(available_power, max_cap, capacity, forbidden_values)) {
+//        log("possible");
+//        chargers.push_back(shortest[path_length - 1]);
+//        max_score = max_cap + available_power;
+//    } else {
+//        max_score = max_cap;
+//    }
+    reassign_last_properties_check_if_last_chargeable(junctions, shortest,
+                                                      path_length - 1, capacity,
+                                                      forbidden_values);
 
-    if (max_cap == -1) return false;
+    int max_cap = find_max_row(capacity);
+    max_score = max_cap;
+    int preceding_last = handle_last_row(max_cap, chargers, shortest, path_length - 1);
 
-    int available_power = give_power(junctions, shortest[path_length - 1]);
-    if (is_charging_possible(available_power, max_cap, capacity, forbidden_values)) {
-        log("possible");
-        chargers.push_back(shortest[path_length - 1]);
-        max_score = max_cap + available_power;
-    } else {
-        max_score = max_cap;
-    }
-
-    find_chargers(max_cap, chargers, path_length, shortest);
+    find_chargers(preceding_last, chargers, path_length - 2, shortest);
 
     return true;
 }
