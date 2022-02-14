@@ -234,6 +234,7 @@ void fill_one_cell(int cur_cap, int cur_pos, int cost, int from, bool from_charg
     if (new_capacity >= 0) {
         previous_coordinates[cur_pos + 1][new_capacity] = from;
         if (from_charging) if_previous_charged[cur_pos + 1][new_capacity] = 1;
+        else if_previous_charged[cur_pos + 1][new_capacity] = 0;
     }
 }
 void fill_next_row(int cur_pos, int cur_cap, int capacity, const alarm_values & forbidden,
@@ -313,10 +314,11 @@ void reassign_last_properties_check_if_last_chargeable(const tracks & junctions,
                 last_prev[new_power] = previous_coordinates[last_row][j];
                 last_if_prev_charged[new_power] = if_previous_charged[last_row][j];
                 if_last_charged[new_power] = 1;
-            } else {
+            } //else {
+
                 last_prev[j] = previous_coordinates[last_row][j];
                 last_if_prev_charged[j] = if_previous_charged[last_row][j];
-            }
+            //}
         }
     }
 }
@@ -324,7 +326,7 @@ void reassign_last_properties_check_if_last_chargeable(const tracks & junctions,
 bool if_possible_short_path(const tracks & junctions, const path & shortest,
                           int capacity, int & max_score, const alarm_values & forbidden_values,
                           int cost, vector<int> & chargers) {
-    int path_length = shortest.size();
+    int path_length = (int)shortest.size();
 
     for (int i = 0; i < path_length; i++) {
         for (int j = 0; j < capacity + 1; j++) {
@@ -348,6 +350,7 @@ bool if_possible_short_path(const tracks & junctions, const path & shortest,
         }
     }
 
+    //print_matrix(path_length, capacity);
     bool short_possible = if_short_possible_check_last(path_length, capacity);
     if (!short_possible) return false;
 
@@ -383,7 +386,10 @@ void print_chargers_reverse(chargers used_chargers) {
     for (chargers::reverse_iterator riter = used_chargers.rbegin(); riter != used_chargers.rend(); riter++) {
         cout << *riter << " ";
     }
-
+//    int chargers_size = (int)used_chargers.size();
+//    for (int i = chargers_size - 1; i >= 0; i-- ) {
+//        cout << used_chargers[i] << " ";
+//    }
     cout << endl;
 }
 
@@ -426,8 +432,12 @@ int main() {
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
-    print_set(forbidden);
-    print_map(junctions);
+    //print_set(forbidden);
+    //print_map(junctions);
+
+//    cout << "2 1 1\n1 " << num_junctions << "\n" << num_junctions << endl;
+//    return 0;
+
     if (shortest_path[0] == -1) {
         cout << -1 << endl;
         return 0;
