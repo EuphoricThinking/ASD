@@ -129,7 +129,7 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
     adjacent_junctions adj_junc = found_junc->second.first;
     int size = (int)adj_junc.size();
 
-    int first_not_visited = 0;
+    int first_not_visited = size;//0;
     for (int i = 0; i < size; i++) {
         if (!visited[adj_junc[i]]) {
             first_not_visited = i;
@@ -144,7 +144,7 @@ iter_0 push_into_queue_without_0(queue<int> & levels, tracks & junctions, int nu
         }
     }
     //log("after all");
-    if (size >= 1) return make_pair(found_junc, adj_junc[first_not_visited]);
+    if (size > first_not_visited) return make_pair(found_junc, adj_junc[first_not_visited]); //size >= 1
     else return make_pair(found_junc, -1);
 }
 
@@ -170,7 +170,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int distance = 1;
     iter_0 temp_level;
     //log("after first");
-    int found_dist = 0; //0;
+    int found_dist = 0; //0;  //TODO -1 powoduje runtime error
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
@@ -461,7 +461,7 @@ int main() {
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
-    //TODO without runtime error up to this part
+//    //TODO without runtime error up to this part
 //
 //    int max_score = -1;
 //    chargers used_chargers;
