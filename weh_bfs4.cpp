@@ -1,9 +1,3 @@
-//
-// Created by heheszek on 14.02.2022.
-//
-//
-// Created by heheszek on 13.02.2022.
-//
 #include <iostream>
 #include <unordered_set>
 #include <unordered_map>
@@ -27,8 +21,6 @@ using alarm_values = std::unordered_set<int>;
 using powerbank_value = int;
 using junction_number = int;
 using adjacent_junctions = vector<int>;
-using distance = int;
-//using adjacent_and_powerbanks = tuple<adjacent_junctions, powerbank_value>;
 using adjacent_and_powerbanks = pair<adjacent_junctions, powerbank_value>;
 using tracks = std::unordered_map<junction_number, adjacent_and_powerbanks>;
 using available_power = vector<int>;
@@ -111,7 +103,6 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
 
     for (int i = 0; i < num_of_roads; i++) {
         cin >> road_in >> road_out;
-        //cout << "roads " << i << endl;
         insert_into_map(road_in, road_out, junctions);
         insert_into_map(road_out, road_in, junctions);
     }
@@ -119,7 +110,6 @@ alarm_values read_data(tracks &junctions, int &capacity, int &cost,
     int power_value;
     for (int i = 0; i < num_of_junctions; i++) {
         cin >> power_value;
-        //cout << "pow " << power_value << " " << i << endl;
         powerbanks.push_back(power_value);
     }
 
@@ -168,44 +158,19 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
 
     push_into_queue(levels_queued, junctions, 1, preceding, visited, distances,
                     powerbanks);
-    //   int shortest_distance = 0;//-1;//0;
-    //log("after first");
-    //int found_dist = 0; //0;  //TODO -1 powoduje runtime error
-//    int shortest_distance = -1;
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
-//        shortest_distance = 0;
 
-        //cout << next_junc << " next_level: " << next_level << " dist: " << distance << endl;
         push_into_queue(levels_queued, junctions, next_junc, preceding, visited, distances,
                         powerbanks);
-        //log("ass");
-        //        if (next_junc == num_junctions) shortest_distance = distances[next_junc];      //found_dist = distance;  //TODO tested outside with -1, there's something wrong
     }
-    //log("after while");
-    //cout << found_dist << endl;
-    // TODO: SPRAWDZIĆ CZY JEST POŁACZENIE W OGÓLE OD 1 DO NUM_JUNCTIONS (czy visited = true)++
     if (!visited[num_junctions]) return vector<int>(1, -1);
     int shortest_distance = distances[num_junctions];
-//    cout << shortest_distance << endl;
     vector<int> shortest_path(shortest_distance + 1, -1);
     int cur = num_junctions;
-//    shortest_path.push_back(num_junctions);
-//
-//    while (cur != 1) {
-//        shortest_path.push_back(preceding[cur]);
-//        cur = preceding[cur];
-//    }
-//
-//    std::reverse(shortest_path.begin(), shortest_path.end());
-
-/*
- * found changed to 0, but when it's the case?
- */
-    shortest_path[shortest_distance] = num_junctions; //TODO THIS PART CAUSES RUNTIME ERROR
+    shortest_path[shortest_distance] = num_junctions;
     for (int i = shortest_distance - 1; i >= 0; i--) {
-//        cout << i <<  endl;
         shortest_path[i] = preceding[cur];
         cur = preceding[cur];
     }
@@ -354,20 +319,6 @@ bool if_possible_short_path(const tracks & junctions, const path & shortest,
     bool short_possible = if_short_possible_check_last(path_length, capacity);
     if (!short_possible) return false;
 
-//    print_matrix(path_length, capacity);
-//
-//    int max_cap = find_max_row(path_length, capacity);
-//
-//    if (max_cap == -1) return false;
-//
-//    int available_power = give_power(junctions, shortest[path_length - 1]);
-//    if (is_charging_possible(available_power, max_cap, capacity, forbidden_values)) {
-//        log("possible");
-//        chargers.push_back(shortest[path_length - 1]);
-//        max_score = max_cap + available_power;
-//    } else {
-//        max_score = max_cap;
-//    }
     reassign_last_properties_check_if_last_chargeable(junctions, shortest,
                                                       path_length - 1, capacity,
                                                       forbidden_values);
@@ -386,10 +337,7 @@ void print_chargers_reverse(chargers used_chargers) {
     for (chargers::reverse_iterator riter = used_chargers.rbegin(); riter != used_chargers.rend(); riter++) {
         cout << *riter << " ";
     }
-//    int chargers_size = (int)used_chargers.size();
-//    for (int i = chargers_size - 1; i >= 0; i-- ) {
-//        cout << used_chargers[i] << " ";
-//    }
+
     cout << endl;
 }
 
@@ -428,27 +376,18 @@ int main() {
     alarm_values forbidden = read_data(junctions, capacity, cost, disallowed,
                                        num_junctions, num_roads, powerbanks);
 
-    //shortest path - RUNTIME ERROR
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
-    //print_set(forbidden);
-    //print_map(junctions);
-
-//    cout << "2 1 1\n1 " << num_junctions << "\n" << num_junctions << endl;
-//    return 0;
 
     if (shortest_path[0] == -1) {
         cout << -1 << endl;
         return 0;
     }
-//    //TODO without runtime error up to this part
 
     int max_score = -1;
     chargers used_chargers;
 
-    //print_vec(shortest_path);
-    //   cout << "here" << endl;
     bool is_possible_shortest = if_possible_short_path(junctions, shortest_path,
                                                        capacity, max_score,
                                                        forbidden, cost,
