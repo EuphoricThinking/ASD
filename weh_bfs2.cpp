@@ -170,7 +170,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
     int distance = 1;
     iter_0 temp_level;
     //log("after first");
-    int found_dist = 0;
+    int found_dist = 0; //0;
     while (!levels_queued.empty()) {
         int next_junc = levels_queued.front();
         levels_queued.pop();
@@ -181,7 +181,7 @@ vector<int> find_shortest_path_assign_powerbank_values(tracks & junctions,
             temp_level = push_into_queue_without_0(levels_queued, junctions,
                                                    next_junc, preceding, visited);
             //log("ass");
-            if (next_junc == num_junctions) found_dist = distance;
+            if (next_junc == num_junctions) found_dist = distance;  //TODO tested outside with -1, there's something wrong
             assign_powerbank_value(temp_level.first, powerbanks[distance]);
             //log("died");
             if (next_level == next_junc) {
@@ -461,6 +461,7 @@ int main() {
     vector<int> shortest_path = find_shortest_path_assign_powerbank_values(junctions,
                                                                            num_junctions,
                                                                            powerbanks);
+    //TODO without runtime error up to this part
 //
 //    int max_score = -1;
 //    chargers used_chargers;
