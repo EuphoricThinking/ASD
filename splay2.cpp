@@ -101,6 +101,7 @@ public:
     }
 
     void N(int l, int r) {
+        cout << "\nN\n" << endl;
         int result = _find_maximum_length(l, r);
         cout << "Look at me bitch I'm here " << result << "\n";
     }
@@ -716,6 +717,7 @@ private:
         Node* to_root = _search_index(initial_root, index);
         //cout << to_root->residue << endl;
         while (to_root->parent) {
+            //cout << "Still have parent: " << to_root->parent->residue << endl;
             Node* grandpa = to_root->parent->parent;
             Node* daddy = to_root->parent;
        /*     cout << "\n" << endl;
@@ -747,7 +749,7 @@ private:
             }
         }
 
- //       cout << "splay found: " << to_root->residue << " root " << root->residue << endl;
+        //cout << "splay found: " << to_root->residue << " root " << root->residue << endl;
 
         return to_root;
     }
@@ -767,8 +769,9 @@ private:
     //    _print_tree(left_middle, 0);
 
         //cout << "splay index " << right - left << endl;
+        //cout << left_middle->residue << endl;
         Node* middle_right = _splay(right - left + 1, left_middle);
-    //    cout << "after middle_right" << endl;
+        //cout << "after middle_right" << endl;
         Node *right_root = middle_right->right;
         Node* middle_root = middle_right;
       //  _print_tree(middle_right,0);
@@ -823,10 +826,11 @@ private:
 
     /*  shape  /   /   \    */
     void _translocate(int l, int r, int ins) {
-  //      cout << "beftrans" << endl;
+        //cout << "\nbeftrans\n" << endl;
     //    _print_tree(root, 0);
+
         triplet three_roots = _split_into_three(l, r, root);
-      //  cout << "trans" << endl;
+        //cout << "aft triplets\n" << endl;
         Node* left_root = get<0>(three_roots);
         Node* middle_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
@@ -857,74 +861,85 @@ private:
         } */
         Node* new_block = _join(left_root, right_root, NULL);
 
+        if (!middle_root) {
+            root = new_block;
+
+            return;
+        } else if (!new_block) {
+            root = middle_root;
+
+            return;
+        }
       //  cout << "\n\nnew block" << endl;
        // _print_tree(new_block,0);
         int merged_segment_length = _count_nodes(new_block);
-        Node *to_insert = _splay(ins, new_block);
+        //cout << "TRANS" << endl;
 
-        /*cout << "toinsl" << endl;
-        _print_tree(to_insert->left, 0);
-        cout << "toins" << endl;
-        _print_tree(to_insert,0); */
+        Node *to_insert = _splay(ins - 1, new_block); //ins
 
-        if (ins != merged_segment_length + 1) {
+        if (ins == 1) {
+            Node* from_right_middle = _splay(_count_nodes(middle_root), middle_root);
+            to_insert->left = from_right_middle;
+            from_right_middle->parent = to_insert;
+            _update(to_insert);
 
-
-            if (!to_insert->left) {
-                middle_root->right = to_insert;
-
-                to_insert->parent = middle_root;
-                _update(middle_root);
-
-                root = middle_root;
-            } else {
-                Node *left_attach = to_insert->left;
-                to_insert->left = NULL;
-                left_attach->parent = NULL;
-                _update(to_insert);
-
-                middle_root->right = to_insert;
-                to_insert->parent = middle_root;
-                _update(middle_root);
-
-                Node *to_attach = _splay(1, middle_root);
-                to_attach->left = left_attach;
-                left_attach->parent = to_attach;
-                _update(to_attach);
-
-                root = to_attach;
-            }
+            root = to_insert;
         } else {
-            Node *to_attach = _splay(1, middle_root);
-            to_attach->left = to_insert;
-            to_insert->parent = to_attach;
-            _update(to_attach);
-            root = to_attach;
+            Node* from_left_middle = _splay(1, middle_root);
+            Node* temp_right = to_insert->right;
+
+            to_insert->right = from_left_middle;
+            from_left_middle->parent = to_insert;
+            _update(to_insert);
+
+            if (temp_right) {
+                Node* from_right_merged = _splay(_count_nodes(to_insert), to_insert);
+                from_right_merged->right = temp_right;
+                temp_right->parent = from_right_merged;
+                _update(from_right_merged);
+
+                root = from_right_merged;
+            } else {
+                root = to_insert;
+            }
         }
-
-
-//        if (left_root == NULL && right_root) {
-//            Node* rightmost = _splay(right_root->count, right_root);
-//            rightmost->right = middle_root;
-//            middle_root->parent = rightmost;
-//            _update(rightmost);
-//            root = rightmost;
-//        } else if (left_root && !right_root) {
-//            Node* leftmost_middle = _splay(1, middle_root);
-//            leftmost_middle->left = left_root;
-//            left_root->parent = leftmost_middle;
-//            _update(leftmost_middle);
-//            root = leftmost_middle;
-//        } else if (!left_root && !right_root) {
-//            root = middle_root;
-//        } else {  //left_root && right_root
-//            right_root->left = left_root;
-//            left_root->parent = right_root;
-//            _update(right_root);
+        //cout << "done" <<endl;
 //
-//            Node* rightmost = _splay(right_root->count, right_root);
+//        if (ins != merged_segment_length + 1) {
 //
+//
+//            if (!to_insert->left) {
+//                middle_root->right = to_insert;
+//
+//                to_insert->parent = middle_root;
+//                _update(middle_root);
+//
+//                root = middle_root;
+//            } else {
+//                Node *left_attach = to_insert->left;
+//                to_insert->left = NULL;
+//                left_attach->parent = NULL;
+//                _update(to_insert);
+//
+//                middle_root->right = to_insert;
+//                to_insert->parent = middle_root;
+//                _update(middle_root);
+//
+//                Node *to_attach = _splay(1, middle_root);
+//                to_attach->left = left_attach;
+//                left_attach->parent = to_attach;
+//                _update(to_attach);
+//
+//                root = to_attach;
+//            }
+//        } else {
+//            Node *to_attach = _splay(1, middle_root);
+//            to_attach->left = to_insert;
+//            to_insert->parent = to_attach;
+//            _update(to_attach);
+//            root = to_attach;
 //        }
+
     }
 
     void _swap(Node* cur) {
@@ -971,10 +986,11 @@ private:
 
     /* shape /   /\ */
     int _find_maximum_length(int l, int r) {
- //       cout << "BFRE" << endl;
+        //cout << "BFRE" << endl;
    //     _print_tree(root, 0);
+        //cout << root->residue << " " << l << " " << r << endl;
         triplet three_roots = _split_into_three(l, r, root);
-   //     cout << "truplets found " << endl;
+        //cout << "truplets found " << endl;
         Node* left_root = get<0>(three_roots);
         Node* interval_root = get<1>(three_roots);
         Node* right_root = get<2>(three_roots);
@@ -982,7 +998,7 @@ private:
         _print_tree(left_root, 0);
         cout << "interval" << endl;
         _print_tree(interval_root, 0);
-*/
+*/      //cout << "get res" << endl;
         int result = interval_root->max_sequence_length;
         Node* final_root = _join(left_root, interval_root, right_root);
         root = final_root;
@@ -1014,6 +1030,7 @@ private:
             } else {
                // cout << "bef" << endl;  //TODO prints out
                //_print_tree(root, 0);
+               //cout <<"\nN\n" << endl;
                 int result = _find_maximum_length(j, k);
                // cout << "aft" << endl;
                // _print_tree(root, 0);
@@ -1021,6 +1038,7 @@ private:
               //  cout << "!!!" << result << "???";
               cout << result << endl;
             }
+            //_print_sequence(root);
         }
     }
 };
@@ -1038,6 +1056,8 @@ int main(void) {
 //    result.print_tree(); //TODO prints out
 //    cout << "\n";
     result.execute_commands(com, num_commands);
+    result.splay(1);
+    //result.P(1, 2, 4);
 /*   result.insert_sequence(dna, word_length);
     result.print_sequence();
     //result.print_tree();
