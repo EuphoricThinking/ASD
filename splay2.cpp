@@ -433,7 +433,7 @@ private:
                         cur_root->suffix_length = right_child->suffix_length;
                         cur_root->suffix_residue = right_child->suffix_residue;
                         cur_root->max_sequence_length = max(cur_root->prefix_length,
-                                                            cur_root->suffix_length);
+                                                            right_child->max_sequence_length);
                     }
                     else if (right_child->is_suffix_prefix_equal) { //ososbno prefiks lwewgo | sufiks lewego + korzeń + prefiksosufiks prawegp
                         cur_root->is_suffix_prefix_equal = false;
@@ -442,7 +442,7 @@ private:
                         cur_root->suffix_residue = cur_root->residue;
                         cur_root->prefix_length = left_child->prefix_length;
                         cur_root->prefix_residue = left_child->prefix_residue;
-                        cur_root->max_sequence_length = max(cur_root->prefix_length,
+                        cur_root->max_sequence_length = max(left_child->max_sequence_length,
                                                             cur_root->suffix_length);
                     }
                     else { //osobno prefiks lewego | sufiks lewego + korzeń + prefiks prawego | osobono sufiks praweo
@@ -454,8 +454,8 @@ private:
                         int middle = left_child->suffix_length + 1 +
                                 right_child->prefix_length;
                         cur_root->max_sequence_length =
-                                _max_of_three(cur_root->prefix_length, middle,
-                                              cur_root->suffix_length);
+                                _max_of_three(left_child->max_sequence_length, middle,
+                                              right_child->max_sequence_length);
                     }
                 }
                 else if (left_child->suffix_residue == cur_root->residue) { //zgadza się lewt
@@ -467,9 +467,8 @@ private:
                             cur_root->suffix_residue = right_child->suffix_residue;
                             cur_root->suffix_length = right_child->suffix_length;
                             cur_root->max_sequence_length =
-                                    _max_of_three(cur_root->prefix_length,
-                                                  cur_root->suffix_length,
-                                                  right_child->prefix_length);
+                                    max(cur_root->prefix_length,
+                                        right_child->max_sequence_length);
                         }
                         else { // prefiks lewego | sufiks lewego + korzeń | prefiks prawego | sufiks lewego
                             cur_root->prefix_length = left_child->prefix_length;
@@ -478,9 +477,9 @@ private:
                             cur_root->suffix_residue = right_child->suffix_residue;
                             int middle = left_child->suffix_length + 1;
                             cur_root->max_sequence_length =
-                                    _max_of_four(cur_root->prefix_length,
-                                                 middle, right_child->prefix_length,
-                                                 cur_root->suffix_length);
+                                    _max_of_three(left_child->max_sequence_length,
+                                                  middle,
+                                                  right_child->max_sequence_length);
                         }
                 }
                 else if (right_child->prefix_residue == cur_root->residue) { //zgadza się prawy
@@ -492,9 +491,8 @@ private:
                         cur_root->prefix_length = left_child->prefix_length;
                         cur_root->prefix_residue = left_child->prefix_residue;
                         cur_root->max_sequence_length =
-                                _max_of_three(cur_root->prefix_length,
-                                              left_child->suffix_length,
-                                              cur_root->suffix_length);
+                                max(cur_root->suffix_length,
+                                    left_child->max_sequence_length);
                     }
                     else {  // prefiks lewego | sufiks lewego | korzeń + prefiks orawego | sufiks prawego
                         cur_root->prefix_length = left_child->prefix_length;
@@ -503,9 +501,9 @@ private:
                         cur_root->suffix_residue = right_child->suffix_residue;
                         int middle = right_child->prefix_length + 1;
                         cur_root->max_sequence_length =
-                                _max_of_four(cur_root->prefix_length,
-                                             left_child->suffix_length,
-                                             middle, cur_root->suffix_length);
+                                _max_of_three(left_child->max_sequence_length,
+                                              middle,
+                                              right_child->max_sequence_length);
                     }
                 }
                 else { //żaden nie zgasza się
@@ -515,11 +513,8 @@ private:
                     cur_root->suffix_length = right_child->suffix_length;
                     cur_root->suffix_residue = right_child->suffix_residue;
                     cur_root->max_sequence_length =
-                            _max_of_five(cur_root->prefix_length,
-                                         left_child->suffix_length, 1,
-                                         right_child->prefix_length,
-                                         cur_root->suffix_length);
-
+                            max(left_child->max_sequence_length,
+                                right_child->max_sequence_length);
                 }
             }
             else if (left_child) { //istnieje tylko lewy
@@ -541,7 +536,7 @@ private:
                         cur_root->prefix_length = left_child->prefix_length;
                         cur_root->prefix_residue = left_child->prefix_residue;
                         cur_root->max_sequence_length =
-                                max(cur_root->prefix_length, cur_root->suffix_length);
+                                max(left_child->max_sequence_length, cur_root->suffix_length);
                     }
                 }
                 else {  //nie zgadza się lewy
@@ -550,9 +545,7 @@ private:
                     cur_root->suffix_residue = cur_root->residue;
                     cur_root->prefix_length = left_child->prefix_length;
                     cur_root->prefix_residue = left_child->prefix_residue;
-                    cur_root->max_sequence_length =
-                            _max_of_three(cur_root->prefix_length,
-                                          left_child->suffix_length, 1);
+                    cur_root->max_sequence_length = left_child->max_sequence_length;
                 }
             }
             else if (right_child) { //istnieje tylko prawy
@@ -564,7 +557,7 @@ private:
                         cur_root->suffix_length = right_child->suffix_length + 1;
                         cur_root->suffix_residue = cur_root->residue;
                         cur_root->prefix_length = cur_root->suffix_length;
-                        cur_root->suffix_residue = cur_root->prefix_residue;
+                        cur_root->prefix_residue = cur_root->suffix_residue;
                         cur_root->max_sequence_length = cur_root->prefix_length;
                     }
                     else { //korzeń + prefiks prawego | sufiks prawego
@@ -574,7 +567,7 @@ private:
                         cur_root->suffix_length = right_child->suffix_length;
                         cur_root->suffix_residue = right_child->suffix_residue;
                         cur_root->max_sequence_length =
-                                max(cur_root->prefix_length, right_child->suffix_length);
+                                max(cur_root->prefix_length, right_child->max_sequence_length);
                     }
                 }
                 else { //nie zgadza się prawy; korzeń | prefiks prawego | sufiks lewego
@@ -583,9 +576,7 @@ private:
                     cur_root->prefix_residue = cur_root->residue;
                     cur_root->suffix_length = right_child->suffix_length;
                     cur_root->suffix_residue = right_child->suffix_residue;
-                    cur_root->max_sequence_length =
-                            _max_of_three(1, right_child->prefix_length,
-                                          cur_root->suffix_length);
+                    cur_root->max_sequence_length = right_child->max_sequence_length;
                 }
             }
         }
@@ -1067,7 +1058,7 @@ private:
     }
 };
 
-int main(void) {
+int main() {
     int word_length;
     int num_commands;
     commands com;
@@ -1081,6 +1072,7 @@ int main(void) {
 //    cout << "\n";
     result.print_sequence();
     result.execute_commands(com, num_commands);
+    result.print_tree();
 
 //    result.splay(1);
 //    result.print_sequence();
