@@ -184,7 +184,8 @@ private:
         << "\n\n";
     }
 
-    void _update_segment_length(Node* cur_root) {
+    //Previous version
+    void _update_segment_length2(Node* cur_root) {
         if (cur_root != NULL) {
             Node *left_child = cur_root->left;
             Node *right_child = cur_root->right;
@@ -345,6 +346,65 @@ private:
                     cur_root->suffix_length = right_child->suffix_length;
                     cur_root->suffix_residue = right_child->suffix_residue;
                     cur_root->is_suffix_prefix_equal = false;
+                }
+            }
+        }
+    }
+
+    /*
+     * char residue;
+        int count;
+
+        int max_sequence_length;
+        int prefix_length;
+        int suffix_length;
+        char prefix_residue;
+        char suffix_residue;
+        bool is_suffix_prefix_equal;
+
+        struct Node *left;
+        struct Node *right;
+        struct Node *parent;
+     */
+    void _update_segment_length(Node* cur_root) {
+        if (cur_root != NULL) {
+            Node *left_child = cur_root->left;
+            Node *right_child = cur_root->right;
+
+            if (!left_child && !right_child) {
+                cur_root->max_sequence_length = 1;
+                cur_root->prefix_length = 1;
+                cur_root->suffix_length = 1;
+                cur_root->prefix_residue = cur_root->residue;
+                cur_root->suffix_residue = cur_root->residue;
+                cur_root->is_suffix_prefix_equal = true;
+            }
+            else if (left_child && right_child) {
+
+                if (left_child->suffix_residue == cur_root->residue
+                    && right_child->prefix_residue == cur_root->residue) { //Wszystkie trzy zgadzają się
+
+                    if (left_child->is_suffix_prefix_equal
+                        && right_child->is_suffix_prefix_equal) {
+
+                        cur_root->is_suffix_prefix_equal = true;
+                        cur_root->max_sequence_length =
+                                left_child->prefix_length + right_child->prefix_length + 1;
+                        cur_root->prefix_length = cur_root->max_sequence_length;
+                        cur_root->suffix_length = cur_root->max_sequence_length;
+                        cur_root->prefix_residue = cur_root->residue;
+                        cur_root->suffix_residue = cur_root->residue;
+                    }
+                    else if (left_child->is_suffix_prefix_equal) { //cały lewy, korzeń, prefiks prawego
+                        cur_root->is_suffix_prefix_equal = false;
+                        cur_root->prefix_length = left_child->prefix_length + 1
+                                + right_child->prefix_length;
+                        cur_root->prefix_residue = cur_root->residue;
+                        cur_root->suffix_length = right_child->suffix_length;
+                        cur_root->suffix_residue = right_child->suffix_residue;
+                        cur_root->max_sequence_length = max(cur_root->prefix_length,
+                                                            cur_root->suffix_length);
+                    }
                 }
             }
         }
@@ -707,7 +767,8 @@ private:
             _swap_top_down(cur->left);
            // _swap(cur);
             _swap_top_down(cur->right);
-            _update_segment_length(cur);
+         //   _update_segment_length(cur);  //TODO change to update
+            _update(cur);
         }
     }
 
@@ -777,11 +838,11 @@ private:
             } else if (type_command == 'P') {
                 _translocate(j, k, l);
             } else {
-                cout << "bef" << endl;
-               _print_tree(root, 0);
+               // cout << "bef" << endl;  //TODO prints out
+               //_print_tree(root, 0);
                 int result = _find_maximum_length(j, k);
-                cout << "aft" << endl;
-                _print_tree(root, 0);
+               // cout << "aft" << endl;
+               // _print_tree(root, 0);
 //                cout << "\n\n";
               //  cout << "!!!" << result << "???";
               cout << result << endl;
@@ -800,8 +861,8 @@ int main(void) {
 
     DNAzer result;
     result.insert_sequence(dna, word_length);
-    result.print_tree();
-    cout << "\n";
+//    result.print_tree(); //TODO prints out
+//    cout << "\n";
     result.execute_commands(com, num_commands);
 /*   result.insert_sequence(dna, word_length);
     result.print_sequence();

@@ -1,4 +1,5 @@
 #!/bin/bash
 
-g++ -Wall -Wextra -Werror weh_bfs4.cpp
-./a.out <test_weh.in
+#g++ -Wall -Wextra -Werror splay2.cpp
+g++ splay2.cpp
+./a.out <din1.in
