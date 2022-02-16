@@ -54,6 +54,18 @@ string read_input(int &word_length, int &num_commands, commands &com) {
     return dna_code;
 }
 
+void print_commands(commands com) {
+    for (commands::iterator iter = com.begin(); iter != com.end(); iter++) {
+        cout << get<0>(*iter) << "|" << get<1>(*iter) << "|"
+             << get<2>(*iter) << "|" << get<3>(*iter) << "//";
+    }
+}
+
+void print_command(command com) {
+    cout << get<0>(com) << " " << get<1>(com) << " "
+         << get<2>(com) << " " << get<3>(com) << endl;
+}
+
 class DNAzer {
 public:
     void insert(char res, int index) {
@@ -62,8 +74,9 @@ public:
 
     void insert_sequence(string seq, int seq_length) {
         for (int i = 0; i < seq_length; i++) {
-            _insert(root, seq[i], i + 1, NULL); //without +1
-            _insert(reverse, seq[seq_length - i], i + 1, NULL);
+            root = _insert(root, seq[i], i + 1, NULL); //without +1
+            cout << "\nREV\n" << seq[seq_length - i - 1] << " " << i << endl;
+            reverse = _insert(reverse, seq[seq_length - i - 1], i + 1, NULL);
         }
     }
 
@@ -74,7 +87,7 @@ public:
 
     void print_both_sequences() {
         _print_sequence(root);
-        cout << endl;
+        cout << "\nREV\n";
         _print_sequence(reverse);
         cout << endl;
     }
@@ -359,7 +372,7 @@ private:
         }
 
         int left_nodes = _count_nodes(current->left);
-        //cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
+        cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
             // cout << "here" << endl;
             current->left = _insert(current->left, res, index, current);
@@ -413,20 +426,38 @@ private:
 
             //print_command(to_execute);
             if (type_command == 'O') {
-                _reverse(j, k);
+     //           _reverse(j, k);
             } else if (type_command == 'P') {
-                _translocate(j, k, l);
+      //          _translocate(j, k, l);
             } else {
                 // cout << "bef" << endl;  //TODO prints out
                 //_print_tree(root, 0);
                 //cout <<"\nN\n" << endl;
-                int result = _find_maximum_length(j, k);
+      //          int result = _find_maximum_length(j, k); //TODO uncomment
                 // cout << "aft" << endl;
                 // _print_tree(root, 0);
 //                cout << "\n\n";
                 //  cout << "!!!" << result << "???";
-                cout << result << endl;
+       //         cout << result << endl;  //TODO uncomment
             }
         }
     }
 };
+
+int main() {
+    int word_length;
+    int num_commands;
+    commands com;
+    string dna = read_input(word_length, num_commands, com);
+//    cout << word_length << "|" << num_commands;
+    //  print_commands(com);
+
+    DNAzer result;
+    result.insert_sequence(dna, word_length);
+//    result.print_tree(); //TODO prints out
+//    cout << "\n";
+    result.print_both_sequences();
+    //result.execute_commands(com, num_commands);
+
+    return 0;
+}
