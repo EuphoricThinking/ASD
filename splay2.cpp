@@ -517,7 +517,69 @@ private:
             }
             else if (left_child) { //istnieje tylko lewy
 
+                if (left_child->suffix_residue == cur_root->residue) { //zgadza się lewy
 
+                    if (left_child->is_suffix_prefix_equal) { //całość
+                        cur_root->is_suffix_prefix_equal = true;
+                        cur_root->prefix_length = left_child->suffix_length + 1;
+                        cur_root->prefix_residue = cur_root->residue;
+                        cur_root->suffix_length = cur_root->prefix_length;
+                        cur_root->suffix_residue = cur_root->residue;
+                        cur_root->max_sequence_length = cur_root->prefix_length;
+                    }
+                    else {  //prefiks lewego | sufiks lewego + korzeń
+                        cur_root->is_suffix_prefix_equal = false;
+                        cur_root->suffix_length = left_child->suffix_length + 1;
+                        cur_root->suffix_residue = cur_root->residue;
+                        cur_root->prefix_length = left_child->prefix_length;
+                        cur_root->prefix_residue = left_child->prefix_residue;
+                        cur_root->max_sequence_length =
+                                max(cur_root->prefix_length, cur_root->suffix_length);
+                    }
+                }
+                else {  //nie zgadza się lewy
+                    cur_root->is_suffix_prefix_equal = false;
+                    cur_root->suffix_length = 1;
+                    cur_root->suffix_residue = cur_root->residue;
+                    cur_root->prefix_length = left_child->prefix_length;
+                    cur_root->prefix_residue = left_child->prefix_residue;
+                    cur_root->max_sequence_length =
+                            _max_of_three(cur_root->prefix_length,
+                                          left_child->suffix_length, 1);
+                }
+            }
+            else if (right_child) { //istnieje tylko prawy
+
+                if (right_child->prefix_residue == cur_root->residue) { //zgadza się prawy
+
+                    if (right_child->is_suffix_prefix_equal) { //całość
+                        cur_root->is_suffix_prefix_equal = true;
+                        cur_root->suffix_length = right_child->suffix_length + 1;
+                        cur_root->suffix_residue = cur_root->residue;
+                        cur_root->prefix_length = cur_root->suffix_length;
+                        cur_root->suffix_residue = cur_root->prefix_residue;
+                        cur_root->max_sequence_length = cur_root->prefix_length;
+                    }
+                    else { //korzeń + prefiks prawego | sufiks prawego
+                        cur_root->is_suffix_prefix_equal = false;
+                        cur_root->prefix_length = right_child->prefix_length + 1;
+                        cur_root->prefix_residue = cur_root->residue;
+                        cur_root->suffix_length = right_child->suffix_length;
+                        cur_root->suffix_residue = right_child->suffix_residue;
+                        cur_root->max_sequence_length =
+                                max(cur_root->prefix_length, right_child->suffix_length);
+                    }
+                }
+                else { //nie zgadza się prawy; korzeń | prefiks prawego | sufiks lewego
+                    cur_root->is_suffix_prefix_equal = false;
+                    cur_root->prefix_length = 1;
+                    cur_root->prefix_residue = cur_root->residue;
+                    cur_root->suffix_length = right_child->suffix_length;
+                    cur_root->suffix_residue = right_child->suffix_residue;
+                    cur_root->max_sequence_length =
+                            _max_of_three(1, right_child->prefix_length,
+                                          cur_root->suffix_length);
+                }
             }
         }
     }
