@@ -370,6 +370,10 @@ private:
         return max(a, max(b, c));
     }
 
+    int _max_of_four(int a, int b, int c, int d) {
+        return max(a, _max_of_three(b, c, d));
+    }
+
     void _assign_prefix_suffix_max(Node* cur) {
         cur->max_sequence_length = max(cur->prefix_length, cur->suffix_length);
     }
@@ -404,7 +408,7 @@ private:
 
                         cur_root->is_suffix_prefix_equal = true;
                         cur_root->max_sequence_length =
-                                left_child->prefix_length + right_child->prefix_length + 1;
+                                left_child->suffix_length + right_child->prefix_length + 1;
                         cur_root->prefix_length = cur_root->max_sequence_length;
                         cur_root->suffix_length = cur_root->max_sequence_length;
                         cur_root->prefix_residue = cur_root->residue;
@@ -412,7 +416,7 @@ private:
                     }
                     else if (left_child->is_suffix_prefix_equal) { //cały lewy, korzeń, prefiks prawego | osobno sufiks prawego
                         cur_root->is_suffix_prefix_equal = false;
-                        cur_root->prefix_length = left_child->prefix_length + 1
+                        cur_root->prefix_length = left_child->suffix_length + 1
                                 + right_child->prefix_length;
                         cur_root->prefix_residue = cur_root->residue;
                         cur_root->suffix_length = right_child->suffix_length;
@@ -422,7 +426,7 @@ private:
                     }
                     else if (right_child->is_suffix_prefix_equal) { //ososbno prefiks lwewgo | sufiks lewego + korzeń + prefiksosufiks prawegp
                         cur_root->is_suffix_prefix_equal = false;
-                        cur_root->suffix_length = right_child->suffix_length + 1
+                        cur_root->suffix_length = right_child->prefix_length + 1
                                 + left_child->suffix_length;
                         cur_root->suffix_residue = cur_root->residue;
                         cur_root->prefix_length = left_child->prefix_length;
@@ -446,26 +450,33 @@ private:
                 else if (left_child->suffix_residue == cur_root->residue) { //zgadza się lewt
                         cur_root->is_suffix_prefix_equal = false;
 
-                        if (left_child->is_suffix_prefix_equal) {
+                        if (left_child->is_suffix_prefix_equal) { //cały lewy + korzeń | prefiks prawego | sufiks prawego
                             cur_root->prefix_residue = cur_root->residue;
                             cur_root->prefix_length = left_child->suffix_length + 1;
                             cur_root->suffix_residue = right_child->suffix_residue;
                             cur_root->suffix_length = right_child->suffix_length;
-                            _assign_prefix_suffix_max(cur_root);
+                            cur_root->max_sequence_length =
+                                    _max_of_three(cur_root->prefix_length,
+                                                  cur_root->suffix_length,
+                                                  right_child->prefix_length);
                         }
-                        else {
+                        else { // prefiks lewego | sufiks lewego + korzeń | prefiks prawego | sufiks lewego
                             cur_root->prefix_length = left_child->prefix_length;
                             cur_root->prefix_residue = left_child->prefix_residue;
                             cur_root->suffix_length = right_child->suffix_length;
                             cur_root->suffix_residue = right_child->suffix_residue;
-                            _assign_prefix_suffix_max(cur_root);
+                            int middle = left_child->suffix_length + 1;
+                            cur_root->max_sequence_length =
+                                    _max_of_four(cur_root->prefix_length,
+                                                 middle, right_child->prefix_length,
+                                                 cur_root->suffix_length);
                         }
                 }
-                else if (right_child->prefix_residue == cur_root->residue) {
+                else if (right_child->prefix_residue == cur_root->residue) { //zgadza się prawy
                     cur_root->is_suffix_prefix_equal = false;
 
                     if (right_child->is_suffix_prefix_equal) {
-                        
+
                     }
                 }
             }
