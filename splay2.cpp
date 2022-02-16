@@ -374,6 +374,10 @@ private:
         return max(a, _max_of_three(b, c, d));
     }
 
+    int _max_of_five(int a, int b, int c, int d, int e) {
+        return max(a, _max_of_four(b, c, d, e));
+    }
+
     void _assign_prefix_suffix_max(Node* cur) {
         cur->max_sequence_length = max(cur->prefix_length, cur->suffix_length);
     }
@@ -475,15 +479,43 @@ private:
                 else if (right_child->prefix_residue == cur_root->residue) { //zgadza się prawy
                     cur_root->is_suffix_prefix_equal = false;
 
-                    if (right_child->is_suffix_prefix_equal) {
-
+                    if (right_child->is_suffix_prefix_equal) {  //prefiks lewego | sufiks lewego | korzeń + cały prawy
+                        cur_root->suffix_length = right_child->prefix_length + 1;
+                        cur_root->suffix_residue = cur_root->residue;
+                        cur_root->prefix_length = left_child->prefix_length;
+                        cur_root->prefix_residue = left_child->prefix_residue;
+                        cur_root->max_sequence_length =
+                                _max_of_three(cur_root->prefix_length,
+                                              left_child->suffix_length,
+                                              cur_root->suffix_length);
+                    }
+                    else {  // prefiks lewego | sufiks lewego | korzeń + prefiks orawego | sufiks prawego
+                        cur_root->prefix_length = left_child->prefix_length;
+                        cur_root->prefix_residue = left_child->prefix_residue;
+                        cur_root->suffix_length = right_child->suffix_length;
+                        cur_root->suffix_residue = right_child->suffix_residue;
+                        int middle = right_child->prefix_length + 1;
+                        cur_root->max_sequence_length =
+                                _max_of_four(cur_root->prefix_length,
+                                             left_child->suffix_length,
+                                             middle, cur_root->suffix_length);
                     }
                 }
+                else { //żaden nie zgasza się
+                    cur_root->is_suffix_prefix_equal = false;
+                    cur_root->prefix_length = left_child->prefix_length;
+                    cur_root->prefix_residue = left_child->prefix_residue;
+                    cur_root->suffix_length = right_child->suffix_length;
+                    cur_root->suffix_residue = right_child->suffix_residue;
+                    cur_root->max_sequence_length =
+                            _max_of_five(cur_root->prefix_length,
+                                         left_child->suffix_length, 1,
+                                         right_child->prefix_length,
+                                         cur_root->suffix_length);
+
+                }
             }
-
-
-
-            else if (left_child) {
+            else if (left_child) { //istnieje tylko lewy
 
 
             }
