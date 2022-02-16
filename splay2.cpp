@@ -461,6 +461,13 @@ private:
                             _assign_prefix_suffix_max(cur_root);
                         }
                 }
+                else if (right_child->prefix_residue == cur_root->residue) {
+                    cur_root->is_suffix_prefix_equal = false;
+
+                    if (right_child->is_suffix_prefix_equal) {
+                        
+                    }
+                }
             }
 
 
