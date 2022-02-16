@@ -14,6 +14,7 @@
 #include <vector>
 #include <tuple>
 
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -65,6 +66,11 @@ void print_commands(commands com) {
         cout << get<0>(*iter) << "|" << get<1>(*iter) << "|"
              << get<2>(*iter) << "|" << get<3>(*iter) << "//";
     }
+}
+
+void print_command(command com) {
+    cout << get<0>(com) << " " << get<1>(com) << " "
+         << get<2>(com) << " " << get<3>(com) << endl;
 }
 
 class DNAzer {
@@ -1023,7 +1029,9 @@ private:
             int k = get<2>(to_execute);
             int l = get<3>(to_execute);
 
+            print_command(to_execute);
             if (type_command == 'O') {
+
                 _reverse(j, k);
             } else if (type_command == 'P') {
                 _translocate(j, k, l);
@@ -1038,7 +1046,23 @@ private:
               //  cout << "!!!" << result << "???";
               cout << result << endl;
             }
-            //_print_sequence(root);
+            cout << "r " << _count_nodes(root) << endl;
+            _print_sequence(root);
+            cout << endl;
+            for (int i = 1; i <= _count_nodes(root)/10; i++) {
+                for (int j = 1; j < 10; j++ ) {
+                    cout << j;
+                }
+                cout << 1;
+            }
+            cout << endl;
+            for (int i = 0; i <= _count_nodes(root)/10; i++) {
+                cout << i;
+                for (int j = 1; j < 10; j++) {
+                    cout << " ";
+                }
+            }
+            cout << "\n\n";
         }
     }
 };
@@ -1055,8 +1079,14 @@ int main(void) {
     result.insert_sequence(dna, word_length);
 //    result.print_tree(); //TODO prints out
 //    cout << "\n";
+    result.print_sequence();
     result.execute_commands(com, num_commands);
-    result.splay(1);
+
+//    result.splay(1);
+//    result.print_sequence();
+//    result.P(1,2,4);
+//    result.print_sequence();
+
     //result.P(1, 2, 4);
 /*   result.insert_sequence(dna, word_length);
     result.print_sequence();
