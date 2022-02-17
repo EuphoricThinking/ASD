@@ -95,9 +95,9 @@ public:
 //        _print_tree(root, 0);
 //    }
 //
-//    void splay(int index) {
-//        _splay(index, root);
-//    }
+    void splay(int index, bool is_root) {
+        _splay(index, root);
+    }
 //
 //    void P(int l, int r, int k) {
 //        _translocate(l, r, k);
@@ -428,6 +428,55 @@ private:
 
         cur->parent = left_child;
     }
+
+    Node* _find_index(Node* cur, int index) {
+        Node* left_child = cur->left;
+        Node* right_child = cur->right;
+
+        if (left_child == NULL && right_child == NULL) {
+            return cur;
+        }
+
+        //cout << "imhere" << endl;
+        if (index <= _count_nodes(left_child)) {
+            return _find_index(left_child, index);
+        } else if ((index == (_count_nodes(left_child) + 1))
+                   || index == 0) {
+            //    cout << "found " << cur->residue << endl;
+            return cur;
+        } else {
+            return _find_index(right_child, index - 1 -
+                                              _count_nodes(left_child));
+        }
+    }
+
+    void _splay(int index, Node* initial_root, bool is_root) {
+        Node* cur = _find_index(initial_root, index);
+
+        while (cur->parent) {
+            if (!cur->parent->parent) {
+                if (cur->parent->left == cur) _right_rotate(cur->parent, is_root);
+                else _left_rotate(cur->parent, is_root);
+            }
+            else if (cur->parent->left == cur && cur->parent->parent->left == cur->parent) {
+                _right_rotate(cur->parent->parent, is_root);
+                _right_rotate(cur->parent, is_root);
+            }
+            else if (cur->parent->right == cur && cur->parent->parent->right == cur->parent) {
+                _left_rotate(cur->parent->parent, is_root);
+                _left_rotate(cur->parent, is_root);
+            }
+            else if (cur->parent->left == cur && cur->parent->parent->right == cur->parent) {
+                _right_rotate(cur->parent, is_root);
+                _left_rotate(cur->parent, is_root);
+            } else {
+                _left_rotate(cur->parent, is_root);
+                _right_rotate(cur->parent, is_root);
+            }
+        }
+    }
+
+
     void _print_sequence(Node* current) {
         if (current != NULL) {
             _print_sequence(current->left);
