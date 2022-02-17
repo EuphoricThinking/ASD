@@ -29,7 +29,6 @@ using commands = vector<command>;
 string read_input(int &word_length, int &num_commands, commands &com) {
     string dna_code;
     cin >> word_length >> num_commands >> dna_code;
-    // cout << word_length << " " << num_commands << "\n" << dna_code << endl;
 
     char type_of_command;
     int temp_index1;
@@ -71,23 +70,12 @@ public:
         root = _insert(root, res, index - 1, NULL); //without -1
     }
 
-//    void insert_sequence(string seq, int seq_length) {
-//        for (int i = 0; i < seq_length; i++) {
-//            root = _insert(root, seq[i], i + 1, NULL); //without +1
-//            reverse = _insert(reverse, seq[seq_length - i - 1], i + 1, NULL);
-//        }
-//    }
     void insert_sequence(string seq, int seq_length) {
-//        root = new Node(seq[0]);
-//        reverse = new Node(seq[seq_length - 1]);
-//        Node* last_root = root;
-//        Node* last_reverse = reverse;
         Node* last_root = new Node(seq[seq_length - 1]);
         Node* last_reverse = new Node(seq[0]);
         Node* higher_root;
         Node* higher_reverse;
         for (int i = seq_length - 2; i >= 0; i--) {
-            //cout << i << " " << seq[i] << endl;
             higher_root = new Node(seq[i]);
             higher_reverse = new Node(seq[seq_length - i - 1]);
 
@@ -117,7 +105,6 @@ public:
 
     void print_both_sequences() {
         _print_sequence(root);
-        //cout << "\nREV\n";
         _print_sequence_with_indexes();
         _print_sequence(reverse);
         cout << endl;
@@ -127,10 +114,6 @@ public:
         else cout << _count_nodes(reverse) << endl;
     }
 
-//    void print_tree() {
-//        _print_tree(root, 0);
-//    }
-//
     void print_diagnostics() {
         _print_sequence_with_indexes();
     }
@@ -141,7 +124,6 @@ public:
         } else {
             int reverse_index = _get_reverse_index(index,
                                                    _count_nodes(reverse));
-            cout << "REVINDEX\n" << reverse_index << endl;
             _splay(reverse_index, reverse, is_root);
         }
     }
@@ -153,12 +135,6 @@ public:
     void O(int l, int r) {
         _reverse(l, r);
     }
-//
-//    void N(int l, int r) {
-//        cout << "\nN\n" << endl;
-//        int result = _find_maximum_length(l, r);
-//        cout << "Look at me bitch I'm here " << result << "\n";
-//    }
 
     void execute_commands(commands com, int num_commands) {
         _execute_commands(com, num_commands);
@@ -168,11 +144,8 @@ private:
     struct Node {
         char residue;
         int count;
-        //int height;
 
-        //   char max_adjacent_residue;
         int max_sequence_length;
-        //   char last_residue;
         int prefix_length;
         int suffix_length;
         char prefix_residue;
@@ -185,8 +158,6 @@ private:
 
         Node(char _residue) : residue(_residue), count(1), left(NULL),
                               right(NULL), parent(NULL),
-                // max_adjacent_residue(residue),
-                // last_residue(residue),
                               max_sequence_length(1),
                               prefix_length(1),
                               suffix_length(1),
@@ -432,14 +403,11 @@ private:
         if (current == NULL) {
             Node* newborn = new Node(res);
             newborn->parent = parent;
-            //return new Node(res);
             return newborn;
         }
 
         int left_nodes = _count_nodes(current->left);
-//        cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
-            // cout << "here" << endl;
             current->left = _insert(current->left, res, index, current);
         } else {
             current->right = _insert(current->right, res,
@@ -447,7 +415,6 @@ private:
         }
 
         _update(current);
-        //       _update_segment_length(current);
 
         return current;
     }
@@ -461,7 +428,6 @@ private:
             right_child->parent = cur->parent;
         }
 
-        //if (!cur->parent) root = right_child;
         if (!cur->parent) {
             if (is_root) root = right_child;
             else reverse = right_child;
@@ -515,12 +481,10 @@ private:
             return cur;
         }
 
-        //cout << "imhere " << cur->residue << " ind: " << index << " " << cur->count << endl;
         if (index <= _count_nodes(left_child)) {
             return _find_index(left_child, index);
         } else if ((index == (_count_nodes(left_child) + 1))
                    || index == 0) {
-            //    cout << "found " << cur->residue << endl;
             return cur;
         } else {
             return _find_index(right_child, index - 1 -
@@ -531,10 +495,8 @@ private:
     Node* _splay(int index, Node* initial_root, bool is_root) {
         index = (index > 0 ? index : 1);
         Node* cur = _find_index(initial_root, index);
-        //cout << "into splay " << cur->residue << endl;
 
         while (cur->parent) {
-            //cout << "res " << cur->parent->residue << " " << is_root << endl;
             if (!cur->parent->parent) {
                 if (cur->parent->left == cur) _right_rotate(cur->parent, is_root);
                 else _left_rotate(cur->parent, is_root);
@@ -556,39 +518,21 @@ private:
             }
         }
 
-        //cout << "after splay: " << cur->residue << endl;
         return cur;
     }
 
     triplet _split_into_three(int l, int r, bool is_root) {
-        //Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
         Node* init = (is_root ? root : reverse);
         Node* left_limit = _splay(l, init, is_root);
-        //cout << left_limit->residue << endl;
         Node* left_limit_left_child = left_limit->left;
         left_limit->left = NULL;
         if (left_limit_left_child) left_limit_left_child->parent = NULL;
-        //log("bef update");
-        //cout << _count_nodes(left_limit) << endl;
         _update(left_limit);
-        //log("left limit");
-        //cout << _count_nodes(left_limit) << endl;
-        //_print_sequence(left_limit);
-
-        //Node* right_limit = _find_index(left_limit, r - l + 1);
         Node* right_limit = _splay(r - l + 1, left_limit, is_root);
-        //cout << "left left" << endl;
-        //Node* test_found = _find_index(left_limit, r - l + 1);
-        //_print_sequence(test_found->left);
-        //cout << "\n" << test_found->residue << " " << test_found->count << endl;
-        //log("right limit");
-        //cout << right_limit->residue << " " << r - l + 1 << endl;
-        //_print_sequence(right_limit);
         Node* right_limit_right_child = right_limit->right;
         right_limit->right = NULL;
         if (right_limit_right_child) right_limit_right_child->parent = NULL;
         _update(right_limit);
-        //_print_sequence(right_limit_right_child);
 
         return _create_triplet(left_limit_left_child, right_limit, right_limit_right_child);
     }
@@ -601,7 +545,6 @@ private:
     Node* _join(Node* left_n, Node* right_n, bool is_root) {
         if (left_n && right_n) {
             Node* to_right = _splay(_count_nodes(left_n), left_n, is_root);
-//        Node* to_left = _splay(1, right_n, is_root);
             to_right->right = right_n;
             right_n->parent = to_right;
             _update(to_right);
@@ -628,12 +571,8 @@ private:
         if (!joined_block) {
             _assign_root(is_root, middle);
         } else {
-            //log ("trying to insert");
             int index_to_insert = (is_root ? to - 1 : to);
-            //_print_sequence(joined_block);
-            //cout << "\nindex to insert\n" << index_to_insert << endl;
             Node* to_insert = _splay(index_to_insert, joined_block, is_root);
-            //log("after to insert");
             if (index_to_insert == 0) { //to == 1
                 to_insert->left = middle;
                 if (middle) middle->parent = to_insert;
@@ -656,10 +595,7 @@ private:
         }
     }
     void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
-        //log("entered translocate");
         triplet from = _split_into_three(l, r, is_root);
-        //log("after split");
-        //_print_sequence(from.middle);
         Node* joined_block = _join(from.left, from.right, is_root);
         _insert_tree(from.middle, is_root, to, joined_block);
     }
@@ -717,7 +653,7 @@ private:
                 }
                 cout << 1;
             }
-            cout << endl; //TODO wise tests
+            cout << endl;
             for (int i = 0; i <= _count_nodes(root)/10; i++) {
                 cout << i;
                 for (int j = 1; j < 10; j++) {
@@ -736,17 +672,13 @@ private:
             int k = get<2>(to_execute);
             int l = get<3>(to_execute);
 
-            //print_command(to_execute);
             if (type_command == 'O') {
                 _reverse(j, k);
             } else if (type_command == 'P') {
                 _translocate_both_trees(j, k, l);
             } else {
-                // cout << "bef" << endl;  //TODO prints out
-                //_print_tree(root, 0);
-                //cout <<"\nN\n" << endl;
-                int result = _find_maximal_segment(j, k); //TODO uncomment
-                cout << result << "\n";  //TODO uncomment
+                int result = _find_maximal_segment(j, k);
+                cout << result << "\n";
             }
         }
     }
@@ -760,30 +692,10 @@ int main() {
     int num_commands;
     commands com;
     string dna = read_input(word_length, num_commands, com);
-//    cout << word_length << "|" << num_commands;
-    //  print_commands(com);
 
     DNAzer result;
     result.insert_sequence(dna, word_length);
-
-    //    result.print_tree(); //TODO prints out
-//    cout << "\n";
-    //result.print_both_sequences();
-
     result.execute_commands(com, num_commands);
-
-    //result.splay(16, true);
-    //result.splay(   16, false);
-    //result.print_both_sequences();
-    //cout << "count\n";
-    //result.get_count(true);
-    //result.splay(0, true);
-    //result.print_both_sequences();
-
-    //result.P(1, 4, 2);  //tested k = {1, 56 (max_count), 57, 5}
-    //result.O(2, 8);
-    //result.print_both_sequences();
-    //result.P(3, 12, 60);
 
     return 0;
 }
