@@ -513,14 +513,14 @@ private:
         return cur;
     }
 
-    triplet _split_into_three(Node* init, int l, int r, bool is_root) {
+    triplet _split_into_three(int l, int r, bool is_root) {
         Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
         Node* left_limit_left_child = left_limit->left;
         left_limit->left = NULL;
         left_limit_left_child->parent = NULL;
         _update(left_limit);
 
-        Node* right_limit = _find_index(left_limit, r);
+        Node* right_limit = _find_index(left_limit, r - l + 1);
         Node* right_limit_right_child = right_limit->right;
         right_limit->right = NULL;
         right_limit_right_child->parent = NULL;
@@ -529,7 +529,7 @@ private:
         return _create_triplet(left_limit_left_child, right_limit, right_limit_right_child);
     }
 
-    void _assgin_root(bool is_root, Node* candidate) {
+    void _assign_root(bool is_root, Node* candidate) {
         if (is_root) root = candidate;
         else reverse = candidate;
     }
@@ -542,38 +542,37 @@ private:
             right_n->parent = to_right;
             _update(to_right);
 
-            _assgin_root(is_root, to_right);
+            _assign_root(is_root, to_right);
 
             return to_right;
         } else if (left_n) {
-            _assgin_root(is_root, left_n);
+            _assign_root(is_root, left_n);
 
             return left_n;
         } else {
-            if (right_n) _assgin_root(is_root, right_n);
+            if (right_n) _assign_root(is_root, right_n);
 
             return right_n;
         }
     }
 
     void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
-        triplet from = (is_root ? _split_into_three(root, l, r, is_root)
-                        : _split_into_three(reverse, l, r, is_root));
+        triplet from = _split_into_three(l, r, is_root);
 
         Node* joined_block = _join(from.left, from.right, is_root);
 
         if (!joined_block) {
-            _assgin_root(is_root, from.middle);
+            _assign_root(is_root, from.middle);
         } else {
-            int index_to_insert = ((is_root || to > _count_nodes(joined_block)) ? to - 1 : to);
+            int index_to_insert = (is_root ? to - 1 : to);
             Node* to_insert = _splay(index_to_insert, joined_block, is_root);
 
-            if (to == 1) {
+            if (index_to_insert == 0) { //to == 1
                 to_insert->left = from.middle;
                 if (from.middle) from.middle->parent = to_insert;
                 _update(to_insert);
 
-                _assgin_root(is_root, to_insert);
+                _assign_root(is_root, to_insert);
             } else {
                 Node* to_insert_right_child = to_insert->right;
                 to_insert->right = from.middle;
@@ -585,12 +584,12 @@ private:
                 if (to_insert_right_child) to_insert_right_child->parent = to_merge;
                 _update(to_merge);
 
-                _assgin_root(is_root, to_merge);
+                _assign_root(is_root, to_merge);
             }
         }
     }
 
-    void _translocate_both_trees(int l, int r, int)
+   // void _translocate_both_trees(int l, int r, int)
 
     void _print_sequence(Node* current) {
         if (current != NULL) {
