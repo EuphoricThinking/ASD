@@ -2,4 +2,4 @@
 
 #g++ -Wall -Wextra -Werror splay2.cpp
 g++ splay3_rev.cpp
-./a.out <din3.in
+./a.out <din1.in

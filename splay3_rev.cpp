@@ -87,7 +87,7 @@ public:
         Node* higher_root;
         Node* higher_reverse;
         for (int i = seq_length - 2; i >= 0; i--) {
-            cout << i << " " << seq[i] << endl;
+            //cout << i << " " << seq[i] << endl;
             higher_root = new Node(seq[i]);
             higher_reverse = new Node(seq[seq_length - i - 1]);
 
@@ -693,8 +693,8 @@ private:
     int _find_maximal_segment(int l, int r) {
         triplet intervals = _split_into_three(l, r, true);
         int result = intervals.middle->max_sequence_length;
-        //Node* joined_left = _join(intervals.left, intervals.middle, true);
-        //_join(joined_left, intervals.right, true);
+        Node* joined_left = _join(intervals.left, intervals.middle, true);
+        _join(joined_left, intervals.right, true);
 
         return result;
     }
