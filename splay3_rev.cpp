@@ -71,11 +71,43 @@ public:
         root = _insert(root, res, index - 1, NULL); //without -1
     }
 
+//    void insert_sequence(string seq, int seq_length) {
+//        for (int i = 0; i < seq_length; i++) {
+//            root = _insert(root, seq[i], i + 1, NULL); //without +1
+//            reverse = _insert(reverse, seq[seq_length - i - 1], i + 1, NULL);
+//        }
+//    }
     void insert_sequence(string seq, int seq_length) {
-        for (int i = 0; i < seq_length; i++) {
-            root = _insert(root, seq[i], i + 1, NULL); //without +1
-            reverse = _insert(reverse, seq[seq_length - i - 1], i + 1, NULL);
+//        root = new Node(seq[0]);
+//        reverse = new Node(seq[seq_length - 1]);
+//        Node* last_root = root;
+//        Node* last_reverse = reverse;
+        Node* last_root = new Node(seq[seq_length - 1]);
+        Node* last_reverse = new Node(seq[0]);
+        Node* higher_root;
+        Node* higher_reverse;
+        for (int i = seq_length - 2; i >= 0; i--) {
+            cout << i << " " << seq[i] << endl;
+            higher_root = new Node(seq[i]);
+            higher_reverse = new Node(seq[seq_length - i - 1]);
+
+            higher_root->right = last_root;
+            last_root->parent = higher_root;
+
+            higher_reverse->right = last_reverse;
+            last_reverse->parent = higher_reverse;
+
+            _update(higher_root);
+            _update(higher_reverse);
+
+            last_root = higher_root;
+            last_reverse = higher_reverse;
         }
+
+        root = last_root;
+        root->parent = NULL;
+        reverse = last_reverse;
+        reverse->parent = NULL;
     }
 
     void print_sequence() {
@@ -502,6 +534,7 @@ private:
         //cout << "into splay " << cur->residue << endl;
 
         while (cur->parent) {
+            //cout << "res " << cur->parent->residue << " " << is_root << endl;
             if (!cur->parent->parent) {
                 if (cur->parent->left == cur) _right_rotate(cur->parent, is_root);
                 else _left_rotate(cur->parent, is_root);
@@ -705,15 +738,15 @@ private:
 
             //print_command(to_execute);
             if (type_command == 'O') {
-                //_reverse(j, k);
+                _reverse(j, k);
             } else if (type_command == 'P') {
-                //_translocate_both_trees(j, k, l);
+                _translocate_both_trees(j, k, l);
             } else {
                 // cout << "bef" << endl;  //TODO prints out
                 //_print_tree(root, 0);
                 //cout <<"\nN\n" << endl;
-                //int result = _find_maximal_segment(j, k); //TODO uncomment
-                //cout << result << "\n";  //TODO uncomment
+                int result = _find_maximal_segment(j, k); //TODO uncomment
+                cout << result << "\n";  //TODO uncomment
             }
         }
     }
@@ -731,13 +764,13 @@ int main() {
     //  print_commands(com);
 
     DNAzer result;
-    //result.insert_sequence(dna, word_length);
+    result.insert_sequence(dna, word_length);
 
     //    result.print_tree(); //TODO prints out
 //    cout << "\n";
     //result.print_both_sequences();
 
-    //result.execute_commands(com, num_commands);
+    result.execute_commands(com, num_commands);
 
     //result.splay(16, true);
     //result.splay(   16, false);
