@@ -705,9 +705,9 @@ private:
 
             //print_command(to_execute);
             if (type_command == 'O') {
-     //           _reverse(j, k);
+                _reverse(j, k);
             } else if (type_command == 'P') {
-      //          _translocate(j, k, l);
+                _translocate_both_trees(j, k, l);
             } else {
                 // cout << "bef" << endl;  //TODO prints out
                 //_print_tree(root, 0);
