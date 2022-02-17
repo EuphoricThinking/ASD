@@ -89,6 +89,10 @@ public:
         _print_sequence(reverse);
         cout << endl;
     }
+    void get_count(bool is_root) {
+        if (is_root) cout << _count_nodes(root) << endl;
+        else cout << _count_nodes(reverse) << endl;
+    }
 
 //    void print_tree() {
 //        _print_tree(root, 0);
@@ -435,6 +439,9 @@ private:
         if (right_child) right_child->left = cur;
 
         cur->parent = right_child;
+
+        _update(cur);
+        _update(right_child);
     }
 
     void _right_rotate(Node* cur, bool is_root) {
@@ -475,7 +482,7 @@ private:
             return cur;
         }
 
-        //cout << "imhere" << endl;
+        cout << "imhere " << cur->residue << " ind: " << index << " " << cur->count << endl;
         if (index <= _count_nodes(left_child)) {
             return _find_index(left_child, index);
         } else if ((index == (_count_nodes(left_child) + 1))
@@ -490,6 +497,7 @@ private:
 
     Node* _splay(int index, Node* initial_root, bool is_root) {
         Node* cur = _find_index(initial_root, index);
+        cout << "into splay " << cur->residue << endl;
 
         while (cur->parent) {
             if (!cur->parent->parent) {
@@ -518,17 +526,34 @@ private:
     }
 
     triplet _split_into_three(int l, int r, bool is_root) {
-        Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
+        //Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
+        Node* init = (is_root ? root : reverse);
+        Node* left_limit = _splay(l, init, is_root);
+        cout << left_limit->residue << endl;
         Node* left_limit_left_child = left_limit->left;
         left_limit->left = NULL;
-        left_limit_left_child->parent = NULL;
+        if (left_limit_left_child) left_limit_left_child->parent = NULL;
+        log("bef update");
+        cout << _count_nodes(left_limit) << endl;
         _update(left_limit);
+        log("left limit");
+        cout << _count_nodes(left_limit) << endl;
+        _print_sequence(left_limit);
 
-        Node* right_limit = _find_index(left_limit, r - l + 1);
+        //Node* right_limit = _find_index(left_limit, r - l + 1);
+        Node* right_limit = _splay(r - l + 1, left_limit, is_root);
+        cout << "left left" << endl;
+        Node* test_found = _find_index(left_limit, r - l + 1);
+        _print_sequence(test_found->left);
+        cout << "\n" << test_found->residue << " " << test_found->count << endl;
+        log("right limit");
+        cout << right_limit->residue << " " << r - l + 1 << endl;
+        //_print_sequence(right_limit);
         Node* right_limit_right_child = right_limit->right;
         right_limit->right = NULL;
-        right_limit_right_child->parent = NULL;
+        if (right_limit_right_child) right_limit_right_child->parent = NULL;
         _update(right_limit);
+        _print_sequence(right_limit_right_child);
 
         return _create_triplet(left_limit_left_child, right_limit, right_limit_right_child);
     }
@@ -560,10 +585,21 @@ private:
         }
     }
 
-    void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
-        triplet from = _split_into_three(l, r, is_root);
+    void log(const char* message) {
+        cout << message << endl;
+    }
 
+    void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
+        log("entered translocate");
+        triplet from = _split_into_three(l, r, is_root);
+        log("after split");
+        _print_sequence(from.middle);
         Node* joined_block = _join(from.left, from.right, is_root);
+        log("middle");
+        _print_sequence(from.middle);
+        log("joined");
+        _print_sequence(joined_block);
+        log("should be printed");
 
         if (!joined_block) {
             _assign_root(is_root, from.middle);
@@ -675,6 +711,9 @@ int main() {
     //result.execute_commands(com, num_commands);
     result.splay(16, true);
     result.splay(   16, false);
+    result.print_both_sequences();
+    cout << "count\n";
+    result.get_count(true);
 
     result.P(1, 4, 1);
     result.print_both_sequences();
