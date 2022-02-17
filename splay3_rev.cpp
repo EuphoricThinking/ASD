@@ -496,6 +496,7 @@ private:
     }
 
     Node* _splay(int index, Node* initial_root, bool is_root) {
+        index = (index > 0 ? index : 1);
         Node* cur = _find_index(initial_root, index);
         cout << "into splay " << cur->residue << endl;
 
@@ -529,31 +530,31 @@ private:
         //Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
         Node* init = (is_root ? root : reverse);
         Node* left_limit = _splay(l, init, is_root);
-        cout << left_limit->residue << endl;
+        //cout << left_limit->residue << endl;
         Node* left_limit_left_child = left_limit->left;
         left_limit->left = NULL;
         if (left_limit_left_child) left_limit_left_child->parent = NULL;
-        log("bef update");
-        cout << _count_nodes(left_limit) << endl;
+        //log("bef update");
+        //cout << _count_nodes(left_limit) << endl;
         _update(left_limit);
         log("left limit");
-        cout << _count_nodes(left_limit) << endl;
-        _print_sequence(left_limit);
+        //cout << _count_nodes(left_limit) << endl;
+        //_print_sequence(left_limit);
 
         //Node* right_limit = _find_index(left_limit, r - l + 1);
         Node* right_limit = _splay(r - l + 1, left_limit, is_root);
-        cout << "left left" << endl;
-        Node* test_found = _find_index(left_limit, r - l + 1);
-        _print_sequence(test_found->left);
-        cout << "\n" << test_found->residue << " " << test_found->count << endl;
+        //cout << "left left" << endl;
+        //Node* test_found = _find_index(left_limit, r - l + 1);
+        //_print_sequence(test_found->left);
+        //cout << "\n" << test_found->residue << " " << test_found->count << endl;
         log("right limit");
-        cout << right_limit->residue << " " << r - l + 1 << endl;
+        //cout << right_limit->residue << " " << r - l + 1 << endl;
         //_print_sequence(right_limit);
         Node* right_limit_right_child = right_limit->right;
         right_limit->right = NULL;
         if (right_limit_right_child) right_limit_right_child->parent = NULL;
         _update(right_limit);
-        _print_sequence(right_limit_right_child);
+        //_print_sequence(right_limit_right_child);
 
         return _create_triplet(left_limit_left_child, right_limit, right_limit_right_child);
     }
@@ -604,9 +605,11 @@ private:
         if (!joined_block) {
             _assign_root(is_root, from.middle);
         } else {
+            log ("trying to insert");
             int index_to_insert = (is_root ? to - 1 : to);
+            _print_sequence(joined_block);
             Node* to_insert = _splay(index_to_insert, joined_block, is_root);
-
+            log("after to insert");
             if (index_to_insert == 0) { //to == 1
                 to_insert->left = from.middle;
                 if (from.middle) from.middle->parent = to_insert;
@@ -714,6 +717,8 @@ int main() {
     result.print_both_sequences();
     cout << "count\n";
     result.get_count(true);
+    result.splay(0, true);
+    result.print_both_sequences();
 
     result.P(1, 4, 1);
     result.print_both_sequences();
