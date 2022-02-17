@@ -85,7 +85,8 @@ public:
 
     void print_both_sequences() {
         _print_sequence(root);
-        cout << "\nREV\n";
+        //cout << "\nREV\n";
+        _print_sequence_with_indexes();
         _print_sequence(reverse);
         cout << endl;
     }
@@ -668,7 +669,7 @@ private:
                     cout << " ";
                 }
             }
-            cout << "\n\n";
+            cout << "\n";
     }
 
     void _execute_commands(commands com, int num_commands) {
@@ -722,7 +723,7 @@ int main() {
     result.splay(0, true);
     result.print_both_sequences();
 
-    result.P(1, 4, 57);  //tested k = {1, 56 (max_count)}
+    result.P(55, 60, 1);  //tested k = {1, 56 (max_count), 57, 5}
     result.print_both_sequences();
     //result.P(3, 12, 60);
 
