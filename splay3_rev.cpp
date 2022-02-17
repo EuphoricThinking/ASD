@@ -729,13 +729,14 @@ int main() {
     //result.execute_commands(com, num_commands);
     result.splay(16, true);
     result.splay(   16, false);
-    result.print_both_sequences();
+    //result.print_both_sequences();
     cout << "count\n";
     result.get_count(true);
     result.splay(0, true);
-    result.print_both_sequences();
+    //result.print_both_sequences();
 
-    result.P(1, 4, 2);  //tested k = {1, 56 (max_count), 57, 5}
+    //result.P(1, 4, 2);  //tested k = {1, 56 (max_count), 57, 5}
+    result.O(2, 8);
     result.print_both_sequences();
     //result.P(3, 12, 60);
 
