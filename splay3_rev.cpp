@@ -75,7 +75,6 @@ public:
     void insert_sequence(string seq, int seq_length) {
         for (int i = 0; i < seq_length; i++) {
             root = _insert(root, seq[i], i + 1, NULL); //without +1
-            cout << "\nREV\n" << seq[seq_length - i - 1] << " " << i << endl;
             reverse = _insert(reverse, seq[seq_length - i - 1], i + 1, NULL);
         }
     }
@@ -372,7 +371,7 @@ private:
         }
 
         int left_nodes = _count_nodes(current->left);
-        cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
+//        cout << "index: " << index << " count: " << current->count << " res " << current->residue << endl;
         if (index <= left_nodes) {
             // cout << "here" << endl;
             current->left = _insert(current->left, res, index, current);
@@ -387,6 +386,48 @@ private:
         return current;
     }
 
+    void _left_rotate(Node* cur, bool is_root) {
+        Node* right_child = cur->right;
+
+        if (right_child) {
+            cur->right = right_child->left;
+            if (right_child->left) right_child->left->parent = cur;
+            right_child->parent = cur->parent;
+        }
+
+        //if (!cur->parent) root = right_child;
+        if (!cur->parent) {
+            if (is_root) root = right_child;
+            else reverse = right_child;
+        }
+        else if (cur == cur->parent->left) cur->parent->left = right_child;
+        else cur->parent->right = right_child;
+
+        if (right_child) right_child->left = cur;
+
+        cur->parent = right_child;
+    }
+
+    void _right_rotate(Node* cur, bool is_root) {
+        Node* left_child = cur->left;
+
+        if (left_child) {
+            cur->left = left_child->right;
+            if (left_child->right) left_child->right->parent = cur;
+            left_child->parent = cur->parent;
+        }
+
+        if (!cur->parent) {
+            if (is_root) root = left_child;
+            else reverse = left_child;
+        }
+        else if (cur == cur->parent->left) cur->parent->left = left_child;
+        else cur->parent->right = left_child;
+
+        if (left_child) left_child->right = cur;
+
+        cur->parent = left_child;
+    }
     void _print_sequence(Node* current) {
         if (current != NULL) {
             _print_sequence(current->left);
