@@ -482,7 +482,7 @@ private:
             return cur;
         }
 
-        cout << "imhere " << cur->residue << " ind: " << index << " " << cur->count << endl;
+        //cout << "imhere " << cur->residue << " ind: " << index << " " << cur->count << endl;
         if (index <= _count_nodes(left_child)) {
             return _find_index(left_child, index);
         } else if ((index == (_count_nodes(left_child) + 1))
@@ -498,7 +498,7 @@ private:
     Node* _splay(int index, Node* initial_root, bool is_root) {
         index = (index > 0 ? index : 1);
         Node* cur = _find_index(initial_root, index);
-        cout << "into splay " << cur->residue << endl;
+        //cout << "into splay " << cur->residue << endl;
 
         while (cur->parent) {
             if (!cur->parent->parent) {
@@ -522,7 +522,7 @@ private:
             }
         }
 
-        cout << "after splay: " << cur->residue << endl;
+        //cout << "after splay: " << cur->residue << endl;
         return cur;
     }
 
@@ -537,7 +537,7 @@ private:
         //log("bef update");
         //cout << _count_nodes(left_limit) << endl;
         _update(left_limit);
-        log("left limit");
+        //log("left limit");
         //cout << _count_nodes(left_limit) << endl;
         //_print_sequence(left_limit);
 
@@ -547,7 +547,7 @@ private:
         //Node* test_found = _find_index(left_limit, r - l + 1);
         //_print_sequence(test_found->left);
         //cout << "\n" << test_found->residue << " " << test_found->count << endl;
-        log("right limit");
+        //log("right limit");
         //cout << right_limit->residue << " " << r - l + 1 << endl;
         //_print_sequence(right_limit);
         Node* right_limit_right_child = right_limit->right;
@@ -591,26 +591,26 @@ private:
     }
 
     void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
-        log("entered translocate");
+        //log("entered translocate");
         triplet from = _split_into_three(l, r, is_root);
-        log("after split");
-        _print_sequence(from.middle);
+        //log("after split");
+        //_print_sequence(from.middle);
         Node* joined_block = _join(from.left, from.right, is_root);
-        log("middle");
-        _print_sequence(from.middle);
-        log("joined");
-        _print_sequence(joined_block);
-        log("should be printed");
+        //log("middle");
+        //_print_sequence(from.middle);
+        //log("joined");
+        //_print_sequence(joined_block);
+        //log("should be printed");
 
         if (!joined_block) {
             _assign_root(is_root, from.middle);
         } else {
-            log ("trying to insert");
+            //log ("trying to insert");
             int index_to_insert = (is_root ? to - 1 : to);
-            _print_sequence(joined_block);
-            cout << "\nindex to insert\n" << index_to_insert << endl;
+            //_print_sequence(joined_block);
+            //cout << "\nindex to insert\n" << index_to_insert << endl;
             Node* to_insert = _splay(index_to_insert, joined_block, is_root);
-            log("after to insert");
+            //log("after to insert");
             if (index_to_insert == 0) { //to == 1
                 to_insert->left = from.middle;
                 if (from.middle) from.middle->parent = to_insert;
@@ -640,7 +640,7 @@ private:
         int rev_r = _get_reverse_index(r, rev_length);
         int rev_into = _get_reverse_index(into, rev_length) - (r - l + 1);
         cout << "\nREV TRANS\n";
-        _translocate_in_single_tree(rev_l, rev_r, rev_into, false);
+        _translocate_in_single_tree(rev_r, rev_l, rev_into, false);
     }
 
     void _print_sequence(Node* current) {
