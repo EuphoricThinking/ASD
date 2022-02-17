@@ -722,7 +722,7 @@ int main() {
     result.splay(0, true);
     result.print_both_sequences();
 
-    result.P(1, 4, 1);
+    result.P(1, 4, 57);  //tested k = {1, 56 (max_count)}
     result.print_both_sequences();
     //result.P(3, 12, 60);
 
