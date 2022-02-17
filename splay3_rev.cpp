@@ -117,10 +117,10 @@ public:
     void P(int l, int r, int k) {
         _translocate_both_trees(l, r, k);
     }
-//
-//    void O(int l, int r) {
-//        _reverse(l, r);
-//    }
+
+    void O(int l, int r) {
+        _reverse(l, r);
+    }
 //
 //    void N(int l, int r) {
 //        cout << "\nN\n" << endl;
@@ -639,6 +639,21 @@ private:
         int rev_into = _get_reverse_index(into, rev_length) - (r - l + 1);
         cout << "\nREV TRANS\n";
         _translocate_in_single_tree(rev_r, rev_l, rev_into, false);
+    }
+
+    void _reverse(int l, int r) {
+        triplet from_root = _split_into_three(l, r, true); //First we split
+
+        int reverse_length = _count_nodes(reverse);
+        int rev_l = _get_reverse_index(l, reverse_length);
+        int rev_r = _get_reverse_index(r, reverse_length);
+        triplet from_reverse = _split_into_three(rev_r, rev_l, false);
+
+        Node* joined_root = _join(from_root.left, from_root.right, true);
+        Node* joined_reverse = _join(from_reverse.left, from_reverse.right, false);
+
+        _insert_tree(from_reverse.middle, true, l, joined_root);
+        _insert_tree(from_root.middle, false, rev_r - 1, joined_reverse);
     }
 
     void _print_sequence(Node* current) {
