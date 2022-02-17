@@ -660,8 +660,8 @@ private:
     int _find_maximal_segment(int l, int r) {
         triplet intervals = _split_into_three(l, r, true);
         int result = intervals.middle->max_sequence_length;
-        Node* joined_left = _join(intervals.left, intervals.middle, true);
-        _join(joined_left, intervals.right, true);
+        //Node* joined_left = _join(intervals.left, intervals.middle, true);
+        //_join(joined_left, intervals.right, true);
 
         return result;
     }
@@ -705,25 +705,24 @@ private:
 
             //print_command(to_execute);
             if (type_command == 'O') {
-                _reverse(j, k);
+                //_reverse(j, k);
             } else if (type_command == 'P') {
-                _translocate_both_trees(j, k, l);
+                //_translocate_both_trees(j, k, l);
             } else {
                 // cout << "bef" << endl;  //TODO prints out
                 //_print_tree(root, 0);
                 //cout <<"\nN\n" << endl;
-                int result = _find_maximal_segment(j, k); //TODO uncomment
-                // cout << "aft" << endl;
-                // _print_tree(root, 0);
-//                cout << "\n\n";
-                //  cout << "!!!" << result << "???";
-                cout << result << endl;  //TODO uncomment
+                //int result = _find_maximal_segment(j, k); //TODO uncomment
+                //cout << result << "\n";  //TODO uncomment
             }
         }
     }
 };
 
 int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
     int word_length;
     int num_commands;
     commands com;
@@ -732,11 +731,14 @@ int main() {
     //  print_commands(com);
 
     DNAzer result;
-    result.insert_sequence(dna, word_length);
-//    result.print_tree(); //TODO prints out
+    //result.insert_sequence(dna, word_length);
+
+    //    result.print_tree(); //TODO prints out
 //    cout << "\n";
     //result.print_both_sequences();
-    result.execute_commands(com, num_commands);
+
+    //result.execute_commands(com, num_commands);
+
     //result.splay(16, true);
     //result.splay(   16, false);
     //result.print_both_sequences();
