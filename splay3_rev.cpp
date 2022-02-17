@@ -432,12 +432,21 @@ private:
             if (is_root) root = left_child;
             else reverse = left_child;
         }
-        else if (cur == cur->parent->left) cur->parent->left = left_child;
-        else cur->parent->right = left_child;
+        else if (cur == cur->parent->left) {
+            cur->parent->left = left_child;
+            _update(cur->parent);
+        }
+        else {
+            cur->parent->right = left_child;
+            _update(cur->parent);
+        }
 
         if (left_child) left_child->right = cur;
 
         cur->parent = left_child;
+
+        _update(cur);
+        _update(left_child);
     }
 
     Node* _find_index(Node* cur, int index) {
