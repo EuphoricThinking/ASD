@@ -96,7 +96,14 @@ public:
 //    }
 //
     void splay(int index, bool is_root) {
-        _splay(index, root);
+        if (is_root) {
+            _splay(index, root, is_root);
+        } else {
+            int reverse_index = _get_reverse_index(index,
+                                                   _count_nodes(reverse));
+            cout << "REVINDEX\n" << reverse_index << endl;
+            _splay(reverse_index, reverse, is_root);
+        }
     }
 //
 //    void P(int l, int r, int k) {
@@ -159,6 +166,10 @@ private:
 
     char _get_residue(Node *current) {
         return current->residue;
+    }
+
+    int _get_reverse_index(int normal_index, int tree_length) {
+        return tree_length - normal_index + 1;
     }
 
     void _update(Node *current) {
@@ -474,6 +485,8 @@ private:
                 _right_rotate(cur->parent, is_root);
             }
         }
+
+        cout << "after splay: " << cur->residue << endl;
     }
 
 
@@ -548,6 +561,8 @@ int main() {
 //    cout << "\n";
     result.print_both_sequences();
     //result.execute_commands(com, num_commands);
+    result.splay(16, true);
+    result.splay(   16, false);
 
     return 0;
 }
