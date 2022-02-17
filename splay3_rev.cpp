@@ -94,6 +94,10 @@ public:
 //        _print_tree(root, 0);
 //    }
 //
+    void print_diagnostics() {
+        _print_sequence_with_indexes();
+    }
+
     void splay(int index, bool is_root) {
         if (is_root) {
             _splay(index, root, is_root);
@@ -104,10 +108,10 @@ public:
             _splay(reverse_index, reverse, is_root);
         }
     }
-//
-//    void P(int l, int r, int k) {
-//        _translocate(l, r, k);
-//    }
+
+    void P(int l, int r, int k) {
+        _translocate_both_trees(l, r, k);
+    }
 //
 //    void O(int l, int r) {
 //        _reverse(l, r);
@@ -589,7 +593,14 @@ private:
         }
     }
 
-   // void _translocate_both_trees(int l, int r, int)
+    void _translocate_both_trees(int l, int r, int into) {
+        _translocate_in_single_tree(l, r, into, true);
+        int rev_length = _count_nodes(reverse);
+        int rev_l = _get_reverse_index(l, rev_length);
+        int rev_r = _get_reverse_index(r, rev_length);
+        int rev_into = _get_reverse_index(into, rev_length);
+        _translocate_in_single_tree(rev_l, rev_r, rev_into, false);
+    }
 
     void _print_sequence(Node* current) {
         if (current != NULL) {
@@ -664,6 +675,10 @@ int main() {
     //result.execute_commands(com, num_commands);
     result.splay(16, true);
     result.splay(   16, false);
+
+    result.P(1, 4, 1);
+    result.print_both_sequences();
+    //result.P(3, 12, 60);
 
     return 0;
 }
