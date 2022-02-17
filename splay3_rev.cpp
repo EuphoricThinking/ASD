@@ -164,7 +164,7 @@ private:
         Node* right;
     } triplet;
 
-    triplet create_triplet(Node* left_n, Node* middle_n, Node* right_n) {
+    triplet _create_triplet(Node* left_n, Node* middle_n, Node* right_n) {
         triplet result;
         result.left = left_n;
         result.middle = middle_n;
@@ -512,6 +512,28 @@ private:
         return cur;
     }
 
+    triplet _split_into_three(Node* init, int l, int r, bool is_root) {
+        Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
+        Node* left_limit_left_child = left_limit->left;
+
+        Node* right_limit = _find_index(left_limit, r);
+        Node* right_limit_right_child = right_limit->right;
+
+        return _create_triplet(left_limit_left_child, right_limit, right_limit_right_child);
+    }
+
+    Node* _join(Node* left_n, Node* right_n, bool is_root) {
+        Node* to_right = _splay(_count_nodes(left_n), left_n, is_root);
+//        Node* to_left = _splay(1, right_n, is_root);
+        to_right->right = right_n;
+        right_n->parent = to_right;
+        _update(to_right);
+
+        if (is_root) root = to_right;
+        else reverse = to_right;
+        
+        return to_right;
+    }
 
     void _print_sequence(Node* current) {
         if (current != NULL) {
