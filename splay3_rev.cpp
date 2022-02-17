@@ -633,11 +633,12 @@ private:
 
     void _translocate_both_trees(int l, int r, int into) {
         _translocate_in_single_tree(l, r, into, true);
+
         int rev_length = _count_nodes(reverse);
         int rev_l = _get_reverse_index(l, rev_length);
         int rev_r = _get_reverse_index(r, rev_length);
         int rev_into = _get_reverse_index(into, rev_length) - (r - l + 1);
-        cout << "\nREV TRANS\n";
+        //cout << "\nREV TRANS\n";
         _translocate_in_single_tree(rev_r, rev_l, rev_into, false);
     }
 
@@ -654,6 +655,15 @@ private:
 
         _insert_tree(from_reverse.middle, true, l, joined_root);
         _insert_tree(from_root.middle, false, rev_r - 1, joined_reverse);
+    }
+
+    int _find_maximal_segment(int l, int r) {
+        triplet intervals = _split_into_three(l, r, true);
+        int result = intervals.middle->max_sequence_length;
+        Node* joined_left = _join(intervals.left, intervals.middle, true);
+        _join(joined_left, intervals.right, true);
+
+        return result;
     }
 
     void _print_sequence(Node* current) {
@@ -702,12 +712,12 @@ private:
                 // cout << "bef" << endl;  //TODO prints out
                 //_print_tree(root, 0);
                 //cout <<"\nN\n" << endl;
-      //          int result = _find_maximum_length(j, k); //TODO uncomment
+                int result = _find_maximal_segment(j, k); //TODO uncomment
                 // cout << "aft" << endl;
                 // _print_tree(root, 0);
 //                cout << "\n\n";
                 //  cout << "!!!" << result << "???";
-       //         cout << result << endl;  //TODO uncomment
+                cout << result << endl;  //TODO uncomment
             }
         }
     }
@@ -725,19 +735,19 @@ int main() {
     result.insert_sequence(dna, word_length);
 //    result.print_tree(); //TODO prints out
 //    cout << "\n";
-    result.print_both_sequences();
-    //result.execute_commands(com, num_commands);
-    result.splay(16, true);
-    result.splay(   16, false);
     //result.print_both_sequences();
-    cout << "count\n";
-    result.get_count(true);
-    result.splay(0, true);
+    result.execute_commands(com, num_commands);
+    //result.splay(16, true);
+    //result.splay(   16, false);
+    //result.print_both_sequences();
+    //cout << "count\n";
+    //result.get_count(true);
+    //result.splay(0, true);
     //result.print_both_sequences();
 
-    //result.P(1, 4, 2);  //tested k = {1, 56 (max_count), 57, 5}
+    result.P(1, 4, 2);  //tested k = {1, 56 (max_count), 57, 5}
     result.O(2, 8);
-    result.print_both_sequences();
+    //result.print_both_sequences();
     //result.P(3, 12, 60);
 
     return 0;
