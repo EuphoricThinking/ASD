@@ -24,7 +24,6 @@ using std::pair;
 
 using command = tuple<char, int, int, int>;
 using commands = vector<command>;
-using interval = pair<int, int>;
 
 
 string read_input(int &word_length, int &num_commands, commands &com) {
@@ -159,10 +158,12 @@ private:
     struct Node *reverse = NULL;
 
     typedef struct {
-        Node* left,
-        Node* middle,
+        Node* left;
+        Node* middle;
         Node* right;
     } triplet;
+
+    using pair_nodes = pair<Node*, Node*>;
 
     triplet _create_triplet(Node* left_n, Node* middle_n, Node* right_n) {
         triplet result;
@@ -515,24 +516,77 @@ private:
     triplet _split_into_three(Node* init, int l, int r, bool is_root) {
         Node* left_limit = (is_root ? _find_index(root, l) : _find_index(reverse, l));
         Node* left_limit_left_child = left_limit->left;
+        left_limit->left = NULL;
+        left_limit_left_child->parent = NULL;
+        _update(left_limit);
 
         Node* right_limit = _find_index(left_limit, r);
         Node* right_limit_right_child = right_limit->right;
+        right_limit->right = NULL;
+        right_limit_right_child->parent = NULL;
+        _update(right_limit);
 
         return _create_triplet(left_limit_left_child, right_limit, right_limit_right_child);
     }
 
-    Node* _join(Node* left_n, Node* right_n, bool is_root) {
-        Node* to_right = _splay(_count_nodes(left_n), left_n, is_root);
-//        Node* to_left = _splay(1, right_n, is_root);
-        to_right->right = right_n;
-        right_n->parent = to_right;
-        _update(to_right);
+    void _assgin_root(bool is_root, Node* candidate) {
+        if (is_root) root = candidate;
+        else reverse = candidate;
+    }
 
-        if (is_root) root = to_right;
-        else reverse = to_right;
-        
-        return to_right;
+    Node* _join(Node* left_n, Node* right_n, bool is_root) {
+        if (left_n && right_n) {
+            Node* to_right = _splay(_count_nodes(left_n), left_n, is_root);
+//        Node* to_left = _splay(1, right_n, is_root);
+            to_right->right = right_n;
+            right_n->parent = to_right;
+            _update(to_right);
+
+            _assgin_root(is_root, to_right);
+
+            return to_right;
+        } else if (left_n) {
+            _assgin_root(is_root, left_n);
+
+            return left_n;
+        } else {
+            if (right_n) _assgin_root(is_root, right_n);
+
+            return right_n;
+        }
+    }
+
+    void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
+        triplet from = (is_root ? _split_into_three(root, l, r, is_root)
+                        : _split_into_three(reverse, l, r, is_root));
+
+        Node* joined_block = _join(from.left, from.right, is_root);
+
+        if (!joined_block) {
+            _assgin_root(is_root, from.middle);
+        } else {
+            Node* to_insert = _splay(to - 1, joined_block, is_root);
+
+            if (to == 1) {
+                to_insert->left = from.middle;
+                if (from.middle) from.middle->parent = to_insert;
+                _update(to_insert);
+
+                _assgin_root(is_root, to_insert);
+            } else {
+                Node* to_insert_right_child = to_insert->right;
+                to_insert->right = from.middle;
+                if (from.middle) from.middle->parent = to_insert;
+                _update(to_insert);
+
+                Node* to_merge = _splay(_count_nodes(to_insert), to_insert, is_root);
+                to_merge->right = to_insert_right_child;
+                if (to_insert_right_child) to_insert_right_child->parent = to_merge;
+                _update(to_merge);
+
+                _assgin_root(is_root, to_merge);
+            }
+        }
     }
 
     void _print_sequence(Node* current) {
