@@ -565,8 +565,8 @@ private:
         if (!joined_block) {
             _assgin_root(is_root, from.middle);
         } else {
-            int index_to_insert = (is_root ? to - 1 : to);
-            Node* to_insert = _splay(to - 1, joined_block, is_root);
+            int index_to_insert = ((is_root || to > _count_nodes(joined_block)) ? to - 1 : to);
+            Node* to_insert = _splay(index_to_insert, joined_block, is_root);
 
             if (to == 1) {
                 to_insert->left = from.middle;
