@@ -608,6 +608,7 @@ private:
             log ("trying to insert");
             int index_to_insert = (is_root ? to - 1 : to);
             _print_sequence(joined_block);
+            cout << "\nindex to insert\n" << index_to_insert << endl;
             Node* to_insert = _splay(index_to_insert, joined_block, is_root);
             log("after to insert");
             if (index_to_insert == 0) { //to == 1
@@ -637,7 +638,8 @@ private:
         int rev_length = _count_nodes(reverse);
         int rev_l = _get_reverse_index(l, rev_length);
         int rev_r = _get_reverse_index(r, rev_length);
-        int rev_into = _get_reverse_index(into, rev_length);
+        int rev_into = _get_reverse_index(into, rev_length) - (r - l + 1);
+        cout << "\nREV TRANS\n";
         _translocate_in_single_tree(rev_l, rev_r, rev_into, false);
     }
 
