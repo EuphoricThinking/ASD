@@ -591,20 +591,9 @@ private:
         cout << message << endl;
     }
 
-    void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
-        //log("entered translocate");
-        triplet from = _split_into_three(l, r, is_root);
-        //log("after split");
-        //_print_sequence(from.middle);
-        Node* joined_block = _join(from.left, from.right, is_root);
-        //log("middle");
-        //_print_sequence(from.middle);
-        //log("joined");
-        //_print_sequence(joined_block);
-        //log("should be printed");
-
+    void _insert_tree(Node* middle, bool is_root, int to, Node* joined_block) {
         if (!joined_block) {
-            _assign_root(is_root, from.middle);
+            _assign_root(is_root, middle);
         } else {
             //log ("trying to insert");
             int index_to_insert = (is_root ? to - 1 : to);
@@ -613,15 +602,15 @@ private:
             Node* to_insert = _splay(index_to_insert, joined_block, is_root);
             //log("after to insert");
             if (index_to_insert == 0) { //to == 1
-                to_insert->left = from.middle;
-                if (from.middle) from.middle->parent = to_insert;
+                to_insert->left = middle;
+                if (middle) middle->parent = to_insert;
                 _update(to_insert);
 
                 _assign_root(is_root, to_insert);
             } else {
                 Node* to_insert_right_child = to_insert->right;
-                to_insert->right = from.middle;
-                if (from.middle) from.middle->parent = to_insert;
+                to_insert->right = middle;
+                if (middle) middle->parent = to_insert;
                 _update(to_insert);
 
                 Node* to_merge = _splay(_count_nodes(to_insert), to_insert, is_root);
@@ -632,6 +621,14 @@ private:
                 _assign_root(is_root, to_merge);
             }
         }
+    }
+    void _translocate_in_single_tree(int l, int r, int to, bool is_root) {
+        //log("entered translocate");
+        triplet from = _split_into_three(l, r, is_root);
+        //log("after split");
+        //_print_sequence(from.middle);
+        Node* joined_block = _join(from.left, from.right, is_root);
+        _insert_tree(from.middle, is_root, to, joined_block);
     }
 
     void _translocate_both_trees(int l, int r, int into) {
@@ -723,7 +720,7 @@ int main() {
     result.splay(0, true);
     result.print_both_sequences();
 
-    result.P(55, 60, 1);  //tested k = {1, 56 (max_count), 57, 5}
+    result.P(1, 4, 2);  //tested k = {1, 56 (max_count), 57, 5}
     result.print_both_sequences();
     //result.P(3, 12, 60);
 
