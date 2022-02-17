@@ -158,7 +158,20 @@ private:
     struct Node *root = NULL;
     struct Node *reverse = NULL;
 
-    using triplet = tuple<Node *, Node *, Node *>;
+    typedef struct {
+        Node* left,
+        Node* middle,
+        Node* right;
+    } triplet;
+
+    triplet create_triplet(Node* left_n, Node* middle_n, Node* right_n) {
+        triplet result;
+        result.left = left_n;
+        result.middle = middle_n;
+        result.right = right_n;
+
+        return result;
+    }
 
     int _count_nodes(Node *cur) {
         return (cur != NULL ? cur->count : 0);
@@ -470,7 +483,7 @@ private:
         }
     }
 
-    void _splay(int index, Node* initial_root, bool is_root) {
+    Node* _splay(int index, Node* initial_root, bool is_root) {
         Node* cur = _find_index(initial_root, index);
 
         while (cur->parent) {
@@ -496,6 +509,7 @@ private:
         }
 
         cout << "after splay: " << cur->residue << endl;
+        return cur;
     }
 
 
