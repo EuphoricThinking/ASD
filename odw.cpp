@@ -79,9 +79,17 @@ void new_incr_decr(int & index, vec_bool visited, int half) {
     if (index == half) {
         if (!visited[index - 1]) index--;
         else index++;
-    if (index < half && !visited[index + 1]) index++;
-    else if (index > half && !visited[index--])
+    } else {
+        if (index < half) {
+            if (!visited[index + 1]) index++;
+            else index--;
+        } else {
+            if (!visited[index] - 1) index--;
+            else index++;
+        }
+    }
 }
+
 void print_output(vec_int & positions, vec_bool & flipped, int string_length,
                   string word) {
     vec_bool visited(string_length + 1, false);
@@ -106,9 +114,9 @@ void print_output(vec_int & positions, vec_bool & flipped, int string_length,
             while (count < range) {
                 //cout << "\nout inn" << inner_index << word[inner_index] <<  endl;
                 //cout << count << endl;
-                cout << inner_index << endl;
+                //cout << inner_index << endl;
                 if (inner_index == -1) {
-                    cout << "zero";
+                //    cout << "zero";
                     break;
                 }
 
@@ -116,21 +124,24 @@ void print_output(vec_int & positions, vec_bool & flipped, int string_length,
                     if (!visited[positions[inner_index]]) {
                         inner_index = positions[inner_index];
            //             cout << " inner " << inner_index;
-                        cout << "\ninner index not visited " << word[inner_index] << inner_index << endl;
+           //             cout << "\ninner index not visited " << word[inner_index] << inner_index << endl;
                         cout << word[inner_index];
                         visited[inner_index] = true;
-                        incr_decr(inner_index, half, visited[inner_index - 1]);
+                        //incr_decr(inner_index, half, visited[inner_index - 1]);
+                        new_incr_decr(inner_index, visited, half);
                     } else {
-                        cout << "visited " << inner_index << word[inner_index] << inner_index << endl;
+           //             cout << "visited " << inner_index << word[inner_index] << inner_index << endl;
                         cout << word[inner_index];
                         visited[inner_index] = true;
                         inner_index = positions[inner_index];
-                        incr_decr(inner_index, half, visited[inner_index - 1]);
+                        //incr_decr(inner_index, half, visited[inner_index - 1]);
+                        new_incr_decr(inner_index, visited, half);
                     }
                 } else {
                     cout << word[inner_index];
                     visited[inner_index] = true;
-                    incr_decr(inner_index, half, visited[inner_index - 1]);
+                    //incr_decr(inner_index, half, visited[inner_index - 1]);
+                    new_incr_decr(inner_index, visited, half);
                 }
 
                 count++;
@@ -155,10 +166,10 @@ int main() {
 
     execute_commands(com, positions, flipped);
 
-    for (bool b: flipped) cout << b << " ";
-    cout << endl;
-    for (int i: positions) cout << i << " ";
-    cout << endl;
+//    for (bool b: flipped) cout << b << " ";
+//    cout << endl;
+//    for (int i: positions) cout << i << " ";
+//    cout << endl;
 
     print_output(positions, flipped, string_length, word);
 
