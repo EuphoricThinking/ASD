@@ -12,8 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="52a5ba76-9b7c-4d56-be61-f758f5b09d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/odw.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/baza_rozw.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/odw.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/odw.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +115,7 @@
       <workItem from="1644704532248" duration="71711000" />
       <workItem from="1644883787881" duration="310000" />
       <workItem from="1644966323112" duration="52510000" />
-      <workItem from="1645181820679" duration="78000" />
+      <workItem from="1645181820679" duration="2629000" />
     </task>
     <servers />
   </component>
