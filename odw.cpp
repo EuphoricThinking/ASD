@@ -16,7 +16,7 @@ using std::string;
 
 using std::make_pair;
 using command = pair<int, int>;
-using commands = vector<command>>;
+using commands = vector<command>;
 using vec_int = vector<int>;
 using vec_bool = vector<bool>;
 
@@ -77,6 +77,7 @@ void print_output(vec_int & positions, vec_bool & flipped, int string_length,
             range = positions[outer_index] - outer_index + 1;
             half = range/2;
             inner_index = outer_index;
+            outer_index = positions[outer_index] + 1;
 
             while (count < range) {
                 if (inner_index == 0) {
@@ -85,16 +86,43 @@ void print_output(vec_int & positions, vec_bool & flipped, int string_length,
 
                 if (flipped[inner_index]) {
                     if (!visited[flipped[inner_index]]) {
-                        inner_index = flipped[inner_index];
+                        inner_index = positions[inner_index];
                         cout << word[inner_index];
                         visited[inner_index] = true;
                         incr_decr(inner_index, half, visited[inner_index - 1]);
                     } else {
-
+                        cout << word[inner_index];
+                        visited[inner_index] = true;
+                        inner_index = positions[inner_index];
+                        incr_decr(inner_index, half, visited[inner_index - 1]);
                     }
+                } else {
+                    cout << word[inner_index];
+                    visited[inner_index] = true;
+                    incr_decr(inner_index, half, visited[inner_index - 1]);
                 }
+
+                count++;
             }
+
             count = 0;
         }
     }
+
+    cout << endl;
+}
+
+int main() {
+    int string_length;
+    int num_commands;
+    commands com;
+    string word = read_input(string_length, num_commands, com);
+
+    vec_int positions(string_length + 1, 0);
+    vec_bool flipped(string_length + 1, false);
+
+    execute_commands(com, positions, flipped);
+    print_output(positions, flipped, string_length, word);
+
+    return 0;
 }
