@@ -34,12 +34,27 @@ string read_input(int & string_length, int & num_commands, commands & com) {
     return word;
 }
 
-void fill_data(command com, vec_int & positions, vec_bool & flipped) {
-    positions[com.first] = com.second;
-    positions[com.second] = com.first;
+void print_pair(command c) {
+    cout << c.first << " " << c.second << endl;
+}
 
-    flipped[com.first] = true;
-    flipped[com.second] = true;
+void print_commands(commands com) {
+    for (command c: com) {
+        print_pair(c);
+    }
+}
+
+void print_data(string word, int string_length, int num_commands, commands com ){
+    cout << string_length << " " << num_commands << "\n" << word << endl;
+    print_commands(com);
+}
+
+void fill_data(command com, vec_int & positions, vec_bool & flipped) {
+    positions[com.first - 1] = com.second - 1;
+    positions[com.second - 1] = com.first - 1;
+
+    flipped[com.first - 1] = true;
+    flipped[com.second - 1] = true;
 }
 
 void execute_commands(commands & coms, vec_int & positions, vec_bool & flipped) {
@@ -60,6 +75,13 @@ void incr_decr(int & index, int half, int left_visited) {
     } else incr_or_decr(index, half);
 }
 
+void new_incr_decr(int & index, vec_bool visited, int half) {
+    if (index == half) {
+        if (!visited[index - 1]) index--;
+        else index++;
+    if (index < half && !visited[index + 1]) index++;
+    else if (index > half && !visited[index--])
+}
 void print_output(vec_int & positions, vec_bool & flipped, int string_length,
                   string word) {
     vec_bool visited(string_length + 1, false);
@@ -70,27 +92,36 @@ void print_output(vec_int & positions, vec_bool & flipped, int string_length,
     int half;
     int range;
     while (outer_index < string_length) {
+        //cout << word[outer_index] << " out " << outer_index << endl;
         if (!flipped[outer_index]) {
             cout << word[outer_index];
             outer_index++;
         } else {
             range = positions[outer_index] - outer_index + 1;
-            half = range/2;
+            half = range/2 + outer_index;
+            //cout << "\nhalf " << half << " range " << range << endl;
             inner_index = outer_index;
             outer_index = positions[outer_index] + 1;
 
             while (count < range) {
-                if (inner_index == 0) {
+                //cout << "\nout inn" << inner_index << word[inner_index] <<  endl;
+                //cout << count << endl;
+                cout << inner_index << endl;
+                if (inner_index == -1) {
+                    cout << "zero";
                     break;
                 }
 
                 if (flipped[inner_index]) {
-                    if (!visited[flipped[inner_index]]) {
+                    if (!visited[positions[inner_index]]) {
                         inner_index = positions[inner_index];
+           //             cout << " inner " << inner_index;
+                        cout << "\ninner index not visited " << word[inner_index] << inner_index << endl;
                         cout << word[inner_index];
                         visited[inner_index] = true;
                         incr_decr(inner_index, half, visited[inner_index - 1]);
                     } else {
+                        cout << "visited " << inner_index << word[inner_index] << inner_index << endl;
                         cout << word[inner_index];
                         visited[inner_index] = true;
                         inner_index = positions[inner_index];
@@ -117,11 +148,18 @@ int main() {
     int num_commands;
     commands com;
     string word = read_input(string_length, num_commands, com);
+    //print_data(word, string_length, num_commands, com);
 
     vec_int positions(string_length + 1, 0);
     vec_bool flipped(string_length + 1, false);
 
     execute_commands(com, positions, flipped);
+
+    for (bool b: flipped) cout << b << " ";
+    cout << endl;
+    for (int i: positions) cout << i << " ";
+    cout << endl;
+
     print_output(positions, flipped, string_length, word);
 
     return 0;
