@@ -25,6 +25,8 @@ const int EQUAL = 0;
 const int DEC = 1;
 const int INC = 2;
 
+const int MONO = 2;
+
 vec_long read_input(int & num_numbers) {
     cin >> num_numbers;
 
@@ -45,6 +47,28 @@ void print_vec(vec_long v) {
     }
 
     cout << endl;
+}
+
+bool same_monotonous_update_mono(int prev, int cur, int i) {
+    if (prev < cur) {
+        dynamic[MONO][i] = INC;
+        if (dynamic[MONO][i - 1] == INC) return true;
+        else return false;
+    } else if (prev > cur) {
+        dynamic[MONO][i] = DEC;
+        if (dynamic[MONO][i - 1] == DEC) return true;
+        else return false;
+    } else {
+        dynamic[MONO][i] = EQUAL;
+        if (dynamic[MONO][i - 1] == EQUAL) return true;
+        else return false;
+    }
+}
+
+int fill_matrix(int num_numbers, const vec_long & sequence) {
+    for (int i = 1; i < num_numbers; i++) {
+        if (same_monotonous_update_mono())
+    }
 }
 
 int main() {
