@@ -18,6 +18,13 @@ using std::make_pair;
 
 using vec_long = vector<long long>;
 
+const int MAX_LEN = 1000000;
+int dynamic[3][MAX_LEN];
+
+const int EQUAL = 0;
+const int DEC = 1;
+const int INC = 2;
+
 vec_long read_input(int & num_numbers) {
     cin >> num_numbers;
 
@@ -32,7 +39,7 @@ vec_long read_input(int & num_numbers) {
     return res;
 }
 
-vec_long print_vec(vec_long v) {
+void print_vec(vec_long v) {
     for (long long l: v) {
         cout << l << " ";
     }
@@ -43,6 +50,7 @@ vec_long print_vec(vec_long v) {
 int main() {
     int num_numbers;
     vec_long sequence = read_input(num_numbers);
+    cout << num_numbers << endl;
     print_vec(sequence);
 
     return 0;
