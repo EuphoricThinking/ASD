@@ -49,7 +49,7 @@ void print_vec(vec_long v) {
     cout << endl;
 }
 
-bool same_monotonous_update_mono(int prev, int cur, int i) {
+bool same_monotonous_update_mono(long long prev, long long cur, int i) {
     if (prev < cur) {
         dynamic[MONO][i] = INC;
         if (dynamic[MONO][i - 1] == INC) return true;
@@ -66,8 +66,16 @@ bool same_monotonous_update_mono(int prev, int cur, int i) {
 }
 
 int fill_matrix(int num_numbers, const vec_long & sequence) {
+    long long prev;
+    long long cur;
+    int mod_cur;
     for (int i = 1; i < num_numbers; i++) {
-        if (same_monotonous_update_mono())
+        prev = sequence[i - 1];
+        cur = sequence[i];
+        mod_cur = cur%2;
+        if (same_monotonous_update_mono(prev, cur, i)) {
+
+        }
     }
 }
 
